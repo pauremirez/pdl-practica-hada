@@ -1,105 +1,102 @@
 package compiler.syntax.nonTerminal;
 
-import java.util.List;
-
-import compiler.lexical.Token;
-import es.uned.lsi.compiler.intermediate.TemporalIF;
+import es.uned.lsi.compiler.intermediate.OperandIF;
 import es.uned.lsi.compiler.semantic.type.TypeIF;
-import es.uned.lsi.compiler.intermediate.QuadrupleIF;
 
-public class Expresion extends NonTerminal{
-	
-/*	private Token identificador;
-	private Vect vector;
-	private TipBoo tipoBooleano;
-	private SenFun sentenciaFuncion;
-	private Token id;*/
+public class Expresion extends NonTerminal {
+    private TypeIF tipo;
+    private OperandIF resultado;
+    private int linea;
+    private int columna;
+    private boolean referencia=false;       // Indica si una variable puede ser de referencia.
+    private int valIni;                     // Valor inicial cjto
+    private int valFin;                     // Valor final   cjto
 
-	private TypeIF type;
-	private Expresion e;
-	private TemporalIF temporal;
-	List <QuadrupleIF> code;
-	
-	private int line;
-	private int column;
-
-	/** Creates a new instance of Expresion */
-    public Expresion() {
-    }
-    
-    public Expresion(Expresion e) {
-    	this.e=e;
-    }
-    
-    public Expresion(TypeIF typeIF){
-        this.type = typeIF;
-    }
-    
-    public Expresion(TypeIF type, int line, int column) {
-        this.type = type;
-        this.line = line;
-        this.column = column;
-    }
-    
-    public TemporalIF getTemporal(){
-    	return temporal;
-    }
-    
-    public void setTemporal(TemporalIF temporal){
-    	this.temporal=temporal;
-    }
-    
-    long hashcode(){ 
-    	return 67 * 67 * code.hashCode() + 67 * type.hashCode() + temporal.hashCode();
-    }
-    
-    public boolean equals (Object o){
-    	if(!(o instanceof Expresion)) return false;
-    	else{ Expresion e=(Expresion)o;
-    		return e.code.equals(this.code)&& e.type.equals(this.type) && e.temporal.equals(this.temporal);
-    	}
-    }
-    
-    public String toString(){
-    	return e.toString();
-    }
-
-    public TypeIF getType() {
-        return type;
-    }
-
-    public void setType(TypeIF type) {
-        this.type= type;
-    }
-    
-/*    public Expresion(TypeIF typeIF, int linea, int columna) {
-        this.type = typeIF;
+    // constructores
+    public Expresion(TypeIF tipo, int linea, int columna) {
+        this.tipo = tipo;
         this.linea = linea;
         this.columna = columna;
     }
     
-    public Expresion(Token identificador){
-        this.identificador = identificador;
+    public Expresion(TypeIF tipo) {
+        this.tipo = tipo;
     }
     
-    public Expresion(Vect vector){
-        this.vector = vector;
+    public Expresion() {
     }
     
-    public Expresion(TipBoo tipoBooleano){
-        this.tipoBooleano = tipoBooleano;
-    }
-    
-    public Expresion(SenFun sentenciaFuncion){
-        this.sentenciaFuncion = sentenciaFuncion;
+    // set y gets
+    public int getLinea() {
+        return linea;
     }
 
-    public Token getIdentificador() {
-        return identificador;
+    public void setLinea(int linea) {
+        this.linea = linea;
+    }
+    
+     public int getColumna() {
+        return columna;
     }
 
-    public void setIdentificador(Token identificador) {
-        this.identificador = identificador;
+    public void setColumna(int columna) {
+        this.columna = columna;
     }
-*/    
+
+    public TypeIF getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TypeIF tipo) {
+        this.tipo = tipo;
+    }
+    
+    public OperandIF getResultado() {
+        return resultado;
+    }
+
+    public void setResultado(OperandIF resultado) {
+        this.resultado = resultado;
+    }
+
+    public boolean getReferencia() {
+        return referencia;
+    }
+
+    public void setReferencia(boolean referencia) {
+        this.referencia = referencia;
+    }
+
+    public int getValFin() {
+        return valFin;
+    }
+
+    public void setValFin(int valFin) {
+        this.valFin = valFin;
+    }
+
+    public int getValIni() {
+        return valIni;
+    }
+
+    public void setValIni(int valIni) {
+        this.valIni = valIni;
+    }
+    
+    // Conversión de tipos
+    public boolean castingTipos(Expresion exp1, Expresion exp2){
+        boolean error = true;
+    	if ( (exp1.tipo.getName().equals("INTEGER") &&  exp2.tipo.getName().equals("POINTER")) ){    		
+            error = false;
+    	}else if ( (exp1.tipo.getName().equals("POINTER") && exp2.tipo.getName().equals("INTEGER")) ) {
+                error=false;
+    	}else if ( (exp1.tipo.getName().equals("POINTER") && exp2.tipo.getName().equals("POINTER")) ) {
+                error=false;
+    	}else if((exp1.tipo.getName().equals("INTEGER") && exp2.tipo.getName().equals("INTEGER"))){
+    		error=false;
+        }else{
+                error = true;
+    	}
+        return error;     	
+    }
 }

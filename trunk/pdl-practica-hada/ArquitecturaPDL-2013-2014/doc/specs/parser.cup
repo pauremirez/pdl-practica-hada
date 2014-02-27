@@ -36,6 +36,11 @@ action code {:
 	ScopeManagerIF       scopeManager         = CompilerContext.getScopeManager ();
 	//FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
 
+	// Cadenas 
+	List cadenas = new ArrayList();
+	// Desplazamiento con RA principal
+	int despl=5;
+
 :}	
 
 parser code {:
@@ -119,11 +124,13 @@ non terminal  					declaracionSubPrograma;
 non terminal BloqueSentencias	funcion;
 non terminal  					procedimiento;
 non terminal ListaObjetos		parametros;
+non terminal ListaObjetos		lista_argumentos;
+non terminal ListaObjetos		lista_parametros;
 non terminal ListaObjetos		idParametros; 
-non terminal  					listaSentencias;
+non terminal BloqueSentencias	listaSentencias;
 non terminal  					sentencia;
 non terminal  					sentenciaProcedimiento;
-non terminal  					sentenciaPutLine;
+non terminal BloqueSentencias 	sentenciaPutLine;
 non terminal  					sentenciaWhile;
 non terminal  					sentenciaIf;
 non terminal  					sentenciaAsignacion;
@@ -133,7 +140,7 @@ non terminal Token				tipoBooleano;
 non terminal  					vacio;
 non terminal					cuerpoFuncion;
 non terminal					cabecera;
-non terminal					cuerpo;
+non terminal BloqueSentencias	cuerpo;
 non terminal Expresion			sentenciaFuncion;
 non terminal					lista_parametros_llamada;
 non terminal					tipos;
@@ -141,7 +148,7 @@ non terminal ListaObjetos		parametro;
 non terminal					modo;
 non terminal					parametroPutLine;
 non terminal					cadenaCaracteres;
-non terminal					vector;
+non terminal Expresion			vector;
 non terminal					procedure;
 
 //-----------------------------------------
@@ -197,20 +204,36 @@ procedure::=PROCEDURE ID:id
 :};
 procedure::= PROCEDURE error  {:syntaxErrorManager.syntaxFatalError("002. Error en el nombre del programa");:};
 
-cabecera::= seccionConstantesSimbolicas seccionTipos seccionVariables seccionSubProgramas |
-			seccionConstantesSimbolicas seccionVariables seccionSubProgramas |
-			seccionConstantesSimbolicas seccionTipos seccionSubProgramas |
+cabecera::= seccionConstantesSimbolicas seccionTipos seccionVariables seccionSubProgramas:bloque{:
+                                RESULT=bloque; 
+                            :} |
+			seccionConstantesSimbolicas seccionVariables seccionSubProgramas:bloque{:
+                                RESULT=bloque; 
+                            :} |
+			seccionConstantesSimbolicas seccionTipos seccionSubProgramas:bloque{:
+                                RESULT=bloque; 
+                            :} |
 			seccionConstantesSimbolicas seccionTipos seccionVariables |
-			seccionConstantesSimbolicas seccionSubProgramas |
+			seccionConstantesSimbolicas seccionSubProgramas:bloque{:
+                                RESULT=bloque; 
+                            :} |
 			seccionConstantesSimbolicas seccionVariables |
 			seccionConstantesSimbolicas |
-			seccionTipos seccionVariables seccionSubProgramas |
+			seccionTipos seccionVariables seccionSubProgramas:bloque{:
+                                RESULT=bloque; 
+                            :} |
 			seccionTipos seccionVariables |
-			seccionTipos seccionSubProgramas |
+			seccionTipos seccionSubProgramas:bloque{:
+                                RESULT=bloque; 
+                            :} |
 			seccionTipos |
-			seccionVariables seccionSubProgramas |
+			seccionVariables seccionSubProgramas:bloque{:
+                                RESULT=bloque; 
+                            :}|
 			seccionVariables |
-			seccionSubProgramas;
+			seccionSubProgramas:bloque{:
+                                RESULT=bloque; 
+                            :};
 
 seccionConstantesSimbolicas::= declaracionConstanteSimbolica | seccionConstantesSimbolicas declaracionConstanteSimbolica ;
 seccionTipos::= declaracionTipo | seccionTipos declaracionTipo;
@@ -393,66 +416,9 @@ declaracionSubPrograma::= procedimiento | funcion;
 // ------------------------                     
 // Definicion de FUNCION 
 // ------------------------  
-funcion::= FUNCTION ID:id PARENTESISIZQ parametros:param PARENTESISDER RETURN tipos:type IS cabecera:cabFun cuerpoFuncion:cuerpFun;
+funcion::= FUNCTION ID:id PARENTESISIZQ lista_parametros:param PARENTESISDER RETURN tipos:type IS cabecera:cabFun cuerpoFuncion:cuerpFun;
 funcion::= FUNCTION ID:id PARENTESISIZQ PARENTESISDER RETURN tipos:type IS cabecera:cabFun cuerpoFuncion:cuerpFun; 
-funcion::= FUNCTION ID:id PARENTESISIZQ parametros:parame PARENTESISDER RETURN tipos:t IS 
-{:
-	String name=id.getLexema();
-	// la funcion ha sido declarada
-    if (scopeManager.containsSymbol(name) && !scopeManager.containsType(name)) {
-		semanticErrorManager.semanticFatalError("La funcion "+name+" en la linea: "+id.getLine()+" ya ha sido declarada o el tipo no ha sido declarado");
-    }else{ 
-                                
-		// Crear FUNCION en ambito (scope, TypeTable y SymbolTable)
-		ScopeIF scope = scopeManager.getCurrentScope();
-        TypeTableIF tableTypes = scope.getTypeTable();
-	  	SymbolTableIF tableSymbols = scope.getSymbolTable();
-	  	
-	  	// añadir funcion a TT
-        TypeFunction typeFunction = new TypeFunction(scope, name);
-							
-		// añadir funcion a TS
-        SymbolFunction symbolFunction = new SymbolFunction(scope,name,scopeManager.searchType(t.toString()));
-							
-		// NUEVO ambito para funcion y tabla TS y TT
-		ScopeIF scope1 = scopeManager.openScope(name); 
-		
-		tableTypes = scope1.getTypeTable();
-		tableSymbols = scope1.getSymbolTable();
-		
-		// Grabo tipo retorno 
-		TypeIF typeIf=scopeManager.searchType(t.toString());
-		typeFunction.setTipoRetorno(typeIf);
-		
-		// Grabo parametros funcion
-	/*	for (SymbolParameter p:param.getParameters()){
-			tableSymbols(p.getName(),p);
-			typeFunction.addParameterType(p.getType());
-		}
-*/
-
-		//ArrayList parameters = new ArrayList(Utilities.ordenaParametros(param)); //--> !!!!ERROR!!!!                      
-        /*for (int i=0; i<parameters.size(); i++){
-        	
-           Parametro p = (Parametro) parameters.get(i);
-           SymbolVariable symbolVariable = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo());
-           
-           // Creo lista ordenada de parametros en el PROCEDIMIENTO.
-           typeFunction.setTypeParametro(p.getColumna(),p.getTipo()); 
-           // Fijar paso parametros Ref/Valor en Symbolvar
-           symbolVariable.setReferencia(p.getReferencia());
-           tableSymbols.addSymbol(p.getNombre(),symbolVariable);                                  	
-           typeFunction.setParametro(symbolVariable);
-        } 
-       */
-       syntaxErrorManager.syntaxInfo ("*******lista de parametros funcion: "+parame);
-       
-       typeFunction.setHayRetorno(true);
-       
-       tableTypes.addType(name, typeFunction);
-       tableSymbols.addSymbol(name, symbolFunction);
-     }
-:}cuerpoFuncion; 
+funcion::= FUNCTION ID:id PARENTESISIZQ lista_parametros:param PARENTESISDER RETURN tipos:t IS cuerpoFuncion:cuerpo;
 funcion::= FUNCTION ID:id PARENTESISIZQ PARENTESISDER RETURN tipos:type IS  cuerpoFuncion:cuerpFun; 
 funcion::= FUNCTION ID error RETURN tipos IS cuerpoFuncion {:syntaxErrorManager.syntaxFatalError("001. Faltan los DOS PARENTESIS");:};
 			
@@ -468,26 +434,61 @@ procedimiento::= procedure PARENTESISIZQ parametros PARENTESISDER IS cabecera cu
 // ----------------------------                     
 // Definicion de SENTENCIAS		
 // ---------------------------- 
-listaSentencias::= sentencia | listaSentencias sentencia ;
+listaSentencias::= sentencia:sent {:
+                                RESULT=sent;
+					:}  | listaSentencias:blq sentencia:sent{:
+					BloqueSentencias bloque = new BloqueSentencias();
+                                       
+					RESULT=bloque;
 
-sentencia::=sentenciaAsignacion | 
-			sentenciaIf | 
-			sentenciaWhile | 
-			sentenciaPutLine | 
-			sentenciaProcedimiento;
+				    :};
+
+sentencia::=sentenciaAsignacion:sent {: RESULT=sent; :}| 
+			sentenciaIf:sent {: RESULT=sent; :} | 
+			sentenciaWhile:sent {: RESULT=sent; :} | 
+			sentenciaPutLine:sent {: RESULT=sent; :} | 
+			sentenciaProcedimiento:sent {: RESULT=sent; :};
 
 // ------------------------
 // Sentencia PUTLINE
 // ------------------------
-sentenciaPutLine::= PUTLINE PARENTESISIZQ parametroPutLine PARENTESISDER PUNTOYCOMA;
+sentenciaPutLine::= PUTLINE:id PARENTESISIZQ CARACTERESCADENA:cad PARENTESISDER PUNTOYCOMA
+{:
+     	semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es una CADENA DE CARACTERES.");
+       
+     	BloqueSentencias bloque = new BloqueSentencias();
+				ScopeIF scope = scopeManager.getCurrentScope();
+				cadenas.add(cad.getLexema());
+					RESULT=bloque;		
+				:};
 
-parametroPutLine::= cadenaCaracteres  |
-					expresion;
+sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYCOMA
+{:    
+        if ( exp.getTipo().getName().equals("INTEGER") &&  exp.getTipo().getName().equals("POINTER") ) 
+            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es un ENTERO.");
+        if ( exp.getTipo().getName().equals("BOOLEAN") ) 
+            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es un BOOLEANO.");
+                                                        
+            BloqueSentencias bloque = new BloqueSentencias();
+            ScopeIF scope = scopeManager.getCurrentScope();
+			RESULT=bloque;
+	   :}; 
+
+
+//parametroPutLine::= cadenaCaracteres  | expresion;
 cadenaCaracteres::= CARACTERESCADENA;
 // ------------------------
 // Sentencia WHILE
 // ------------------------
-sentenciaWhile::= WHILE expresion LOOP listaSentencias END LOOP PUNTOYCOMA;
+sentenciaWhile::= WHILE expresion:exp LOOP listaSentencias:sent END LOOP PUNTOYCOMA{:
+                              if ( !(exp.getTipo().getName().equals("BOOLEAN")) )
+                                    semanticErrorManager.semanticFatalError ("326. La expresion sentencia REPEAT no es BOOLEANA.");
+                              BloqueSentencias bloque = new BloqueSentencias();
+                              ScopeIF scope = scopeManager.getCurrentScope();
+					
+                             
+                              RESULT=bloque;
+                            :};
 
 // ------------------------
 // Sentencia IF
@@ -519,32 +520,214 @@ sentenciaProcedimiento::= idTipos ASIGNACION ID PARENTESISIZQ lista_parametros_l
 // --------------------
 // Expresion 
 // --------------------
-expresion::=expresion:e1 MENOS:id expresion:e2; 
-expresion::= expresion MAS expresion | 
-			expresion OR expresion | 
-			expresion AND expresion | 
-			expresion MAYORQUE expresion | 
-			expresion MENORQUE expresion | 
-			expresion IGUALQUE expresion | 
-			expresion DISTINTOQUE expresion | 
-			PARENTESISIZQ expresion PARENTESISDER;
+expresion::=expresion:exp1 MENOS:id expresion:exp2
+{:
+                            Expresion exp = new Expresion(scopeManager.searchType("INTEGER"), id.getLine(), id.getColumn());
+                            if (exp.castingTipos(exp1 , exp2) ) {
+                                 semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+                            }else{
+                            	ScopeIF scope = scopeManager.getCurrentScope();
+
+			
+                                		
+				RESULT=exp;
+                             }
+
+					:}; 
+expresion::= expresion:exp1 MAS:id expresion:exp2
+{:
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
+                            Expresion exp = new Expresion(scopeManager.searchType("INTEGER"), id.getLine(), id.getColumn());
+                          
+						 // Suma CONJUNTOS
+                            if (exp1.getTipo().equals(exp2.getTipo()) && exp1.getTipo() instanceof TypeSet) {
+                                TypeSet tipoSet = (TypeSet) exp1.getTipo();
+                                exp.setTipo(exp1.getTipo());
+                                
+                            // Suma ENTEROS y/o PUNTEROS  
+                            } else {
+                                if (exp.castingTipos(exp1 , exp2) )
+                                     semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + 
+                                        id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+                                  
+                            }
+                           
+                            RESULT=exp;
+                            :} | 
+			expresion:exp1 OR:id expresion:exp2 {:
+                            if ( !(exp1.getTipo() == exp2.getTipo()) || !(exp1.getTipo().getName().equals("BOOLEAN")) || !(exp2.getTipo().getName().equals("BOOLEAN")) ) {
+                                semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + 
+						id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+                            }else{
+		      	        Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
+				ScopeIF scope = scopeManager.getCurrentScope();
+				
+                                Value verdad = new Value(1);
+                                Value falso = new Value(0);
+        			
+              
+				RESULT=exp;
+                            }
+        		:}| 
+			expresion:exp1 AND:id expresion:exp2 {:
+                            if ( !(exp1.getTipo() == exp2.getTipo()) || !(exp1.getTipo().getName().equals("BOOLEAN")) || !(exp2.getTipo().getName().equals("BOOLEAN")) ) {
+                                semanticErrorManager.semanticFatalError ("228. La expresion: " + id.getLexema() +" en [" + 
+						id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+                            }else{
+		      	        Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
+				ScopeIF scope = scopeManager.getCurrentScope();
+				
+
+                                Value verdad = new Value(1);
+                                Value falso = new Value(0);
+        		
+				RESULT=exp;
+                            }
+        		:} | 
+			expresion:exp1 MAYORQUE:id expresion:exp2 
+{:
+			    if ( !(exp1.getTipo() == exp2.getTipo())  ||  !(exp1.getTipo().getName().equals("INTEGER"))  || !(exp2.getTipo().getName().equals("INTEGER")) )  {
+                                  semanticErrorManager.semanticFatalError ("230. La expresion: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+			     }else{
+		      	          Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
+				  ScopeIF scope = scopeManager.getCurrentScope();
+				 
+
+                                  Value verdad = new Value(1);
+                                  Value falso = new Value(0);
+        			  
+
+						
+				  RESULT=exp;
+				}
+					:} | 
+			expresion:exp1 MENORQUE:id expresion:exp2 
+{:
+			    if ( !(exp1.getTipo() == exp2.getTipo())  ||  !(exp1.getTipo().getName().equals("INTEGER"))  || !(exp2.getTipo().getName().equals("INTEGER")) )  {
+                                  semanticErrorManager.semanticFatalError ("232. La expresion: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+			     }else{
+		      	          Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
+				  ScopeIF scope = scopeManager.getCurrentScope();
+				 
+                                  Value verdad = new Value(1);
+                                  Value falso = new Value(0);
+        			 
+						
+				  RESULT=exp;
+				}
+					:} | 
+			expresion:exp1 IGUALQUE:id expresion:exp2 {:
+                            if ( !(exp1.getTipo() == exp2.getTipo()) )
+                                  semanticErrorManager.semanticFatalError ("234. La expresion: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+                            if ( (exp1.getTipo() instanceof TypeRecord) || exp1.getTipo() instanceof TypeSet )
+                                  semanticErrorManager.semanticFatalError ("236. La expresion: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no permitida para este tipo.");
+                            
+                            Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                           
+                            
+                            
+                            Value verdad = new Value(1);
+                            Value falso = new Value(0);
+                            
+                            RESULT=exp;
+                  	:} | 
+			expresion:exp1 DISTINTOQUE:id expresion:exp2
+			{:
+                            if ( !(exp1.getTipo() == exp2.getTipo()) )
+                                  semanticErrorManager.semanticFatalError ("238. La expresion: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+                            if ( (exp1.getTipo() instanceof TypeRecord) || exp1.getTipo() instanceof TypeSet )
+                                  semanticErrorManager.semanticFatalError ("240. La expresion: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no permitida para este tipo.");
+                     
+                            Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                           
+                            Value verdad = new Value(1);
+                            Value falso = new Value(0);
+                           
+                            RESULT=exp;
+                            :} | 
+			PARENTESISIZQ expresion:exp PARENTESISDER {: 
+					RESULT=exp; 
+                            :};
 expresion::= ID:id
 {:
-	String name= id.getLexema();
-	if(scopeManager.containsSymbol (name)){
-		SymbolIF sId=scopeManager.searchSymbol(name);
-		TypeIF type=sId.getType();
-		RESULT= new Expresion (type);
-	}else{ 
-		//semanticErrorManager.semanticFatalError("Tipos incompatibles");
-	}
-:};
-expresion::= ENTERO |
-			ID PUNTO ID |
+ScopeIF scope = scopeManager.getCurrentScope();
+			        SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+                  		TypeTableIF tablaTipos = scope.getTypeTable();
+			        if (!(scopeManager.containsSymbol(id.getLexema()))) {
+                                    semanticErrorManager.semanticFatalError ("242. La variable: " + id.getLexema() +" en [" + 
+									id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
+                    		} else {
+                                    SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
+                                    Expresion exp = new Expresion(simbolo.getType(), id.getLine(), id.getColumn());
+                                    if (simbolo instanceof SymbolConstant) {
+					SymbolConstant simboloCte = (SymbolConstant) simbolo;
+					Value valor=new Value(simboloCte.getValue());
+                                        exp.setResultado(valor);
+				    }else{
+                                     
+				       
+                                    }
+                       		    RESULT = exp;
+                    		}
+                		:};
+expresion::= ENTERO:num {:
+                            ScopeIF scope = scopeManager.getCurrentScope();
+	      	            Expresion exp = new Expresion(scopeManager.searchType("INTEGER"), num.getLine(), num.getColumn());
+			    Value resultado=new Value(Integer.parseInt(num.getLexema()));
+                            exp.setResultado(resultado);  // Guardamos el valor operador
+			    RESULT = exp;
+                            :}|
+			ID:id PUNTO ID:campo {:
+			    if ( !(scopeManager.containsSymbol(id.getLexema())) ) {
+                                  semanticErrorManager.semanticFatalError ("244. El tipo registro: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
+                            }
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                            SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
+                            TypeRecord tipoRecord = (TypeRecord) scopeManager.searchType(simbolo.getType().getName());
+
+                            // El campo existe en el Registro
+                            if (! tipoRecord.containsCampo(campo.getLexema() )) {
+                                    semanticErrorManager.semanticFatalError ("246. El campo registro: " + campo.getLexema() +" en [" + 
+							campo.getLine() + ":" + campo.getColumn() + "] no ha sido definida.");
+                            }                            
+                            Expresion exp = new Expresion(tipoRecord.getTypeCampo(campo.getLexema()), campo.getLine(), campo.getColumn());
+                            HashMap tablaCampos = tipoRecord.getTablaCampos();
+                            SymbolVariable simboloCampo = (SymbolVariable) tablaCampos.get(campo.getLexema()); 
+
+
+                            exp.setReferencia(true);
+
+
+                            RESULT = exp;
+                		:}|
 			ID PUNTO ID PUNTO ID  |
-			sentenciaFuncion |
-			tipoBooleano |
-			vector;
+			sentenciaFuncion:exp {:
+                                RESULT=exp;									
+                            :} |
+			tipoBooleano :id {:
+                            ScopeIF scope = scopeManager.getCurrentScope();
+	      	            Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
+                            // Le damos el valor true=1 y false=0
+                            Value resultado=new Value(0);
+                            if (id.getLexema().equals("TRUE")){
+				resultado=new Value(1);
+                            }
+				exp.setResultado(resultado);
+                                RESULT=exp;			:} |
+			vector:exp {:
+                                RESULT=exp;									
+                            :};
 
 // -------------
 // Definiciones
@@ -579,15 +762,15 @@ parametro::= idParametros:id modo tipos:t
 	syntaxErrorManager.syntaxInfo ("Parametros ID: " + id);
 	syntaxErrorManager.syntaxInfo ("Parametros TIPO: " + t);
 	
-	SymbolParameter parametro=new SymbolParameter (scopeManager.getCurrentScope(),id.getLexema(),scopeManager.searchType(t.toString()));
+	//SymbolParameter parametro=new SymbolParameter (scopeManager.getCurrentScope(),id.getLexema(),scopeManager.searchType(t.toString()));
 	
 	ListaObjetos lista = new ListaObjetos(id);
-    for (int i=0;i<lista.size();i++){
+ /*   for (int i=0;i<lista.size();i++){
     	syntaxErrorManager.syntaxInfo ("lista.get(i)"+lista.get(i));
-    	//Parametro p = (Parametro) lista.get(i);
-       	//p.setReferencia(true);
-		//p.setTipo(scopeManager.searchType(t.toString()));
-   	}
+    	Parametro p = (Parametro) lista.get(i);
+       	p.setReferencia(true);
+		p.setTipo(scopeManager.searchType(t.toString()));
+   	}*/
 :};
 
 modo::= OUT:t {: RESULT=t; :} | vacio;
@@ -595,5 +778,57 @@ modo::= OUT:t {: RESULT=t; :} | vacio;
 // --------------------
 // CUERPO programa
 // --------------------
-cuerpo::= BEGIN listaSentencias END ID PUNTOYCOMA;
-cuerpo::= BEGIN END ID PUNTOYCOMA;
+cuerpo::= BEGIN listaSentencias:bloque END ID PUNTOYCOMA
+{:
+    RESULT=bloque;
+:};
+cuerpo::= BEGIN 
+{:
+	BloqueSentencias bloque = new BloqueSentencias();
+	RESULT=bloque;
+:}
+END ID PUNTOYCOMA;
+
+
+
+// *****************
+// *****************
+// *****************
+lista_argumentos::= ID:idPar COMA lista_argumentos:listaArg 	{:
+                               // Añadir IDs a lista objetos Parametro
+                                ListaObjetos lista = new ListaObjetos(listaArg);
+                                Parametro par = new Parametro(idPar.getLexema(), 0, idPar.getLine(), idPar.getColumn(),null);
+				lista.add(par);
+	                        RESULT = lista;
+                                :}
+			        | ID:idPar {:
+				// Añadir ID a lista objetos Variables
+				ListaObjetos lista = new ListaObjetos();
+				Parametro par = new Parametro(idPar.getLexema(), 0, idPar.getLine(), idPar.getColumn(),null);
+				lista.add(par);
+	                        RESULT = lista;
+				:} ;
+				
+
+lista_parametros::= lista_argumentos:listaArg DOSPUNTOS modo tipos:tp {: 
+                            ListaObjetos lista = new ListaObjetos(listaArg);
+                            for (int i=0;i<lista.size();i++){
+                                Parametro p = (Parametro) lista.get(i);
+                                p.setTipo(scopeManager.searchType(tp.toString()));
+                            }
+                            RESULT=listaArg;
+                            :}
+                            | lista_argumentos:listaArg1 DOSPUNTOS modo tipos:tp PUNTOYCOMA lista_parametros:listaArg2 {:
+        			ListaObjetos lista1 = new ListaObjetos(listaArg1);
+                        	for (int i=0;i<lista1.size();i++){
+				    Parametro p = (Parametro) lista1.get(i);
+				    p.setTipo(scopeManager.searchType(tp.toString()));
+				}
+
+				ListaObjetos lista2 = new ListaObjetos(listaArg2);
+				for (int i=0;i<lista2.size();i++){
+						lista1.add(lista2.get(i));
+    				}
+				RESULT=lista1;	
+                            :};
+

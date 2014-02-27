@@ -1,7 +1,11 @@
 package compiler.semantic.type;
 
+import java.util.HashMap;
+
 import es.uned.lsi.compiler.semantic.ScopeIF;
+import es.uned.lsi.compiler.semantic.symbol.SymbolIF;
 import es.uned.lsi.compiler.semantic.type.TypeBase;
+import es.uned.lsi.compiler.semantic.type.TypeIF;
 
 /**
  * Class for TypeRecord.
@@ -13,7 +17,10 @@ import es.uned.lsi.compiler.semantic.type.TypeBase;
 public class TypeRecord
     extends TypeBase
 {   
-       
+    // Definicion de campos del registro
+    private HashMap tablaCampos = new HashMap(); 
+    private int size;
+           
     /**
      * Constructor for TypeRecord.
      * @param scope The declaration scope.
@@ -32,7 +39,7 @@ public class TypeRecord
     {   
         super (scope, name);
     }
-   
+
     /**
      * Constructor for TypeRecord.
      * @param record The record to copy.
@@ -40,16 +47,84 @@ public class TypeRecord
     public TypeRecord (TypeRecord record)
     {
         super (record.getScope (), record.getName ());
-    } 
+    }
+
+    // Gestion de campos del registro
+    public HashMap getTablaCampos(){
+        return tablaCampos;
+    }
+    public void setTablaCampos(HashMap tablaCampos){
+        this.tablaCampos=tablaCampos;
+    }
     
+    public TypeIF getTypeCampo(String name){
+        SymbolIF simbolo= (SymbolIF) this.getTablaCampos().get(name);
+        if (simbolo != null) {
+            TypeIF tipo= simbolo.getType();
+            if (tipo != null && tipo instanceof TypeIF) {
+                   return (TypeIF) tipo;
+            } else
+                return null;
+        }else
+                return null;
+        
+    }
+    
+    // Anyadir Campos al Registro
+    public void addCampos (String name, SymbolIF simbolo)
+    {
+        this.getTablaCampos().put(name, simbolo);
+    
+    }
+    public void setSize(int size){
+        this.size=size;
+    }
+    public int getSize(){
+        return this.size;
+    }
     /**
-     * Returns the size of the type.
-     * @return the size of the type.
+     * Compares this object with another one.
+     * @param other the other object.
+     * @return true if both objects has the same properties.
      */
-    @Override
-    public int getSize ()
+    
+    public boolean containsCampo (String name)
     {
         // TODO: Student work
-        return super.getSize();
+        return this.getTablaCampos().containsKey(name);
     }
+    
+
+    public boolean equalsRecord (Object other)
+    {
+        // TODO: Student work
+        if (this == other) {
+            return true;
+        }
+        if (!(this instanceof TypeBase)) {
+            return false;
+        }
+        TypeBase aType = (TypeBase) other;
+        return aType.getName().equals(this.getName());    
+    }
+
+    /**
+     * Returns a hash code for the object.
+     */
+
+    public int hashCodeRecord ()
+    {
+        // TODO: Student work
+        return super.hashCode ();
+    }
+
+    /**
+     * Return a string representing the object.
+     * @return a string representing the object.
+     */
+    public String toStringRecord ()
+    {
+        // TODO: Student work (optional)
+        return super.toString ();
+    }   
 }

@@ -1,5 +1,6 @@
 package compiler.semantic;
 
+import compiler.lexical.Token;
 import compiler.semantic.type.TypeTable;
 import compiler.syntax.nonTerminal.ListaObjetos;
 import compiler.syntax.nonTerminal.Parametro;
@@ -8,16 +9,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
+
 import es.uned.lsi.compiler.semantic.Scope;
 import es.uned.lsi.compiler.semantic.ScopeManagerIF;
 import es.uned.lsi.compiler.semantic.type.TypeIF;
 
 
-public class Utilities {
+public class Utilidades {
     
    
     /** Creates a new instance of Utilidades */
-    public Utilities () {
+    public Utilidades() {
     }
     
     public static List getListFromTreeMap(TreeMap tree) {
@@ -42,7 +44,7 @@ public class Utilities {
         TreeMap tablaParametros = new TreeMap();
         
         for (int i=0; i<lista.size(); i++){
-            Parametro p = (Parametro) lista.get(i); //--> Problema NO CAST BETWEEN VAR Y PARAMETRO
+            Parametro p = (Parametro) lista.get(i);
             tablaParametros.put(p.getColumna(), p);
         }
         return getListFromTreeMap(tablaParametros);

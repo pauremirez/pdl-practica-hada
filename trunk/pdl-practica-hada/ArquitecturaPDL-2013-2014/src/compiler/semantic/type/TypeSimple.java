@@ -3,10 +3,8 @@ package compiler.semantic.type;
 import compiler.CompilerContext;
 
 import es.uned.lsi.compiler.code.ExecutionEnvironmentIF;
-import es.uned.lsi.compiler.semantic.Scope;
 import es.uned.lsi.compiler.semantic.ScopeIF;
 import es.uned.lsi.compiler.semantic.type.TypeBase;
-import es.uned.lsi.compiler.semantic.type.TypeIF;
 
 /**
  * Class for TypeSimple.
@@ -15,8 +13,10 @@ import es.uned.lsi.compiler.semantic.type.TypeIF;
 // TODO: Student work
 //       Include properties to characterize simple types
 
-public class TypeSimple extends TypeBase
+public class TypeSimple
+    extends TypeBase
 {
+    
     /**
      * Constructor for TypeSimple.
      * @param scope The declaration scope.
@@ -24,6 +24,11 @@ public class TypeSimple extends TypeBase
     public TypeSimple (ScopeIF scope)
     {
         super (scope);
+    }
+    
+    public TypeSimple (ScopeIF scope, String name)
+    {
+        super (scope, name);
     }
     
     /**
@@ -36,8 +41,4 @@ public class TypeSimple extends TypeBase
         ExecutionEnvironmentIF environment = CompilerContext.getExecutionEnvironment ();
         return environment.getTypeSize (this);
     }
-
-    
-    
-    
 }
