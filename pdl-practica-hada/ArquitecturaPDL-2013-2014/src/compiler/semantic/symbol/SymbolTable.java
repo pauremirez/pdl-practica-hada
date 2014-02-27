@@ -1,20 +1,25 @@
 package compiler.semantic.symbol;
 
 import java.util.List;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import compiler.semantic.Utilidades;
 
 import es.uned.lsi.compiler.semantic.ScopeIF;
 import es.uned.lsi.compiler.semantic.symbol.SymbolIF;
 import es.uned.lsi.compiler.semantic.symbol.SymbolTableIF;
 
 
+
 /**
  * Class for SymbolTable.
  */
 
-public class SymbolTable implements SymbolTableIF
+public class SymbolTable 
+    implements SymbolTableIF
 {
   
     private ScopeIF scope = null;
@@ -53,6 +58,7 @@ public class SymbolTable implements SymbolTableIF
      */
     public SymbolIF getSymbol (String name)
     {
+        // TODO: Student Work
         Object simbolo = this.getTabla().get(name);
         if (simbolo != null && simbolo instanceof SymbolIF) {
             return (SymbolIF) simbolo;
@@ -170,16 +176,7 @@ public class SymbolTable implements SymbolTableIF
         this.tabla=tabla;
     }
     public List getLista() {
-        return getListFromHashMap (this.getTabla());
-    }
-    
-    public List getListFromHashMap(HashMap map) {
-        ArrayList list = new ArrayList();
-        Iterator it = map.values().iterator();
-        while (it.hasNext()) {
-            list.add(it.next());
-        }
-        return list;
+        return Utilidades.getListFromHashMap (this.getTabla());
     }
 
 	@Override
