@@ -18,6 +18,10 @@ public class TypeArray extends TypeBase
      * Constructor for TypeArray.
      * @param scope The declaration scope.
      */
+	private int valIni;
+	private int valFin;
+	private TypeIF tipo;
+	
     public TypeArray (ScopeIF scope)
     {
         super (scope);
@@ -32,15 +36,32 @@ public class TypeArray extends TypeBase
     {
         super (scope, name);
     }
-    
-    /**
-     * Returns the size of the type.
-     * @return the size of the type.
-     */
-    @Override
-    public int getSize ()
-    {
-    	return super.getSize();
-       // return 1;
-    }
+
+	public int getValIni() {
+	   return valIni;
+	}
+
+	public void setValIni(int valIni) {
+	   this.valIni = valIni;
+	}
+	
+	public int getValFin() {
+	    return valFin;
+	}
+
+	public void setValFin(int valFin) {
+	   this.valFin = valFin;
+	}
+	
+	public void setTipo(TypeIF tipo){
+		this.tipo=tipo;
+	}
+	
+	public TypeIF getTipo(){
+		return tipo;
+	}
+	    
+	public int getSize() {
+	  return (this.valFin - this.valIni +1);
+	}
 }
