@@ -17,15 +17,15 @@ begin
 	vE(2):=30;
 	
 	Put_Line ("vE(20,30):");
-	Put_Line (vE(1));
-	Put_Line (vE(2));
+--	Put_Line (vE(1));
+--	Put_Line (vE(2));
 
 	vL(1):=True;
 	vL(2):=False;
 	
 	Put_Line ("vL(true,false):");
-	Put_Line (vL(1));
-	Put_Line (vL(2));
+--	Put_Line (vL(1));
+--	Put_Line (vL(2));
 
 
 end testCase07;

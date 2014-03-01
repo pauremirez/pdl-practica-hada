@@ -115,38 +115,38 @@ non terminal Axiom				axiom;
 non terminal					program;
 non terminal  					seccionTipos;
 non terminal  					seccionVariables;
-non terminal  					seccionSubProgramas;
+non terminal BloqueSentencias	seccionSubProgramas;
 non terminal 					seccionConstantesSimbolicas;
 non terminal  					declaracionConstanteSimbolica;
 non terminal  					declaracionTipo;
 non terminal  					declaracionVariable;
-non terminal  					declaracionSubPrograma;
+non terminal BloqueSentencias	declaracionSubPrograma;
 non terminal BloqueSentencias	funcion;
-non terminal  					procedimiento;
+non terminal BloqueSentencias	procedimiento;
 non terminal ListaObjetos		parametros;
 non terminal ListaObjetos		lista_argumentos;
 non terminal ListaObjetos		lista_parametros;
 non terminal ListaObjetos		idParametros; 
 non terminal BloqueSentencias	listaSentencias;
-non terminal  					sentencia;
-non terminal  					sentenciaProcedimiento;
+non terminal BloqueSentencias	sentencia;
+non terminal BloqueSentencias	sentenciaProcedimiento;
 non terminal BloqueSentencias 	sentenciaPutLine;
-non terminal  					sentenciaWhile;
-non terminal  					sentenciaIf;
-non terminal  					sentenciaAsignacion;
-non terminal  					idTipos;
+non terminal BloqueSentencias	sentenciaWhile;
+non terminal BloqueSentencias	sentenciaIf;
+non terminal BloqueSentencias	sentenciaAsignacion;
+non terminal BloqueSentencias	idTipos;
 non terminal Expresion			expresion;
 non terminal Token				tipoBooleano;
 non terminal  					vacio;
 non terminal					cuerpoFuncion;
-non terminal					cabecera;
+non terminal BloqueSentencias	cabecera;
 non terminal BloqueSentencias	cuerpo;
 non terminal Expresion			sentenciaFuncion;
 non terminal					lista_parametros_llamada;
 non terminal					tipos;
 non terminal ListaObjetos		parametro;
 non terminal					modo;
-non terminal					parametroPutLine;
+//non terminal					parametroPutLine;
 non terminal					cadenaCaracteres;
 non terminal Expresion			vector;
 non terminal					procedure;
@@ -199,8 +199,10 @@ procedure::=PROCEDURE ID:id
 	TypeTableIF tableTypes =scope.getTypeTable();
 	TypeInteger typeInteger = new TypeInteger(scope);
 	TypeBoolean typeBoolean = new TypeBoolean(scope);
+	TypeArray typeArray = new TypeArray(scope);
 	tableTypes.addType(typeInteger);
 	tableTypes.addType(typeBoolean);
+	tableTypes.addType(typeArray);
 :};
 procedure::= PROCEDURE error  {:syntaxErrorManager.syntaxFatalError("002. Error en el nombre del programa");:};
 
@@ -293,10 +295,11 @@ declaracionTipo::= TYPE ID:id IS ARRAY PARENTESISIZQ ENTERO:value1 PUNTOPUNTO EN
 		semanticErrorManager.semanticFatalError("El TIPO "+name+" en la linea "+id.getLine()+" y columna "+id.getColumn()+" ya ha sido declarado");
 	}else{
 		TypeTableIF tableType=scope.getTypeTable();
-		TypeSet typeSet =new TypeSet (scope, name);
-		typeSet.setValIni (Integer.parseInt(value1.getLexema()));
-		typeSet.setValFin (Integer.parseInt(value2.getLexema()));
-		tableType.addType(name,typeSet);
+		TypeArray typeArray =new TypeArray (scope, name);
+		typeArray.setValIni (Integer.parseInt(value1.getLexema()));
+		typeArray.setValFin (Integer.parseInt(value2.getLexema()));
+		typeArray.setTipo (scopeManager.searchType("INTEGER"));
+		tableType.addType(name,typeArray);
 	}
 :};
 declaracionTipo::= TYPE ID:id IS ARRAY PARENTESISIZQ ENTERO:value1 PUNTOPUNTO ENTERO:value2 PARENTESISDER OF BOOLEAN PUNTOYCOMA
@@ -310,10 +313,11 @@ declaracionTipo::= TYPE ID:id IS ARRAY PARENTESISIZQ ENTERO:value1 PUNTOPUNTO EN
 		semanticErrorManager.semanticFatalError("El TIPO "+name+" en la linea "+id.getLine()+" y columna "+id.getColumn()+" ya ha sido declarado");
 	}else{
 		TypeTableIF tableType=scope.getTypeTable();
-		TypeSet typeSet =new TypeSet (scope, name);
-		typeSet.setValIni (Integer.parseInt(value1.getLexema()));
-		typeSet.setValFin (Integer.parseInt(value2.getLexema()));
-		tableType.addType(name,typeSet);
+		TypeArray typeArray =new TypeArray (scope, name);
+		typeArray.setValIni (Integer.parseInt(value1.getLexema()));
+		typeArray.setValFin (Integer.parseInt(value2.getLexema()));
+		typeArray.setTipo (scopeManager.searchType("BOOLEAN"));
+		tableType.addType(name,typeArray);
 	}
 :};
 declaracionTipo::= TYPE ID:id IS ARRAY PARENTESISIZQ ENTERO:value1 PUNTOPUNTO ENTERO:value2 PARENTESISDER OF ID:typeId PUNTOYCOMA
@@ -327,13 +331,14 @@ declaracionTipo::= TYPE ID:id IS ARRAY PARENTESISIZQ ENTERO:value1 PUNTOPUNTO EN
 		semanticErrorManager.semanticFatalError("El TIPO "+name+" en la linea "+id.getLine()+" y columna "+id.getColumn()+" ya ha sido declarado");
 	}else{
 		TypeTableIF tableType=scope.getTypeTable();
-		TypeSet typeSet =new TypeSet (scope, name);
-		typeSet.setValIni (Integer.parseInt(value1.getLexema()));
-		typeSet.setValFin (Integer.parseInt(value2.getLexema()));
-		tableType.addType(name,typeSet);
+		TypeArray typeArray =new TypeArray (scope, name);
+		typeArray.setValIni (Integer.parseInt(value1.getLexema()));
+		typeArray.setValFin (Integer.parseInt(value2.getLexema()));
+		typeArray.setTipo (scopeManager.searchType(typeId.getLexema()));
+		tableType.addType(name,typeArray);
 		TypeIF typeVar=scopeManager.searchType(typeId.getLexema());
-		if(!(typeVar instanceof TypeRecord) && !(typeVar instanceof TypeSet)){
-			semanticErrorManager.semanticFatalError("El TIPO "+name+" en la linea "+id.getLine()+" y columna "+id.getColumn()+" no es del tipo RECORD/SET");
+		if(!(typeVar instanceof TypeRecord) && !(typeVar instanceof TypeArray)){
+			semanticErrorManager.semanticFatalError("El TIPO "+name+" en la linea "+id.getLine()+" y columna "+id.getColumn()+" no es del tipo RECORD/ARRAY");
 		}
 	}
 :};
@@ -390,10 +395,10 @@ declaracionVariable::= idParametros:list ID:type PUNTOYCOMA
 		Var v=(Var)var.get(i);
 		//Comprobar que no esté definido el mismo ámbito
 		if(!scope.getSymbolTable().containsSymbol(v.getName())){
-			SymbolVariable symbolVariable=new SymbolVariable(scope, v.getName(), scopeManager.searchType("INTEGER"));
+			SymbolVariable symbolVariable=new SymbolVariable(scope, v.getName(),scopeManager.searchType(type.getLexema()));
 			tableSymbol.addSymbol(v.getName(),symbolVariable);
-			if(tableType.getType(type.getLexema()) instanceof TypeRecord){
-				TypeRecord typeRecord = (TypeRecord) symbolVariable.getType();
+			if(tableType.getType(type.getLexema()) instanceof TypeArray){
+				TypeArray typeArray = (TypeArray) symbolVariable.getType();
 			}
 		}else{
 			semanticErrorManager.semanticFatalError("La variable "+v.getName()+" en la linea "+v.getLine()+" y columna "+v.getColumn()+" ya ha sido declarada");
@@ -403,8 +408,8 @@ declaracionVariable::= idParametros:list ID:type PUNTOYCOMA
 		semanticErrorManager.semanticFatalError("La variable "+type.getLexema()+" en la linea "+type.getLine()+" y columna "+type.getColumn()+" no ha sido declarada");
 	}else{
 		TypeIF typeIf=scopeManager.searchType(type.getLexema());
-		if(!(typeIf instanceof TypeRecord) && !(typeIf instanceof TypeSet)){
-			semanticErrorManager.semanticFatalError("La variable "+type.getLexema()+" en la linea "+type.getLine()+" y columna "+type.getColumn()+" no es del tipo RECORD/SET");
+		if( !(typeIf instanceof TypeArray)){
+			semanticErrorManager.semanticFatalError("La variable "+type.getLexema()+" en la linea "+type.getLine()+" y columna "+type.getColumn()+" no es del tipo RECORD/ARRAY");
 		}
 	}	
 :};
@@ -464,11 +469,12 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ CARACTERESCADENA:cad PARENTESISDER 
 
 sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYCOMA
 {:    
-        if ( exp.getTipo().getName().equals("INTEGER") &&  exp.getTipo().getName().equals("POINTER") ) 
-            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es un ENTERO.");
+        if ( exp.getTipo().getName().equals("INTEGER") ) 
+            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es un "+ exp.getTipo().getName()+".");
         if ( exp.getTipo().getName().equals("BOOLEAN") ) 
-            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es un BOOLEANO.");
-                                                        
+            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es un "+ exp.getTipo().getName()+".");
+
+                           
             BloqueSentencias bloque = new BloqueSentencias();
             ScopeIF scope = scopeManager.getCurrentScope();
 			RESULT=bloque;
@@ -498,9 +504,151 @@ sentenciaIf::= IF expresion THEN listaSentencias END IF PUNTOYCOMA | IF expresio
 // ------------------------
 // Sentencia ASIGNACION
 // ------------------------
-sentenciaAsignacion::= idTipos ASIGNACION expresion PUNTOYCOMA;
+sentenciaAsignacion::= ID:id ASIGNACION expresion:exp PUNTOYCOMA
+{:
+							BloqueSentencias bloque = new BloqueSentencias();
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                            
+                            // Hay que tener en cuenta que puede ser el ID de una funcion
+                            if (!(scopeManager.containsSymbol(id.getLexema()))) {
+                                semanticErrorManager.semanticFatalError ("274. La variable: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
+                            } else {
+				SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
+                                TypeIF tipo = simbolo.getType();
 
-idTipos::= ID | ID PUNTO ID | ID PUNTO ID PUNTO ID | vector;
+				// Comprobamos que no es una constante
+				if (simbolo instanceof SymbolConstant)
+                                    semanticErrorManager.semanticFatalError ("276. La constante: " + id.getLexema() +" en [" + 
+                                    id.getLine() + ":" + id.getColumn() + "] no admite asignaciones.");
+                               
+                                // Comprobaciones en el caso de una funcion	
+                                if (tipo instanceof TypeFunction ) {
+
+                                    TypeFunction tipoFuncion = (TypeFunction) tipo;
+                                    // El tipo de retorno debe ser igual que la expresion
+                                     
+                                    if ( !(tipoFuncion.getTipoRetorno() == exp.getTipo()) ) 
+                                        semanticErrorManager.semanticFatalError ("278. El tipo retorno funcion: " + id.getLexema() +" en [" + 
+							id.getLine() + ":" + id.getColumn() + "] no coincide con la expresion.");
+                                     // Es una funcion y si hay asignacion de retorno
+                                     tipoFuncion.setHayRetorno(true);
+                                     
+                                    
+                                } else {
+                                    // SOY UNA ASIGNACION CONJUNTOS
+
+                                    if (tipo instanceof TypeSet) {
+ 
+                                        if ( !(tipo.getName() == exp.getTipo().getName()) ) 
+                                            semanticErrorManager.semanticFatalError ("280. La expresion no se puede asignar a un Tipo CONJUNTO: " + id.getLexema() +" en [" + 
+            					id.getLine() + ":" + id.getColumn() + "]");
+                                        
+                                         
+
+                                    }else {
+                                        // No se permiten asignaciones tipo record
+                                        if (tipo instanceof TypeRecord)
+                                            semanticErrorManager.semanticFatalError ("282. No se permiten asignaciones tipo record: " + id.getLexema() +" en [" + 
+            					id.getLine() + ":" + id.getColumn() + "]");
+                                    
+                                        // Si no son mismo tipo. ID debe ser expresion ENTERA
+                                        if ( !(tipo.getName() == exp.getTipo().getName()) ){ 
+                                            if ( (tipo.getName().equals("INTEGER")&& exp.getTipo().getName().equals("POINTER")) ){
+                                            
+                                            }else{
+                                                semanticErrorManager.semanticFatalError ("284. La Asignacion: " + id.getLexema() +" en [" + 
+                                                   	id.getLine() + ":" + id.getColumn() + "] no coincide en tipos.");
+                                            }                
+                                     }
+
+
+                                   
+                                  }    
+                                }   
+                                
+                               
+                                RESULT=bloque;
+					
+                             }
+                		:};
+
+sentenciaAsignacion::= ID:id PUNTO ID:campo ASIGNACION expresion:exp PUNTOYCOMA {:
+                            if ( !(scopeManager.containsSymbol(id.getLexema())) ) {
+                                semanticErrorManager.semanticFatalError ("286. La variable: " + id.getLexema() +" en [" + 
+								id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
+                            } else {
+	                        SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
+                                TypeIF tipo = scopeManager.searchType(simbolo.getType().getName());
+
+				if ( !(tipo instanceof TypeRecord) ) 
+					semanticErrorManager.semanticFatalError ("290. La variable: " + id.getLexema() +" en [" + 
+								id.getLine() + ":" + id.getColumn() + "] no es un tipo RECORD.");
+				TypeRecord tipoRec = (TypeRecord) scopeManager.searchType(simbolo.getType().getName());
+				if ( tipoRec.getTypeCampo(campo.getLexema()) == null ) 
+                              		semanticErrorManager.semanticFatalError ("292. El campo del REG: " + campo.getLexema() +" en [" + 
+							campo.getLine() + ":" + campo.getColumn() + "] no ha sido definido.");
+                                
+                                // Si no son mismo tipo. ID.campo debe ser expresion ENTERA
+                                if ( !(tipoRec.getTypeCampo(campo.getLexema()).getName().equals(exp.getTipo().getName())) ){ 
+                                    if ( (tipoRec.getTypeCampo(campo.getLexema()).getName().equals("INTEGER")&& exp.getTipo().getName().equals("POINTER")) ){
+    			            }else{
+                                         semanticErrorManager.semanticFatalError ("294. La Asignacion: " + id.getLexema() +" en [" + 
+                                               	id.getLine() + ":" + id.getColumn() + "] no coincide en tipos.");
+                                        }                
+                                    }
+					
+                                    ScopeIF scope = scopeManager.getCurrentScope();
+                                   
+                                    BloqueSentencias bloque = new BloqueSentencias();
+                                   				
+                                    RESULT=bloque;
+														
+                    		}
+				:};
+
+sentenciaAsignacion::= ID PUNTO ID PUNTO ID ASIGNACION expresion PUNTOYCOMA;
+
+sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION expresion:exp PUNTOYCOMA
+{:
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                            BloqueSentencias bloque = new BloqueSentencias();
+                            // Existe la variable vector
+                            if (!(scopeManager.containsSymbol(id.getLexema())) ) 
+                                semanticErrorManager.semanticFatalError ("310. El VECTOR: " + id.getLexema() +" en [" + 
+						id.getLine() + ":" + id.getColumn() + "] no ha sido definido.");
+                            
+                            SymbolVariable simbolo = (SymbolVariable) scopeManager.searchSymbol(id.getLexema());
+                            
+                            // Existe la var y es del tipo vector
+                            if (! (simbolo.getType() instanceof TypeArray)) 
+                                semanticErrorManager.semanticFatalError ("312. El ID: " + id.getLexema() +" en [" + 
+						id.getLine() + ":" + id.getColumn() + "] no es un tipo CONJUNTO.");
+                            
+                            semanticErrorManager.semanticInfo ("VECTOR--> "+id.getLexema()+" de tipo : "+ simbolo.getType().getName());
+                            
+                            // Asignacion entre limites
+                            TypeArray tipoArray = (TypeArray) simbolo.getType();
+                            int n = Integer.parseInt(num.getLexema());
+                            if (n < tipoArray.getValIni() || n > tipoArray.getValFin())
+                                semanticErrorManager.semanticFatalError ("314. El rango del vector: " + id.getLexema() +" en [" + 
+						id.getLine() + ":" + id.getColumn() + "] no esta dentro de los limites del mismo.");
+
+                          	semanticErrorManager.semanticInfo ("El valor '"+ num.getLexema() + "' esta dentro de los limites ["+tipoArray.getValIni()+","+tipoArray.getValFin()+"]");
+                           	
+                           	// Comprobacion de tipos (vector y expresion)
+						if ( !(simbolo.getType().getName().equalsIgnoreCase(exp.getTipo().getName())) ) {	
+							TypeIF tipoVar=scopeManager.searchType(simbolo.getType().getName());
+                        	if ( !(simbolo.getType().getName().equalsIgnoreCase(tipoVar.getName())))  
+                            //       }else {
+                                        semanticErrorManager.semanticFatalError ("308. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no son compatibles.");
+                            //        }					   
+				      
+                            //    }
+                            }					
+                            RESULT = bloque;
+                        :}; //vE(1):=20;
+
 
 vector::= ID PARENTESISIZQ ENTERO PARENTESISDER;
 
