@@ -138,18 +138,15 @@ non terminal BloqueSentencias	idTipos;
 non terminal Expresion			expresion;
 non terminal Token				tipoBooleano;
 non terminal  					vacio;
-non terminal					cuerpoFuncion;
+non terminal BloqueSentencias	cuerpoFuncion;
 non terminal BloqueSentencias	cabecera;
 non terminal BloqueSentencias	cuerpo;
 non terminal Expresion			sentenciaFuncion;
-non terminal					lista_parametros_llamada;
+non terminal ListaObjetos 		lista_parametros_llamada;
 non terminal					tipos;
 non terminal ListaObjetos		parametro;
 non terminal					modo;
-//non terminal					parametroPutLine;
-//non terminal					cadenaCaracteres;
-//non terminal Expresion			vector;
-non terminal					procedure;
+non terminal BloqueSentencias	procedure;
 
 //-----------------------------------------
 // Declaracion de relaciones de precedencia
@@ -471,9 +468,8 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESIS
                                
                                 
                               }
-                            :} 
-                            cabecera:bloque1
-                            cuerpoFuncion:bloque2 {:
+:} 
+cabecera:bloque1 cuerpoFuncion:bloque2 {:
                                 BloqueSentencias bloque = new BloqueSentencias();
                                
                                 ScopeIF scope = scopeManager.getCurrentScope();
@@ -489,19 +485,193 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESIS
                                     semanticErrorManager.semanticFatalError("352. La funcion "+tipoFuncion.getName()+" no tiene retorno"); 
                                 RESULT=bloque;
               
-                            :};
-funcion::= FUNCTION ID:id PARENTESISIZQ PARENTESISDER RETURN tipos:type IS cabecera:cabFun cuerpoFuncion:cuerpFun; 
-funcion::= FUNCTION ID:id PARENTESISIZQ lista_parametros:param PARENTESISDER RETURN tipos:t IS cuerpoFuncion:cuerpo;
-funcion::= FUNCTION ID:id PARENTESISIZQ PARENTESISDER RETURN tipos:type IS  cuerpoFuncion:cuerpFun; 
+:};
+funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS 
+{:
+ 				// la funcion ha sido declarada
+                            if (scopeManager.containsSymbol(idFunc.getLexema())) {
+				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
+                            }else{ 
+                                
+				// Crear FUNCION en ambito
+				ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeTableIF tablaTipos = scope.getTypeTable();
+	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+							
+                                // a�adir funcion a TT
+                               	TypeFunction tipoFuncion = new TypeFunction(scope, idFunc.getLexema());
+				tablaTipos.addType(idFunc.getLexema(), tipoFuncion);
+							
+				// a�adir funcion a TS
+                                SymbolFunction simboloFunc = new SymbolFunction(scope,idFunc.getLexema(),tablaTipos.getType(idFunc.getLexema()));
+				tablaSimbolos.addSymbol(idFunc.getLexema(), simboloFunc);
+							
+				// NUEVO ambito para funcion y tabla TS y TT
+				scopeManager.openScope(idFunc.getLexema()); 
+                                
+														
+				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
+				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
+
+                                // Grabo tipo retorno
+				tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
+
+					 
+       
+                tipoFuncion.setHayRetorno(true);
+                               
+                                
+                              }
+:} 
+cabecera:bloque1 cuerpoFuncion:bloque2 {:
+                                BloqueSentencias bloque = new BloqueSentencias();
+                               
+                                ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeFunction tipoFuncion = (TypeFunction) scopeManager.searchType(scope.getName());
+                                
+
+                                // Cerramos Scope
+                               scopeManager.closeScope();
+
+                                // Comprobar que hay return de la funcion
+
+                                if  (! tipoFuncion.getHayRetorno())
+                                    semanticErrorManager.semanticFatalError("352. La funcion "+tipoFuncion.getName()+" no tiene retorno"); 
+                                RESULT=bloque;
+              
+:}; 
+funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER RETURN tipos:tp IS
+{:
+ 				// la funcion ha sido declarada
+                            if (scopeManager.containsSymbol(idFunc.getLexema())) {
+				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
+                            }else{ 
+                                
+				// Crear FUNCION en ambito
+				ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeTableIF tablaTipos = scope.getTypeTable();
+	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+							
+                                // a�adir funcion a TT
+                               	TypeFunction tipoFuncion = new TypeFunction(scope, idFunc.getLexema());
+				tablaTipos.addType(idFunc.getLexema(), tipoFuncion);
+							
+				// a�adir funcion a TS
+                                SymbolFunction simboloFunc = new SymbolFunction(scope,idFunc.getLexema(),tablaTipos.getType(idFunc.getLexema()));
+				tablaSimbolos.addSymbol(idFunc.getLexema(), simboloFunc);
+							
+				// NUEVO ambito para funcion y tabla TS y TT
+				scopeManager.openScope(idFunc.getLexema()); 
+                                
+														
+				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
+				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
+
+                                // Grabo tipo retorno
+				tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
+
+				// Grabo parametros funcion
+                                // ListaObjetos parametros = new ListaObjetos(listaArg) 
+				ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
+                                
+        			for (int i=0; i<parametros.size(); i++){
+                                    Parametro p = (Parametro) parametros.get(i);
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
+                                    
+                                    // Creo lista ordenada de parametros en el PROCEDIMIENTO.
+                                    tipoFuncion.setTypeParametro(p.getColumna(),p.getTipo()); 
+                                    // Fijar paso parametros Ref/Valor en Symbolvar
+                                    simboloVar.setReferencia(p.getReferencia());
+                                    tablaSimbolos.addSymbol(p.getNombre(),simboloVar);                                  	
+                                    tipoFuncion.setParametro(simboloVar);
+                                } 
+       
+                                tipoFuncion.setHayRetorno(true);
+                               
+                                
+                              }
+:} 
+cuerpoFuncion:bloque2 {:
+                                BloqueSentencias bloque = new BloqueSentencias();
+                               
+                                ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeFunction tipoFuncion = (TypeFunction) scopeManager.searchType(scope.getName());
+                                
+
+                                // Cerramos Scope
+                               scopeManager.closeScope();
+
+                                // Comprobar que hay return de la funcion
+
+                                if  (! tipoFuncion.getHayRetorno())
+                                    semanticErrorManager.semanticFatalError("352. La funcion "+tipoFuncion.getName()+" no tiene retorno"); 
+                                RESULT=bloque;
+              
+:};
+funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS 
+{:
+ 				// la funcion ha sido declarada
+                            if (scopeManager.containsSymbol(idFunc.getLexema())) {
+				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
+                            }else{ 
+                                
+				// Crear FUNCION en ambito
+				ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeTableIF tablaTipos = scope.getTypeTable();
+	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+							
+                                // a�adir funcion a TT
+                               	TypeFunction tipoFuncion = new TypeFunction(scope, idFunc.getLexema());
+				tablaTipos.addType(idFunc.getLexema(), tipoFuncion);
+							
+				// a�adir funcion a TS
+                                SymbolFunction simboloFunc = new SymbolFunction(scope,idFunc.getLexema(),tablaTipos.getType(idFunc.getLexema()));
+				tablaSimbolos.addSymbol(idFunc.getLexema(), simboloFunc);
+							
+				// NUEVO ambito para funcion y tabla TS y TT
+				scopeManager.openScope(idFunc.getLexema()); 
+                                
+														
+				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
+				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
+
+                                // Grabo tipo retorno
+				tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
+
+					 
+       
+                tipoFuncion.setHayRetorno(true);
+                               
+                                
+                              }
+:} 
+cuerpoFuncion:bloque2 {:
+                                BloqueSentencias bloque = new BloqueSentencias();
+                               
+                                ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeFunction tipoFuncion = (TypeFunction) scopeManager.searchType(scope.getName());
+                                
+
+                                // Cerramos Scope
+                               scopeManager.closeScope();
+
+                                // Comprobar que hay return de la funcion
+
+                                if  (! tipoFuncion.getHayRetorno())
+                                    semanticErrorManager.semanticFatalError("352. La funcion "+tipoFuncion.getName()+" no tiene retorno"); 
+                                RESULT=bloque;
+              
+:};  
 funcion::= FUNCTION ID error RETURN tipos IS cuerpoFuncion {:syntaxErrorManager.syntaxFatalError("001. Faltan los DOS PARENTESIS");:};
 			
 cuerpoFuncion::= BEGIN listaSentencias:bloque RETURN expresion:exp PUNTOYCOMA END ID PUNTOYCOMA
 {:
-				 RESULT=exp;
+				 RESULT=bloque;
 					 :}  |
 				BEGIN RETURN expresion:exp PUNTOYCOMA END ID PUNTOYCOMA
 				{:
-				 RESULT=exp;
+				BloqueSentencias bloque = new BloqueSentencias();
+				 RESULT=bloque;
 					 :} ;
 
 // ----------------------------                     
@@ -611,13 +781,17 @@ sentenciaAsignacion::= ID:id ASIGNACION expresion:exp PUNTOYCOMA
 							id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
                             } else {
 				SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
-                                TypeIF tipo = simbolo.getType();
+                                //TypeIF tipo = simbolo.getType();
 
 				// Comprobamos que no es una constante
 				if (simbolo instanceof SymbolConstant)
                                     semanticErrorManager.semanticFatalError ("276. La constante: " + id.getLexema() +" en [" + 
                                     id.getLine() + ":" + id.getColumn() + "] no admite asignaciones.");
-                               
+                                    
+                                  TypeIF tipo = exp.getTipo();
+                                  
+                                //semanticErrorManager.semanticInfo ("Sentencia asignacion. Tipo de la EXPRESION: "+tipo.getName()+ " en [" + id.getLine() + ":" + id.getColumn() + "]");
+			            
                                 // Comprobaciones en el caso de una funcion	
                                 if (tipo instanceof TypeFunction ) {
 
@@ -667,7 +841,7 @@ sentenciaAsignacion::= ID:id ASIGNACION expresion:exp PUNTOYCOMA
                                 RESULT=bloque;
 					
                              }
-                		:};
+                		:};//x:=t-r;   z:= resta (a,b);
 
 sentenciaAsignacion::= ID:id PUNTO ID:campo ASIGNACION expresion:exp PUNTOYCOMA {:
 
@@ -756,9 +930,63 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
 // ------------------------
 // Sentencia FUNCION
 // ------------------------
-sentenciaFuncion ::= ID PARENTESISIZQ lista_parametros_llamada PARENTESISDER PUNTOYCOMA;
+sentenciaFuncion ::= ID:idFunc PARENTESISIZQ lista_parametros_llamada:listaPar PARENTESISDER
+{:
+					semanticErrorManager.semanticInfo("Sentencia FUNCION en la linea: "+idFunc.getLine()+ "y columna "+idFunc.getColumn());
+	                    
+ 					ScopeIF scope = scopeManager.getCurrentScope();
+            		    SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+                            TypeTableIF tablaTipos = scope.getTypeTable();
+			    
+                            // Si la funcion ha sido declarada
+		      	    if (!(scopeManager.containsSymbol(idFunc.getLexema()))) 
+                                semanticErrorManager.semanticFatalError("340. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" NO ha sido declarada");
+	                    
+                            // Si es un tipo Funcion
+                            SymbolIF func = scopeManager.searchSymbol(idFunc.getLexema());
+                            if (! (func.getType() instanceof TypeFunction) )
+				    semanticErrorManager.semanticFatalError("342. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" NO es un FUNCTION");
+	            	        
+            		    // num de parametros sea el mismo que argumentos y sea correcto por REF/Valor
+	            	    TypeFunction tipoFunc = (TypeFunction) func.getType();
+                            ListaObjetos lista = new ListaObjetos(listaPar);
 
-lista_parametros_llamada::= expresion | expresion COMA lista_parametros_llamada;
+                            // Coincidencia de Tipos y numero entre la Def de la funcion y la llamada
+		  	    		if (!tipoFunc.comparaParametros(listaPar)) 
+                                  semanticErrorManager.semanticFatalError ("344. El num. de parametros no coincide en tipos o numero para la funci�n " + idFunc.getLexema() + " [" + idFunc.getLine() + ":" + idFunc.getColumn() + "]");
+            		    
+                            Expresion exp = new Expresion(tipoFunc.getTipoRetorno(), idFunc.getLine(), idFunc.getColumn());
+                             
+                            
+                            
+                            // Obtener desplazamiento Funcion
+                           
+                            List lista1 = tipoFunc.getListaParametros();
+                                     
+                          
+					
+			    for (int i=listaPar.size()-1;i>=0; i--){
+                                SymbolVariable s = (SymbolVariable) lista1.get(listaPar.size()-i-1);
+                                Expresion expPar = (Expresion) listaPar.get(i);
+                                if ( s.getReferencia() ) {
+                                    if ( !expPar.getReferencia())
+                                        semanticErrorManager.semanticFatalError ("346. El par�metro es por referencia y no admite expresiones." + idFunc.getLexema() + " [" + idFunc.getLine() + ":" + idFunc.getColumn() + "]");
+                                  }else{
+                                 }
+                            }
+                           
+                            RESULT=exp;
+			:};
+
+lista_parametros_llamada::= expresion:exp {:
+                ListaObjetos lista = new ListaObjetos();
+			    lista.add(exp);
+                RESULT=lista; :};
+lista_parametros_llamada::= expresion:exp COMA lista_parametros_llamada:listaPar {:
+                            ListaObjetos lista = new ListaObjetos(listaPar);
+                            lista.add(exp);
+                            RESULT=lista;
+                            :};
 
 // ------------------------
 // Sentencia PROCEDIMIENTO
