@@ -498,7 +498,7 @@ sentenciaWhile::= WHILE expresion:exp LOOP listaSentencias:sent END LOOP PUNTOYC
 // ------------------------
 sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent END IF PUNTOYCOMA
 {:
-					semanticErrorManager.semanticInfo ("Sentencia IF simple");
+					semanticErrorManager.semanticInfo ("Sentencia IF simple en [" +id.getLine() + ":" + id.getColumn()+"]");
                             if ( !(exp.getTipo().getName().equals("BOOLEAN")) ) 
                                   semanticErrorManager.semanticFatalError ("328. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es LOGICA.");
                                   BloqueSentencias bloque = new BloqueSentencias();
@@ -509,7 +509,7 @@ sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent END IF PUNTOYCOMA
 					:};
 sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent1 ELSE listaSentencias:sent2 END IF PUNTOYCOMA
 {:
-			semanticErrorManager.semanticInfo ("Sentencia IF con ELSE");
+			semanticErrorManager.semanticInfo ("Sentencia IF con ELSE en [" +id.getLine() + ":" + id.getColumn()+"]");
                                
                             if ( !(exp.getTipo().getName().equals("BOOLEAN")) ) 
                                 semanticErrorManager.semanticFatalError ("330. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es LOGICA.");
@@ -525,6 +525,7 @@ sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent1 ELSE listaSentenci
 // ------------------------
 sentenciaAsignacion::= ID:id ASIGNACION expresion:exp PUNTOYCOMA
 {:
+			semanticErrorManager.semanticInfo ("Sentencia ASIGNACION " + id.getLexema() + ":= " + exp.getTipo().getName()+" en [" +id.getLine() + ":" + id.getColumn()+"]");
 							BloqueSentencias bloque = new BloqueSentencias();
                             ScopeIF scope = scopeManager.getCurrentScope();
                             
@@ -593,6 +594,9 @@ sentenciaAsignacion::= ID:id ASIGNACION expresion:exp PUNTOYCOMA
                 		:};
 
 sentenciaAsignacion::= ID:id PUNTO ID:campo ASIGNACION expresion:exp PUNTOYCOMA {:
+
+					semanticErrorManager.semanticInfo ("Sentencia ASIGNACION " + id.getLexema() + ":= " + exp.getTipo().getName()+" en [" +id.getLine() + ":" + id.getColumn()+"]");
+			
                             if ( !(scopeManager.containsSymbol(id.getLexema())) ) {
                                 semanticErrorManager.semanticFatalError ("286. La variable: " + id.getLexema() +" en [" + 
 								id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
@@ -630,6 +634,8 @@ sentenciaAsignacion::= ID PUNTO ID PUNTO ID ASIGNACION expresion PUNTOYCOMA;
 
 sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION expresion:exp PUNTOYCOMA
 {:
+		semanticErrorManager.semanticInfo ("Sentencia ASIGNACION " + id.getLexema() + ":= " + exp.getTipo().getName()+" en [" +id.getLine() + ":" + id.getColumn()+"]");
+			
                             ScopeIF scope = scopeManager.getCurrentScope();
                             BloqueSentencias bloque = new BloqueSentencias();
                             // Existe la variable vector
