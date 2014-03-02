@@ -421,14 +421,88 @@ declaracionSubPrograma::= procedimiento | funcion;
 // ------------------------                     
 // Definicion de FUNCION 
 // ------------------------  
-funcion::= FUNCTION ID:id PARENTESISIZQ lista_parametros:param PARENTESISDER RETURN tipos:type IS cabecera:cabFun cuerpoFuncion:cuerpFun;
+funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER RETURN tipos:tp IS 
+{:
+ 				// la funcion ha sido declarada
+                            if (scopeManager.containsSymbol(idFunc.getLexema())) {
+				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
+                            }else{ 
+                                
+				// Crear FUNCION en ambito
+				ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeTableIF tablaTipos = scope.getTypeTable();
+	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+							
+                                // a�adir funcion a TT
+                               	TypeFunction tipoFuncion = new TypeFunction(scope, idFunc.getLexema());
+				tablaTipos.addType(idFunc.getLexema(), tipoFuncion);
+							
+				// a�adir funcion a TS
+                                SymbolFunction simboloFunc = new SymbolFunction(scope,idFunc.getLexema(),tablaTipos.getType(idFunc.getLexema()));
+				tablaSimbolos.addSymbol(idFunc.getLexema(), simboloFunc);
+							
+				// NUEVO ambito para funcion y tabla TS y TT
+				scopeManager.openScope(idFunc.getLexema()); 
+                                
+														
+				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
+				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
+
+                                // Grabo tipo retorno
+				tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
+
+				// Grabo parametros funcion
+                                // ListaObjetos parametros = new ListaObjetos(listaArg) 
+				ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
+                                
+        			for (int i=0; i<parametros.size(); i++){
+                                    Parametro p = (Parametro) parametros.get(i);
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
+                                    
+                                    // Creo lista ordenada de parametros en el PROCEDIMIENTO.
+                                    tipoFuncion.setTypeParametro(p.getColumna(),p.getTipo()); 
+                                    // Fijar paso parametros Ref/Valor en Symbolvar
+                                    simboloVar.setReferencia(p.getReferencia());
+                                    tablaSimbolos.addSymbol(p.getNombre(),simboloVar);                                  	
+                                    tipoFuncion.setParametro(simboloVar);
+                                } 
+       
+                                tipoFuncion.setHayRetorno(true);
+                               
+                                
+                              }
+                            :} 
+                            cabecera:bloque1
+                            cuerpoFuncion:bloque2 {:
+                                BloqueSentencias bloque = new BloqueSentencias();
+                               
+                                ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeFunction tipoFuncion = (TypeFunction) scopeManager.searchType(scope.getName());
+                                
+
+                                // Cerramos Scope
+                               scopeManager.closeScope();
+
+                                // Comprobar que hay return de la funcion
+
+                                if  (! tipoFuncion.getHayRetorno())
+                                    semanticErrorManager.semanticFatalError("352. La funcion "+tipoFuncion.getName()+" no tiene retorno"); 
+                                RESULT=bloque;
+              
+                            :};
 funcion::= FUNCTION ID:id PARENTESISIZQ PARENTESISDER RETURN tipos:type IS cabecera:cabFun cuerpoFuncion:cuerpFun; 
 funcion::= FUNCTION ID:id PARENTESISIZQ lista_parametros:param PARENTESISDER RETURN tipos:t IS cuerpoFuncion:cuerpo;
 funcion::= FUNCTION ID:id PARENTESISIZQ PARENTESISDER RETURN tipos:type IS  cuerpoFuncion:cuerpFun; 
 funcion::= FUNCTION ID error RETURN tipos IS cuerpoFuncion {:syntaxErrorManager.syntaxFatalError("001. Faltan los DOS PARENTESIS");:};
 			
-cuerpoFuncion::= BEGIN listaSentencias RETURN expresion PUNTOYCOMA END ID PUNTOYCOMA |
-				BEGIN RETURN expresion PUNTOYCOMA END ID PUNTOYCOMA;
+cuerpoFuncion::= BEGIN listaSentencias:bloque RETURN expresion:exp PUNTOYCOMA END ID PUNTOYCOMA
+{:
+				 RESULT=exp;
+					 :}  |
+				BEGIN RETURN expresion:exp PUNTOYCOMA END ID PUNTOYCOMA
+				{:
+				 RESULT=exp;
+					 :} ;
 
 // ----------------------------                     
 // Definicion de PROCEDIMIENTO
@@ -483,9 +557,11 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 // ------------------------
 // Sentencia WHILE
 // ------------------------
-sentenciaWhile::= WHILE expresion:exp LOOP listaSentencias:sent END LOOP PUNTOYCOMA{:
+sentenciaWhile::= WHILE:id expresion:exp LOOP listaSentencias:sent END LOOP PUNTOYCOMA{:
+
+		semanticErrorManager.semanticInfo("Sentencia WHILE en [" + id.getLine() + ":" + id.getColumn() + "]");
                               if ( !(exp.getTipo().getName().equals("BOOLEAN")) )
-                                    semanticErrorManager.semanticFatalError ("326. La expresion sentencia REPEAT no es BOOLEANA.");
+                                    semanticErrorManager.semanticFatalError ("326. La expresion sentencia WHILE no es BOOLEANA.");
                               BloqueSentencias bloque = new BloqueSentencias();
                               ScopeIF scope = scopeManager.getCurrentScope();
 					
