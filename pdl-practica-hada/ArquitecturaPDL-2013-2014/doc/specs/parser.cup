@@ -147,8 +147,8 @@ non terminal					tipos;
 non terminal ListaObjetos		parametro;
 non terminal					modo;
 //non terminal					parametroPutLine;
-non terminal					cadenaCaracteres;
-non terminal Expresion			vector;
+//non terminal					cadenaCaracteres;
+//non terminal Expresion			vector;
 non terminal					procedure;
 
 //-----------------------------------------
@@ -469,12 +469,9 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ CARACTERESCADENA:cad PARENTESISDER 
 
 sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYCOMA
 {:    
-        if ( exp.getTipo().getName().equals("INTEGER") ) 
-            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es un "+ exp.getTipo().getName()+".");
-        if ( exp.getTipo().getName().equals("BOOLEAN") ) 
-            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es un "+ exp.getTipo().getName()+".");
-
-                           
+    
+            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es de tipo "+ exp.getTipo().getName()+".");
+		              
             BloqueSentencias bloque = new BloqueSentencias();
             ScopeIF scope = scopeManager.getCurrentScope();
 			RESULT=bloque;
@@ -482,7 +479,7 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 
 
 //parametroPutLine::= cadenaCaracteres  | expresion;
-cadenaCaracteres::= CARACTERESCADENA;
+//cadenaCaracteres::= CARACTERESCADENA;
 // ------------------------
 // Sentencia WHILE
 // ------------------------
@@ -650,7 +647,7 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
                         :}; //vE(1):=20;
 
 
-vector::= ID PARENTESISIZQ ENTERO PARENTESISDER;
+////vector::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER;
 
 // ------------------------
 // Sentencia FUNCION
@@ -808,7 +805,7 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
                             :};
 expresion::= ID:id
 {:
-ScopeIF scope = scopeManager.getCurrentScope();
+				ScopeIF scope = scopeManager.getCurrentScope();
 			        SymbolTableIF tablaSimbolos = scope.getSymbolTable();
                   		TypeTableIF tablaTipos = scope.getTypeTable();
 			        if (!(scopeManager.containsSymbol(id.getLexema()))) {
@@ -873,9 +870,50 @@ expresion::= ENTERO:num {:
                             }
 				exp.setResultado(resultado);
                                 RESULT=exp;			:} |
-			vector:exp {:
-                                RESULT=exp;									
-                            :};
+			ID:id PARENTESISIZQ ENTERO:num PARENTESISDER {:
+					ScopeIF scope = scopeManager.getCurrentScope();
+			        SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+                  		TypeTableIF tablaTipos = scope.getTypeTable();
+			        if (!(scopeManager.containsSymbol(id.getLexema()))) {
+                                    semanticErrorManager.semanticFatalError ("242. La variable: " + id.getLexema() +" en [" + 
+									id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
+                    } else {
+                                    SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
+                                    Expresion exp = new Expresion(simbolo.getType(), id.getLine(), id.getColumn());
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    // Existe la var y es del tipo vector
+                            if (! (simbolo.getType() instanceof TypeArray)) 
+                                semanticErrorManager.semanticFatalError ("312. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es un tipo CONJUNTO.");
+                            
+                            semanticErrorManager.semanticInfo ("VECTOR--> "+id.getLexema()+" de tipo : "+ simbolo.getType().getName());
+                            
+                            // Asignacion entre limites
+                            TypeArray tipoArray = (TypeArray) simbolo.getType();
+                            int n = Integer.parseInt(num.getLexema());
+                            if (n < tipoArray.getValIni() || n > tipoArray.getValFin())
+                                semanticErrorManager.semanticFatalError ("314. El rango del vector: " + id.getLexema() +" en [" + 
+						id.getLine() + ":" + id.getColumn() + "] no esta dentro de los limites del mismo.");
+
+                          	semanticErrorManager.semanticInfo ("El valor '"+ num.getLexema() + "' esta dentro de los limites ["+tipoArray.getValIni()+","+tipoArray.getValFin()+"]");
+                           	
+                           	// Comprobacion de tipos (vector y expresion)
+						if ( !(simbolo.getType().getName().equalsIgnoreCase(exp.getTipo().getName())) ) {	
+							TypeIF tipoVar=scopeManager.searchType(simbolo.getType().getName());
+                        	if ( !(simbolo.getType().getName().equalsIgnoreCase(tipoVar.getName())))  
+                                        semanticErrorManager.semanticFatalError ("308. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no son compatibles.");
+                       }					
+                            
+
+			
+                                RESULT=exp;	
+                              }								
+                            :};//v(1)
 
 // -------------
 // Definiciones
