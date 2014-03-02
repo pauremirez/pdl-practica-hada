@@ -496,7 +496,29 @@ sentenciaWhile::= WHILE expresion:exp LOOP listaSentencias:sent END LOOP PUNTOYC
 // ------------------------
 // Sentencia IF
 // ------------------------
-sentenciaIf::= IF expresion THEN listaSentencias END IF PUNTOYCOMA | IF expresion THEN listaSentencias ELSE listaSentencias END IF PUNTOYCOMA;
+sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent END IF PUNTOYCOMA
+{:
+					semanticErrorManager.semanticInfo ("Sentencia IF simple");
+                            if ( !(exp.getTipo().getName().equals("BOOLEAN")) ) 
+                                  semanticErrorManager.semanticFatalError ("328. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es LOGICA.");
+                                  BloqueSentencias bloque = new BloqueSentencias();
+				  				  ScopeIF scope = scopeManager.getCurrentScope();
+                                  
+                                  RESULT=bloque;
+
+					:};
+sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent1 ELSE listaSentencias:sent2 END IF PUNTOYCOMA
+{:
+			semanticErrorManager.semanticInfo ("Sentencia IF con ELSE");
+                               
+                            if ( !(exp.getTipo().getName().equals("BOOLEAN")) ) 
+                                semanticErrorManager.semanticFatalError ("330. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es LOGICA.");
+                                BloqueSentencias bloque = new BloqueSentencias();
+								ScopeIF scope = scopeManager.getCurrentScope();
+				
+
+                                RESULT=bloque;
+				:};
 
 // ------------------------
 // Sentencia ASIGNACION
