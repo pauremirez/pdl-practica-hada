@@ -20,9 +20,9 @@ begin
 	Put_line ("SUBPROGRAMAS FUNCIONES");
 	a:= 5;
 	b:= 3;
-	z:= resta (a,b);
+--	z:= resta (a,b);
 	Put_line("z(2):");
-	Put_line(z);
+--	Put_line(z);
 			
 
 end testCase08;
