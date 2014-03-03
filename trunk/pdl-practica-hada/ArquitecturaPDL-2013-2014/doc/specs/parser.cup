@@ -126,7 +126,7 @@ non terminal BloqueSentencias	procedimiento;
 non terminal ListaObjetos		parametros;
 non terminal ListaObjetos		lista_argumentos;
 non terminal ListaObjetos		lista_parametros;
-non terminal ListaObjetos		idParametros; 
+non terminal ListaObjetos		decVariable; 
 non terminal BloqueSentencias	listaSentencias;
 non terminal BloqueSentencias	sentencia;
 non terminal BloqueSentencias	sentenciaProcedimiento;
@@ -344,7 +344,7 @@ declaracionTipo::= TYPE ID:id IS ARRAY PARENTESISIZQ ENTERO:value1 PUNTOPUNTO EN
 // Seccion VARIABLES
 // --------------------
 
-declaracionVariable::= idParametros:list INTEGER PUNTOYCOMA
+declaracionVariable::= decVariable:list INTEGER PUNTOYCOMA
 {:
 	ScopeIF scope = scopeManager.getCurrentScope();
 	SymbolTableIF tableSymbol=scope.getSymbolTable();
@@ -362,7 +362,7 @@ declaracionVariable::= idParametros:list INTEGER PUNTOYCOMA
 		}
 	}
 :};
-declaracionVariable::= idParametros:list BOOLEAN PUNTOYCOMA
+declaracionVariable::= decVariable:list BOOLEAN PUNTOYCOMA
 {:
 	ScopeIF scope = scopeManager.getCurrentScope();
 	SymbolTableIF tableSymbol=scope.getSymbolTable();
@@ -380,7 +380,7 @@ declaracionVariable::= idParametros:list BOOLEAN PUNTOYCOMA
 		}
 	}
 :};
-declaracionVariable::= idParametros:list ID:type PUNTOYCOMA
+declaracionVariable::= decVariable:list ID:type PUNTOYCOMA
 {:
 	ScopeIF scope = scopeManager.getCurrentScope();
 	SymbolTableIF tableSymbol=scope.getSymbolTable();
@@ -413,7 +413,7 @@ declaracionVariable::= idParametros:list ID:type PUNTOYCOMA
 // --------------------
 // Seccion SUBPROGRAMAS
 // --------------------
-declaracionSubPrograma::= procedimiento | funcion;
+declaracionSubPrograma::= procedimiento:bloque {: RESULT=bloque; :}| funcion:bloque {: RESULT=bloque; :};
 
 // ------------------------                     
 // Definicion de FUNCION 
@@ -677,8 +677,128 @@ cuerpoFuncion::= BEGIN listaSentencias:bloque RETURN expresion:exp PUNTOYCOMA EN
 // ----------------------------                     
 // Definicion de PROCEDIMIENTO
 // ----------------------------  
-procedimiento::= procedure PARENTESISIZQ parametros PARENTESISDER IS cabecera cuerpo |
-				procedure PARENTESISIZQ parametros PARENTESISDER IS cuerpo;
+procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER IS
+{:
+ 				// el procedimiento ha sido declarado
+                            if (scopeManager.containsSymbol(idProc.getLexema())) {
+				semanticErrorManager.semanticFatalError("350. El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
+                            }else{ 
+                                
+				// Crear FUNCION en ambito
+				ScopeIF scope = scopeManager.getCurrentScope();
+                TypeTableIF tablaTipos = scope.getTypeTable();
+	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+							
+                // a�adir funcion a TT
+                TypeProcedure tipoProcedimiento = new TypeProcedure(scope, idProc.getLexema());
+				tablaTipos.addType(idProc.getLexema(), tipoProcedimiento);
+							
+				// a�adir funcion a TS
+                 SymbolProcedure simboloProc = new SymbolProcedure(scope,idProc.getLexema(),tablaTipos.getType(idProc.getLexema()));
+				tablaSimbolos.addSymbol(idProc.getLexema(), simboloProc);
+							
+				// NUEVO ambito para funcion y tabla TS y TT
+				scopeManager.openScope(idProc.getLexema()); 
+                                
+														
+				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
+				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
+
+
+				// Grabo parametros funcion
+                // ListaObjetos parametros = new ListaObjetos(listaArg) 
+				ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
+                                
+        			for (int i=0; i<parametros.size(); i++){
+                                    Parametro p = (Parametro) parametros.get(i);
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
+                                    
+                                    // Creo lista ordenada de parametros en el PROCEDIMIENTO.
+                                    tipoProcedimiento.setTypeParametro(p.getColumna(),p.getTipo()); 
+                                    // Fijar paso parametros Ref/Valor en Symbolvar
+                                    simboloVar.setReferencia(p.getReferencia());
+                                    tablaSimbolos.addSymbol(p.getNombre(),simboloVar);                                  	
+                                    tipoProcedimiento.setParametro(simboloVar);
+                                } 
+
+                               
+                                
+                              }
+:} 
+cabecera:bloque1 cuerpo:bloque2 {:
+                                BloqueSentencias bloque = new BloqueSentencias();
+                               
+                                ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeProcedure tipoProcedimiento = (TypeProcedure) scopeManager.searchType(scope.getName());
+                                
+
+                                // Cerramos Scope
+                               scopeManager.closeScope();
+
+                                 RESULT=bloque;
+              
+:};
+procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER IS
+{:
+ 				// el procedimiento ha sido declarado
+                            if (scopeManager.containsSymbol(idProc.getLexema())) {
+				semanticErrorManager.semanticFatalError("350. El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
+                            }else{ 
+                                
+				// Crear FUNCION en ambito
+				ScopeIF scope = scopeManager.getCurrentScope();
+                TypeTableIF tablaTipos = scope.getTypeTable();
+	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+							
+                // a�adir funcion a TT
+                TypeProcedure tipoProcedimiento = new TypeProcedure(scope, idProc.getLexema());
+				tablaTipos.addType(idProc.getLexema(), tipoProcedimiento);
+							
+				// a�adir funcion a TS
+                 SymbolProcedure simboloProc = new SymbolProcedure(scope,idProc.getLexema(),tablaTipos.getType(idProc.getLexema()));
+				tablaSimbolos.addSymbol(idProc.getLexema(), simboloProc);
+							
+				// NUEVO ambito para funcion y tabla TS y TT
+				scopeManager.openScope(idProc.getLexema()); 
+                                
+														
+				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
+				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
+
+
+				// Grabo parametros funcion
+                // ListaObjetos parametros = new ListaObjetos(listaArg) 
+				ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
+                                
+        			for (int i=0; i<parametros.size(); i++){
+                                    Parametro p = (Parametro) parametros.get(i);
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
+                                    
+                                    // Creo lista ordenada de parametros en el PROCEDIMIENTO.
+                                    tipoProcedimiento.setTypeParametro(p.getColumna(),p.getTipo()); 
+                                    // Fijar paso parametros Ref/Valor en Symbolvar
+                                    simboloVar.setReferencia(p.getReferencia());
+                                    tablaSimbolos.addSymbol(p.getNombre(),simboloVar);                                  	
+                                    tipoProcedimiento.setParametro(simboloVar);
+                                } 
+
+                               
+                                
+                              }
+:} 
+cuerpo:bloque2 {:
+                                BloqueSentencias bloque = new BloqueSentencias();
+                               
+                                ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeProcedure tipoProcedimiento = (TypeProcedure) scopeManager.searchType(scope.getName());
+                                
+
+                                // Cerramos Scope
+                               scopeManager.closeScope();
+
+                                 RESULT=bloque;
+              
+:};
 
 // ----------------------------                     
 // Definicion de SENTENCIAS		
@@ -1254,42 +1374,12 @@ expresion::= ENTERO:num {:
 tipoBooleano::= TRUE:id {: RESULT=id; :} | FALSE:id {: RESULT=id; :};
 vacio::=;
 tipos::= INTEGER:t {: RESULT="INTEGER"; :} | BOOLEAN:t {: RESULT="BOOLEAN"; :} | ID:id {: RESULT=id.getLexema();:};
-idParametros::= ID:id DOSPUNTOS
-{:
-   // Añadir IDs a lista objetos Variables
-	ListaObjetos list = new ListaObjetos();
-    Var var = new Var (id.getLexema(), null, id.getLine(), id.getColumn());
-    list.add(var);
-    RESULT = list;
-:};
-idParametros::= ID:id COMA idParametros:listParam
-{:
-   	// Añadir IDs a lista objetos Variables
-   	ListaObjetos list = new ListaObjetos(listParam);
-   	Var var = new Var (id.getLexema(), 0, id.getLine(), id.getColumn());
-   	list.add(var);
-	RESULT = list;
-:};
+
 
 // ----------------------------                     
 // Definicion de PARAMETROS
 // ---------------------------- 
-parametros::= parametro | parametro PUNTOYCOMA parametros;
-parametro::= idParametros:id modo tipos:t
-{:
-	syntaxErrorManager.syntaxInfo ("Parametros ID: " + id);
-	syntaxErrorManager.syntaxInfo ("Parametros TIPO: " + t);
-	
-	//SymbolParameter parametro=new SymbolParameter (scopeManager.getCurrentScope(),id.getLexema(),scopeManager.searchType(t.toString()));
-	
-	ListaObjetos lista = new ListaObjetos(id);
- /*   for (int i=0;i<lista.size();i++){
-    	syntaxErrorManager.syntaxInfo ("lista.get(i)"+lista.get(i));
-    	Parametro p = (Parametro) lista.get(i);
-       	p.setReferencia(true);
-		p.setTipo(scopeManager.searchType(t.toString()));
-   	}*/
-:};
+
 
 modo::= OUT:t {: RESULT=t; :} | vacio;
 
@@ -1325,7 +1415,21 @@ lista_argumentos::= ID:idPar COMA lista_argumentos:listaArg 	{:
 				Parametro par = new Parametro(idPar.getLexema(), 0, idPar.getLine(), idPar.getColumn(),null);
 				lista.add(par);
 	                        RESULT = lista;
-				:} ;
+				:};
+decVariable::=ID:idPar DOSPUNTOS{:
+				// Añadir ID a lista objetos Variables
+				ListaObjetos lista = new ListaObjetos();
+				Var var= new Var (idPar.getLexema(), 0, idPar.getLine(), idPar.getColumn());
+				lista.add(var);
+	                        RESULT = lista;
+				:} | ID:idPar COMA decVariable:listaArg 	{:
+                               // Añadir IDs a lista objetos Parametro
+                                ListaObjetos lista = new ListaObjetos(listaArg);
+                               Var var= new Var (idPar.getLexema(), 0, idPar.getLine(), idPar.getColumn());
+							lista.add(var);
+	                        RESULT = lista;
+				
+                                :};
 				
 
 lista_parametros::= lista_argumentos:listaArg DOSPUNTOS modo tipos:tp {: 
