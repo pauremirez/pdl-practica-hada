@@ -18,7 +18,7 @@ begin
 	Put_line ("SUBPROGRAMAS PROCEDIMIENTO");
 	a:= 5;
 	b:= 3;
---	resta (a,b,w);
+	resta (a,b,w);
 	Put_line("w(2):");
 	Put_line(w);
 			

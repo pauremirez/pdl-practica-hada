@@ -420,6 +420,7 @@ declaracionSubPrograma::= procedimiento:bloque {: RESULT=bloque; :}| funcion:blo
 // ------------------------  
 funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER RETURN tipos:tp IS 
 {:
+			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
  				// la funcion ha sido declarada
                             if (scopeManager.containsSymbol(idFunc.getLexema())) {
 				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
@@ -488,6 +489,7 @@ cabecera:bloque1 cuerpoFuncion:bloque2 {:
 :};
 funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS 
 {:
+			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
  				// la funcion ha sido declarada
                             if (scopeManager.containsSymbol(idFunc.getLexema())) {
 				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
@@ -542,6 +544,7 @@ cabecera:bloque1 cuerpoFuncion:bloque2 {:
 :}; 
 funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER RETURN tipos:tp IS
 {:
+				semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
  				// la funcion ha sido declarada
                             if (scopeManager.containsSymbol(idFunc.getLexema())) {
 				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
@@ -610,6 +613,8 @@ cuerpoFuncion:bloque2 {:
 :};
 funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS 
 {:
+			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
+               
  				// la funcion ha sido declarada
                             if (scopeManager.containsSymbol(idFunc.getLexema())) {
 				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
@@ -679,6 +684,7 @@ cuerpoFuncion::= BEGIN listaSentencias:bloque RETURN expresion:exp PUNTOYCOMA EN
 // ----------------------------  
 procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER IS
 {:
+				semanticErrorManager.semanticInfo("PROCEDIMIENTO: "+idProc.getLexema()+" en la linea: "+idProc.getLine());
  				// el procedimiento ha sido declarado
                             if (scopeManager.containsSymbol(idProc.getLexema())) {
 				semanticErrorManager.semanticFatalError("350. El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
@@ -740,6 +746,8 @@ cabecera:bloque1 cuerpo:bloque2 {:
 :};
 procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER IS
 {:
+				semanticErrorManager.semanticInfo("PROCEDIMIENTO: "+idProc.getLexema()+" en la linea: "+idProc.getLine());
+ 				
  				// el procedimiento ha sido declarado
                             if (scopeManager.containsSymbol(idProc.getLexema())) {
 				semanticErrorManager.semanticFatalError("350. El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
@@ -1052,7 +1060,7 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
 // ------------------------
 sentenciaFuncion ::= ID:idFunc PARENTESISIZQ lista_parametros_llamada:listaPar PARENTESISDER
 {:
-					semanticErrorManager.semanticInfo("Sentencia FUNCION en la linea: "+idFunc.getLine()+ "y columna "+idFunc.getColumn());
+					semanticErrorManager.semanticInfo("Sentencia FUNCION en la linea: "+idFunc.getLine()+ " y columna "+idFunc.getColumn());
 	                    
  					ScopeIF scope = scopeManager.getCurrentScope();
             		    SymbolTableIF tablaSimbolos = scope.getSymbolTable();
@@ -1111,8 +1119,38 @@ lista_parametros_llamada::= expresion:exp COMA lista_parametros_llamada:listaPar
 // ------------------------
 // Sentencia PROCEDIMIENTO
 // ------------------------
-sentenciaProcedimiento::= idTipos ASIGNACION ID PARENTESISIZQ lista_parametros_llamada PARENTESISDER PUNTOYCOMA |
-						ID PARENTESISIZQ lista_parametros_llamada PARENTESISDER PUNTOYCOMA;
+//sentenciaProcedimiento::= idTipos ASIGNACION ID PARENTESISIZQ lista_parametros_llamada PARENTESISDER PUNTOYCOMA;
+sentenciaProcedimiento::= ID:idProc PARENTESISIZQ lista_parametros_llamada:listaPar PARENTESISDER PUNTOYCOMA
+						{:
+						
+						 semanticErrorManager.semanticInfo("Sentencia PROCEDIMIENTO "+idProc.getLexema()+" en la linea: "+idProc.getLine());
+						
+                            ScopeIF scope = scopeManager.getCurrentScope();
+	         	    		SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+	                    	TypeTableIF tablaTipos = scope.getTypeTable();
+				
+                            // Si Procedimiento ha sido declarado
+		      	    		if (!(scopeManager.containsSymbol(idProc.getLexema()))) 
+                                semanticErrorManager.semanticFatalError("332. El procedimiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" NO ha sido declarada");
+
+                            // Si es un tipo Procedure    
+                            SymbolIF proc = scopeManager.searchSymbol(idProc.getLexema());
+                            TypeIF tipo = scopeManager.searchType(idProc.getLexema());
+                            if (! (tipo instanceof TypeProcedure) )
+                                        semanticErrorManager.semanticFatalError("334. El ID "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" NO es un PROCEDIMIENTO");
+	            
+                            // num de parametros sea el mismo que argumentos y sea correcto por REF/VALOR
+	            	    	TypeProcedure tipoProc = (TypeProcedure) proc.getType();
+                            ListaObjetos lista = new ListaObjetos(listaPar);
+
+                            // Coincidencia de Tipos y numero entre la Def del procedimiento y la llamada
+                            if (!tipoProc.comparaParametros(listaPar)) 
+                                semanticErrorManager.semanticFatalError ("336. El num. de parametros no coincide en para el procedimiento " + idProc.getLexema() + " [" + idProc.getLine() + ":" + idProc.getColumn() + "]");
+            		    
+                            BloqueSentencias bloque = new BloqueSentencias();
+
+			    RESULT = bloque;
+                            :};
 
 // --------------------
 // Expresion 
