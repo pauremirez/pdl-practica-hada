@@ -34,7 +34,7 @@ action code {:
 	SyntaxErrorManager   syntaxErrorManager   = CompilerContext.getSyntaxErrorManager();
 	SemanticErrorManager semanticErrorManager = CompilerContext.getSemanticErrorManager ();
 	ScopeManagerIF       scopeManager         = CompilerContext.getScopeManager ();
-	//FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
+	FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
 
 	// Cadenas 
 	List cadenas = new ArrayList();
@@ -172,8 +172,8 @@ program::=
   {: 
   		// No modificar esta estructura, aunque se pueden anadir mas acciones semanticas
   		// Comentar estas lineas para el 1er cuatrimestre
-  		//List intermediateCode = ax.getIntermediateCode ();
-  		//finalCodeFactory.create (intermediateCode);
+  		List intermediateCode = ax.getIntermediateCode ();
+  		finalCodeFactory.create (intermediateCode);
 
   		
   		syntaxErrorManager.syntaxInfo ("Parsing process ended.");
@@ -182,7 +182,19 @@ program::=
 // ----------------------
 // Inicio programa
 // ----------------------
-axiom::= procedure PARENTESISIZQ PARENTESISDER IS cabecera cuerpo | procedure PARENTESISIZQ PARENTESISDER IS cuerpo;
+axiom::= procedure PARENTESISIZQ PARENTESISDER IS cabecera:cab cuerpo:bloque {:
+                            // Tabla de desplazamientos para el CF
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                             Axiom ax = new Axiom();
+                            RESULT=ax;
+				
+			:} | procedure PARENTESISIZQ PARENTESISDER IS cuerpo:bloque {:
+                            // Tabla de desplazamientos para el CF
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                             Axiom ax = new Axiom();
+                            RESULT=ax;
+				
+			:} ;
 axiom::= procedure error PARENTESISIZQ PARENTESISDER IS cabecera cuerpo {:syntaxErrorManager.syntaxFatalError("001. No se ha especificado nombre del progama");:} |
 		ID error PARENTESISIZQ PARENTESISDER IS cabecera cuerpo {:syntaxErrorManager.syntaxFatalError("003. Palabra PROCEDURE no definida");:};
 

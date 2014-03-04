@@ -1,17 +1,32 @@
 package compiler.syntax.nonTerminal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Abstract Class for Axiom non terminal.
  */
-public abstract class Axiom
-    extends NonTerminal
+
+public class Axiom extends NonTerminal
 {
+
+	List intermediateCode;
     /**
      * Constructor for Axiom.
      */
     public Axiom ()
     {
-        super (); 
+        super();
     }
+    
+    @Override
+    public List getIntermediateCode() {
+        return intermediateCode;
+    }
+    @Override
+    public void setIntermediateCode(List intermediateCode) {
+        this.intermediateCode = intermediateCode;
+    }
+
 }
