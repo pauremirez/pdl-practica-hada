@@ -6,8 +6,7 @@ import es.uned.lsi.compiler.intermediate.ValueIF;
  * Class for literal values within intermediate code.
  */
 
-public class Value
-    implements ValueIF 
+public class Value implements ValueIF 
 {
     private Object value;
       
