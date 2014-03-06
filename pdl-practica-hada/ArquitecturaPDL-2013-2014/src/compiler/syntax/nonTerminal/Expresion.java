@@ -1,6 +1,7 @@
 package compiler.syntax.nonTerminal;
 
 import es.uned.lsi.compiler.intermediate.OperandIF;
+import es.uned.lsi.compiler.intermediate.TemporalIF;
 import es.uned.lsi.compiler.semantic.type.TypeIF;
 
 public class Expresion extends NonTerminal {
@@ -86,13 +87,7 @@ public class Expresion extends NonTerminal {
     // Conversión de tipos
     public boolean castingTipos(Expresion exp1, Expresion exp2){
         boolean error = true;
-    	if ( (exp1.tipo.getName().equals("INTEGER") &&  exp2.tipo.getName().equals("POINTER")) ){    		
-            error = false;
-    	}else if ( (exp1.tipo.getName().equals("POINTER") && exp2.tipo.getName().equals("INTEGER")) ) {
-                error=false;
-    	}else if ( (exp1.tipo.getName().equals("POINTER") && exp2.tipo.getName().equals("POINTER")) ) {
-                error=false;
-    	}else if((exp1.tipo.getName().equals("INTEGER") && exp2.tipo.getName().equals("INTEGER"))){
+    	 if((exp1.tipo.getName().equals("INTEGER") && exp2.tipo.getName().equals("INTEGER"))){
     		error=false;
         }else{
                 error = true;
