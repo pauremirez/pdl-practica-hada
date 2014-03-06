@@ -34,12 +34,11 @@ action code {:
 	SyntaxErrorManager   syntaxErrorManager   = CompilerContext.getSyntaxErrorManager();
 	SemanticErrorManager semanticErrorManager = CompilerContext.getSemanticErrorManager ();
 	ScopeManagerIF       scopeManager         = CompilerContext.getScopeManager ();
-	FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
+	//FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
 
 	// Cadenas 
 	List cadenas = new ArrayList();
-	// Desplazamiento con RA principal
-	int despl=5;
+	
 
 :}	
 
@@ -116,8 +115,8 @@ non terminal					program;
 non terminal  					seccionTipos;
 non terminal  					seccionVariables;
 non terminal BloqueSentencias	seccionSubProgramas;
-non terminal 					seccionConstantesSimbolicas;
-non terminal  					declaracionConstanteSimbolica;
+non terminal BloqueSentencias	seccionConstantesSimbolicas;
+non terminal BloqueSentencias	declaracionConstanteSimbolica;
 non terminal  					declaracionTipo;
 non terminal  					declaracionVariable;
 non terminal BloqueSentencias	declaracionSubPrograma;
@@ -173,7 +172,7 @@ program::=
   		// No modificar esta estructura, aunque se pueden anadir mas acciones semanticas
   		// Comentar estas lineas para el 1er cuatrimestre
   		List intermediateCode = ax.getIntermediateCode ();
-  		finalCodeFactory.create (intermediateCode);
+  		//finalCodeFactory.create (intermediateCode);
 
   		
   		syntaxErrorManager.syntaxInfo ("Parsing process ended.");
@@ -183,15 +182,72 @@ program::=
 // Inicio programa
 // ----------------------
 axiom::= procedure PARENTESISIZQ PARENTESISDER IS cabecera:cab cuerpo:bloque {:
-                            // Tabla de desplazamientos para el CF
+                            // Tabla de nullazamientos para el CF
                             ScopeIF scope = scopeManager.getCurrentScope();
-                             Axiom ax = new Axiom();
+                          
+							Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
+
+                            // Creamos el codigo CI de todo el arbol
+                            IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
+                            cb.addQuadruple("INICIO_PROGRAMA", var, null);
+                            cb.addQuadruples(cab.getIntermediateCode());
+                            cb.addQuadruples(bloque.getIntermediateCode());
+                            cb.addQuadruple("FIN_PROGRAMA", null);
+				
+                            // anyadimos todas las cadena al final del programa
+                            int i=1;
+                            cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
+                            for (Iterator it = cadenas.iterator(); it.hasNext();i++){
+                                String nombre="cadena"+i;
+                                cb.addQuadruple ("CADENA", nombre,it.next(), "");
+                            }
+
+                            List code = cb.create();
+                            Axiom ax = new Axiom();
+                            ax.setIntermediateCode(code);
+                            
+                            // Listado de todo el codigo intermedio --> DEBERAN COMENTARSE
+                            // ************************************************************
+                                Iterator it = code.iterator();
+                              	while ( it.hasNext() ) {
+                            		syntaxErrorManager.syntaxDebug("   "+it.next().toString());
+                            	}
+                            // ************************************************************				
+                           
+
                             RESULT=ax;
 				
 			:} | procedure PARENTESISIZQ PARENTESISDER IS cuerpo:bloque {:
-                            // Tabla de desplazamientos para el CF
+                            // Tabla de nullazamientos para el CF
                             ScopeIF scope = scopeManager.getCurrentScope();
-                             Axiom ax = new Axiom();
+                            
+							Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
+
+                            // Creamos el codigo CI de todo el arbol
+                            IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
+                            cb.addQuadruple("INICIO_PROGRAMA", var, null); 
+                            cb.addQuadruples(bloque.getIntermediateCode());
+                            cb.addQuadruple("FIN_PROGRAMA", null);
+				
+                            // anyadimos todas las cadena al final del programa
+                            int i=1;
+                            cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
+                            for (Iterator it = cadenas.iterator(); it.hasNext();i++){
+                                String nombre="cadena"+i;
+                                cb.addQuadruple ("CADENA", nombre,it.next(), "");
+                            }
+
+                            List code = cb.create();
+                            Axiom ax = new Axiom();
+                            ax.setIntermediateCode(code);
+                            
+                            // Listado de todo el codigo intermedio --> DEBERAN COMENTARSE
+                            // ************************************************************
+                                Iterator it = code.iterator();
+                              	while ( it.hasNext() ) {
+                            		syntaxErrorManager.syntaxDebug("   "+it.next().toString());
+                            	}
+                            // ************************************************************				
                             RESULT=ax;
 				
 			:} ;
@@ -224,24 +280,42 @@ cabecera::= seccionConstantesSimbolicas seccionTipos seccionVariables seccionSub
 			seccionConstantesSimbolicas seccionTipos seccionSubProgramas:bloque{:
                                 RESULT=bloque; 
                             :} |
-			seccionConstantesSimbolicas seccionTipos seccionVariables |
+			seccionConstantesSimbolicas seccionTipos seccionVariables {:
+								BloqueSentencias bloque=new BloqueSentencias();
+                                RESULT=bloque; 
+                            :}|
 			seccionConstantesSimbolicas seccionSubProgramas:bloque{:
                                 RESULT=bloque; 
                             :} |
-			seccionConstantesSimbolicas seccionVariables |
-			seccionConstantesSimbolicas |
+			seccionConstantesSimbolicas seccionVariables {:
+								BloqueSentencias bloque=new BloqueSentencias();
+                                RESULT=bloque; 
+                            :}|
+			seccionConstantesSimbolicas{:
+								BloqueSentencias bloque=new BloqueSentencias();
+                                RESULT=bloque; 
+                            :}|
 			seccionTipos seccionVariables seccionSubProgramas:bloque{:
                                 RESULT=bloque; 
                             :} |
-			seccionTipos seccionVariables |
+			seccionTipos seccionVariables {:
+								BloqueSentencias bloque=new BloqueSentencias();
+                                RESULT=bloque; 
+                            :}|
 			seccionTipos seccionSubProgramas:bloque{:
                                 RESULT=bloque; 
                             :} |
-			seccionTipos |
+			seccionTipos {:
+								BloqueSentencias bloque=new BloqueSentencias();
+                                RESULT=bloque; 
+                            :}|
 			seccionVariables seccionSubProgramas:bloque{:
                                 RESULT=bloque; 
                             :}|
-			seccionVariables |
+			seccionVariables {:
+								BloqueSentencias bloque=new BloqueSentencias();
+                                RESULT=bloque; 
+                            :}|
 			seccionSubProgramas:bloque{:
                                 RESULT=bloque; 
                             :};
@@ -282,7 +356,7 @@ declaracionConstanteSimbolica::= ID:id DOSPUNTOS CONSTANT ASIGNACION tipoBoolean
 	}else{
 		SymbolTableIF tableSymbol=scope.getSymbolTable();
 		SymbolConstant constantSymbol=new SymbolConstant(scope,name, scopeManager.searchType("BOOLEAN"));
-		if (valor.getLexema().equalsIgnoreCase("TRUE")) 
+		if (valor.getLexema().equalsIgnoreCase("true")) 
 			constantSymbol.setValue(1);
 		else 
 			constantSymbol.setValue(0);
@@ -467,7 +541,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESIS
                                 
         			for (int i=0; i<parametros.size(); i++){
                                     Parametro p = (Parametro) parametros.get(i);
-                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo());
                                     
                                     // Creo lista ordenada de parametros en el PROCEDIMIENTO.
                                     tipoFuncion.setTypeParametro(p.getColumna(),p.getTipo()); 
@@ -591,7 +665,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESIS
                                 
         			for (int i=0; i<parametros.size(); i++){
                                     Parametro p = (Parametro) parametros.get(i);
-                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo());
                                     
                                     // Creo lista ordenada de parametros en el PROCEDIMIENTO.
                                     tipoFuncion.setTypeParametro(p.getColumna(),p.getTipo()); 
@@ -729,7 +803,7 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
                                 
         			for (int i=0; i<parametros.size(); i++){
                                     Parametro p = (Parametro) parametros.get(i);
-                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo());
                                     
                                     // Creo lista ordenada de parametros en el PROCEDIMIENTO.
                                     tipoProcedimiento.setTypeParametro(p.getColumna(),p.getTipo()); 
@@ -792,7 +866,7 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
                                 
         			for (int i=0; i<parametros.size(); i++){
                                     Parametro p = (Parametro) parametros.get(i);
-                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo());
                                     
                                     // Creo lista ordenada de parametros en el PROCEDIMIENTO.
                                     tipoProcedimiento.setTypeParametro(p.getColumna(),p.getTipo()); 
@@ -843,21 +917,35 @@ sentencia::=sentenciaAsignacion:sent {: RESULT=sent; :}|
 // ------------------------
 sentenciaPutLine::= PUTLINE:id PARENTESISIZQ CARACTERESCADENA:cad PARENTESISDER PUNTOYCOMA
 {:
-     	semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es una CADENA DE CARACTERES.");
-       
-     	BloqueSentencias bloque = new BloqueSentencias();
-				ScopeIF scope = scopeManager.getCurrentScope();
+     			//semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es una CADENA DE CARACTERES.");
+       			
+       			BloqueSentencias bloque = new BloqueSentencias();
+     			ScopeIF scope = scopeManager.getCurrentScope();
+				IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
 				cadenas.add(cad.getLexema());
+				cb.addQuadruple("WRSTR","cadena"+cadenas.size());
+				List code = cb.create();
+                bloque.setIntermediateCode(cb.create());
+                
+                //semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 					RESULT=bloque;		
 				:};
 
 sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYCOMA
 {:    
     
-            semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es de tipo "+ exp.getTipo().getName()+".");
+            //semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es de tipo "+ exp.getTipo().getName()+".");
 		              
             BloqueSentencias bloque = new BloqueSentencias();
             ScopeIF scope = scopeManager.getCurrentScope();
+            IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
+			cb.addQuadruples(exp.getIntermediateCode());
+			
+            cb.addQuadruple("WRINT", exp.getResultado());
+			List code = cb.create();
+            bloque.setIntermediateCode(cb.create());
+            
+            semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 			RESULT=bloque;
 	   :}; 
 
@@ -1364,13 +1452,13 @@ expresion::= ENTERO:num {:
                             :} |
 			tipoBooleano :id {:
                             ScopeIF scope = scopeManager.getCurrentScope();
-	      	            Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
+	      	            	Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
                             // Le damos el valor true=1 y false=0
                             Value resultado=new Value(0);
-                            if (id.getLexema().equals("TRUE")){
-				resultado=new Value(1);
+                            if (id.getLexema().equalsIgnoreCase("TRUE")){
+								resultado=new Value(1);
                             }
-				exp.setResultado(resultado);
+							exp.setResultado(resultado);
                                 RESULT=exp;			:} |
 			ID:id PARENTESISIZQ ENTERO:num PARENTESISDER {:
 					ScopeIF scope = scopeManager.getCurrentScope();
@@ -1429,8 +1517,6 @@ tipos::= INTEGER:t {: RESULT="INTEGER"; :} | BOOLEAN:t {: RESULT="BOOLEAN"; :} |
 // ----------------------------                     
 // Definicion de PARAMETROS
 // ---------------------------- 
-
-
 modo::= OUT:t {: RESULT=t; :} | vacio;
 
 // --------------------
@@ -1443,6 +1529,10 @@ cuerpo::= BEGIN listaSentencias:bloque END ID PUNTOYCOMA
 cuerpo::= BEGIN 
 {:
 	BloqueSentencias bloque = new BloqueSentencias();
+    IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
+	cb.addQuadruple ("NOP", null);
+	List code=cb.create ();
+	bloque.setIntermediateCode (code); 
 	RESULT=bloque;
 :}
 END ID PUNTOYCOMA;
