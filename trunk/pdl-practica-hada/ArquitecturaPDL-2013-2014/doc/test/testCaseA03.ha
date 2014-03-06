@@ -11,7 +11,7 @@ begin
 	Put_line("CONSTANTES");
 
 	Put_line("CIERTO(true):");
-        Put_line(CIERTO);
+       Put_line(CIERTO);
 
 	Put_line("FALSO(false):");
         Put_line(FALSO);
