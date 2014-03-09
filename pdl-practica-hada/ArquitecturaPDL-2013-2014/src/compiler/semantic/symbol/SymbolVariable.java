@@ -13,12 +13,12 @@ import es.uned.lsi.compiler.semantic.type.TypeIF;
 // TODO: Student work
 //       Include properties to characterize variables
 
-public class SymbolVariable
-    extends SymbolBase
+public class SymbolVariable extends SymbolBase
 {  
     private int desplazamiento;
     private boolean referencia;
     private int size;       // Tamanyo para conjuntos
+    private int address;
     /**
      * Constructor for SymbolVariable.
      * @param scope The declaration scope.
@@ -91,5 +91,19 @@ public class SymbolVariable
     public void setDesplazamiento(int desplazamiento) {
         this.desplazamiento = desplazamiento;
     }
+    
+	/**
+	 * @return the address
+	 */
+	public int getAddress() {
+		return address;
+	}
+
+	/**
+	 * @param address the address to set
+	 */
+	public void setAddress(int address) {
+		this.address = address;
+	}
     
 }
