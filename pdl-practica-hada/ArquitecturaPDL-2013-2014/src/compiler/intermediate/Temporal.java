@@ -13,7 +13,8 @@ public class Temporal
     private String  name    = null;
     private ScopeIF scope   = null;
     private int     address = 0;
-    private int size;
+    int desplazamiento;
+           
     /**
      * Constructor for Temporal.
      * @param name The name.
@@ -25,7 +26,6 @@ public class Temporal
         super ();
         this.name = name;
         this.scope = scope;
-        this.size = 1;
     }
     
     
@@ -129,12 +129,11 @@ public class Temporal
         return name;
     }
     
-    public void setSize(int size) {
-		this.size = size;
-	}
+    public int getDesplazamiento() {
+        return this.desplazamiento;
+    }
 
-
-	public int getSize() {
-		return size;
-	}
+    public void setDesplazamiento(int desplazamiento) {
+        this.desplazamiento = desplazamiento;
+    }
 }
