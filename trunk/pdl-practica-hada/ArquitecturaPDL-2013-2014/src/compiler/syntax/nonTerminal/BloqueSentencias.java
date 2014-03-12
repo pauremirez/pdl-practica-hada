@@ -15,6 +15,7 @@ public class BloqueSentencias extends NonTerminal {
     // private TypeIF tipoDevuelve;
     private List codigoIntermedio;
     private OperandIF resultado;
+    private OperandIF resultadoIndex;
     
     public BloqueSentencias() {
       //   this.tieneDevuelve = false;
@@ -27,5 +28,13 @@ public class BloqueSentencias extends NonTerminal {
 
     public void setResultado(OperandIF resultado) {
         this.resultado = resultado;
+    }
+    
+    public OperandIF getResultadoIndex() {
+        return resultadoIndex;
+    }
+
+    public void setResultadoIndex(OperandIF resultadoIndex) {
+        this.resultadoIndex = resultadoIndex;
     }
 }
