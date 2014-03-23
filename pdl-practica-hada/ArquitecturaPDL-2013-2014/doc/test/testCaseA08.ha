@@ -9,8 +9,9 @@ a,b: Integer;
 
 function resta (x,y: out Integer) return Integer is
 begin
-		
+
 	return x-y;	
+	
 
 end resta;
 

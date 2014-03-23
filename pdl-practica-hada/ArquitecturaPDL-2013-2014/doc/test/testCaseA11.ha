@@ -9,6 +9,7 @@ procedure testCase11 () is
 	procedure proc1(x: out Integer) is 
 	
 	y: Integer;
+	
 
 		-- procedimiento anidado 
 		procedure resta(x: out Integer) is 
@@ -22,7 +23,7 @@ procedure testCase11 () is
 
 	begin  
 		y:=5;
-		resta(x); 		
+--		resta(x); 		
 	end proc1; 
 
 

@@ -24,7 +24,7 @@ procedure testCase12 () is
 begin
 	
 	Put_line("RECURSIVIDAD");
-	Put_line("54321:");
+	Put_line("12345:");
 	cinco:=5;
 	decrementa(cinco);	
 
