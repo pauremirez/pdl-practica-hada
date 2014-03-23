@@ -1,4 +1,6 @@
 Quadruple - [INICIO testCase02, 5, null]
+Quadruple - [ESCRIBE cadena1, null, null]
+Quadruple - [ESCRIBE cadena2, null, null]
 Quadruple - [FINAL null, null, null]
 Quadruple - [CADENA cadena0, "\n", ]
 Quadruple - [CADENA cadena1, "hola", ]
