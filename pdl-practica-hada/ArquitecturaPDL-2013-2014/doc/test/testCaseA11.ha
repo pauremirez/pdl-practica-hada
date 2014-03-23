@@ -23,7 +23,7 @@ procedure testCase11 () is
 
 	begin  
 		y:=5;
---		resta(x); 		
+		resta(x); 		
 	end proc1; 
 
 
