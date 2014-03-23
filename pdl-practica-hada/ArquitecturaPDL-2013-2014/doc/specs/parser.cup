@@ -176,12 +176,42 @@ program::=
   {: 
   		// No modificar esta estructura, aunque se pueden anadir mas acciones semanticas
   		// Comentar estas lineas para el 1er cuatrimestre
-  		List intermediateCode = ax.getIntermediateCode ();
   		
+  		//List intermediateCode = ax.getIntermediateCode ();
   		//finalCodeFactory.create (intermediateCode);
-
   		
-  		syntaxErrorManager.syntaxInfo ("Parsing process ended.");
+
+         ScopeIF scope = scopeManager.getCurrentScope();
+         Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
+				
+         desplScope.put(scopeManager.getCurrentScope().getName(), new Integer(despl));
+         var.setTablaDespl(desplScope);
+                              		
+  		 IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
+  		 cb.addQuadruple ("INICIO", var, new Value(despl));
+  		 
+  		 List intermediateCode = ax.getIntermediateCode ();
+		 
+  		 cb.addQuadruples (intermediateCode);
+         cb.addQuadruple ("FINAL",null);
+         
+         // ponemos todas las cadena al final del programa
+         int i=1;
+         cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
+         for (Iterator it = cadenas.iterator(); it.hasNext();i++){
+              String nombre="cadena"+i;
+              cb.addQuadruple ("CADENA", nombre,it.next(), "");
+         }
+  		 
+  		 finalCodeFactory.setEnvironment(CompilerContext.getExecutionEnvironment());
+  		 finalCodeFactory.create(cb.create());
+
+         List code = cb.create();
+		 ax.setIntermediateCode(code);
+		 
+		 semanticErrorManager.semanticDebug(ax.getIntermediateCode());
+  		
+  		 syntaxErrorManager.syntaxInfo ("Parsing process ended.");
    :};
 
 // ----------------------
@@ -190,37 +220,33 @@ program::=
 axiom::= procedure PARENTESISIZQ PARENTESISDER IS cabecera:cabecera cuerpo:bloque {:
                            // Tabla de nullazamientos para el CF
                             ScopeIF scope = scopeManager.getCurrentScope();
-                          	Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
+//                          	Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
 				
-                            desplScope.put(scopeManager.getCurrentScope().getName(), new Integer(despl));
-                            var.setTablaDespl(desplScope);
+//                            desplScope.put(scopeManager.getCurrentScope().getName(), new Integer(despl));
+//                            var.setTablaDespl(desplScope);
                             
                             
                             // Creamos el codigo CI de todo el arbol
-                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
+//                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
                                                         
                             //******************** PROBLEMAS
-                            cb.addQuadruple("INICIO_PROGRAMA", var, new Value(despl));
-//							  cb.addQuadruples(cabecera.getIntermediateCode());
-                            cb.addQuadruples(bloque.getIntermediateCode());
-                            cb.addQuadruple("FIN_PROGRAMA", null);
+//                            cb.addQuadruple("INICIO_PROGRAMA", var, new Value(despl));
+//                            cb.addQuadruples(bloque.getIntermediateCode());
+//                            cb.addQuadruple("FIN_PROGRAMA", null);
 				
                             // ponemos todas las cadena al final del programa
-                            int i=1;
-                            cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
-                            for (Iterator it = cadenas.iterator(); it.hasNext();i++){
-                                String nombre="cadena"+i;
-                                cb.addQuadruple ("CADENA", nombre,it.next(), "");
-
-//semanticErrorManager.semanticDebug(nombre+ ": " +it.next().toString());
-                            
-                            }
+//                            int i=1;
+//                            cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
+//                            for (Iterator it = cadenas.iterator(); it.hasNext();i++){
+//                                String nombre="cadena"+i;
+//                                cb.addQuadruple ("CADENA", nombre,it.next(), "");
+//                            }
                             
                             //*********************
 
-                            List code = cb.create();
-                            Axiom ax = new Axiom();
-                            ax.setIntermediateCode(code);
+//                            List code = cb.create();
+                              Axiom ax = new Axiom();
+//                            ax.setIntermediateCode(code);
                             
                             // Listado de todo el codigo intermedio --> DEBERAN COMENTARSE
                             // ************************************************************
@@ -229,42 +255,42 @@ axiom::= procedure PARENTESISIZQ PARENTESISDER IS cabecera:cabecera cuerpo:bloqu
                             //		syntaxErrorManager.syntaxInfo("   "+it.next().toString());
                             //	}
                             // ************************************************************				
-                            semanticErrorManager.semanticDebug(ax.getIntermediateCode());
+//                            semanticErrorManager.semanticDebug(ax.getIntermediateCode());
                             RESULT=ax;
 				
 			:} | procedure PARENTESISIZQ PARENTESISDER IS cuerpo:bloque {:
                             // Tabla de nullazamientos para el CF
                             ScopeIF scope = scopeManager.getCurrentScope();
-                          	Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
+//                          	Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
 				
-                            desplScope.put(scopeManager.getCurrentScope().getName(), new Integer(despl));
-                            var.setTablaDespl(desplScope);
+//                            desplScope.put(scopeManager.getCurrentScope().getName(), new Integer(despl));
+//                            var.setTablaDespl(desplScope);
 
                             // Creamos el codigo CI de todo el arbol
-                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
+//                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
                             
                             
                             //******************** PROBLEMAS
-                            cb.addQuadruple("INICIO_PROGRAMA", var, new Value(despl));
-                            cb.addQuadruples(bloque.getIntermediateCode());
-                            cb.addQuadruple("FIN_PROGRAMA", null);
+//                            cb.addQuadruple("INICIO_PROGRAMA", var, new Value(despl));
+//                            cb.addQuadruples(bloque.getIntermediateCode());
+//                            cb.addQuadruple("FIN_PROGRAMA", null);
 				
                             // ponemos todas las cadena al final del programa
-                            int i=1;
-                            cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
-                            for (Iterator it = cadenas.iterator(); it.hasNext();i++){
-                                String nombre="cadena"+i;
-                                cb.addQuadruple ("CADENA", nombre,it.next(), "");
+//                            int i=1;
+//                            cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
+//                            for (Iterator it = cadenas.iterator(); it.hasNext();i++){
+//                                String nombre="cadena"+i;
+//                                cb.addQuadruple ("CADENA", nombre,it.next(), "");
 
 //semanticErrorManager.semanticDebug(nombre+ ": " +it.next().toString());
                             
-                            }
+//                            }
                             
                             //*********************
 
-                            List code = cb.create();
+//                            List code = cb.create();
                             Axiom ax = new Axiom();
-                            ax.setIntermediateCode(code);
+//                            ax.setIntermediateCode(code);
                             
                             // Listado de todo el codigo intermedio --> DEBERAN COMENTARSE
                             // ************************************************************
@@ -273,7 +299,7 @@ axiom::= procedure PARENTESISIZQ PARENTESISDER IS cabecera:cabecera cuerpo:bloqu
                             //		syntaxErrorManager.syntaxInfo("   "+it.next().toString());
                             //	}
                             // ************************************************************
-                            semanticErrorManager.semanticDebug(ax.getIntermediateCode());		
+//                            semanticErrorManager.semanticDebug(ax.getIntermediateCode());		
                             RESULT=ax;
 				
 			:} ;
