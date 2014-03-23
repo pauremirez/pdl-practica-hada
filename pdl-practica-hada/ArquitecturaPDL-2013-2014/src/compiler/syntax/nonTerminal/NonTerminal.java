@@ -14,7 +14,7 @@ import es.uned.lsi.compiler.syntax.nonTerminal.NonTerminalIF;
  */
 public abstract class NonTerminal implements NonTerminalIF
 {
-    private List<QuadrupleIF> intermediateCode;
+    List<QuadrupleIF> intermediateCode;
 	private TypeTableIF typeTable;
 	private TypeIF typeIF;
 	private SemanticErrorManager semanticErrorManager;
