@@ -5,17 +5,23 @@ MOVE .SP , .IY
 SUB  .SP , #5
 MOVE .A , .SP
 MOVE .IY , /0
-WRSTR /cadena1; Escribimos un salto de linea
+WRSTR /cadena1
+; Escribimos un salto de linea
 WRSTR /cadena0
-WRSTR /cadena2; Escribimos un salto de linea
+WRSTR /cadena2
+; Escribimos un salto de linea
 WRSTR /cadena0
-WRSTR /cadena3; Escribimos un salto de linea
+WRSTR /cadena3
+; Escribimos un salto de linea
 WRSTR /cadena0
-WRSTR /cadena4; Escribimos un salto de linea
+WRSTR /cadena4
+; Escribimos un salto de linea
 WRSTR /cadena0
-WRSTR /cadena5; Escribimos un salto de linea
+WRSTR /cadena5
+; Escribimos un salto de linea
 WRSTR /cadena0
-WRSTR /cadena6; Escribimos un salto de linea
+WRSTR /cadena6
+; Escribimos un salto de linea
 WRSTR /cadena0
 WRINT #1
 HALT 
