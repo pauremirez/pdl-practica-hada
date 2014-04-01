@@ -188,12 +188,12 @@ program::=
          var.setTablaDespl(desplScope);
                               		
   		 IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
-  		 cb.addQuadruple ("INICIO", var, new Value(despl));
+  		 cb.addQuadruple ("INICIO_PROGRAMA", var, new Value(despl));
   		 
   		 List intermediateCode = ax.getIntermediateCode ();
 		 
   		 cb.addQuadruples (intermediateCode);
-         cb.addQuadruple ("FINAL",null);
+         cb.addQuadruple ("FIN_PROGRAMA",null);
          
          // ponemos todas las cadena al final del programa
          int i=1;
@@ -202,6 +202,14 @@ program::=
               String nombre="cadena"+i;
               cb.addQuadruple ("CADENA", nombre,it.next(), "");
          }
+         
+         /*
+                  int i=1;
+         cb.addQuadruple ("CADENA", "","\"\\n\"", "");
+         for (Iterator it = cadenas.iterator(); it.hasNext();i++){
+              
+              cb.addQuadruple ("CADENA", "",it.next(), "");
+         }*/
   		 
   		 finalCodeFactory.setEnvironment(CompilerContext.getExecutionEnvironment());
   		 finalCodeFactory.create(cb.create());
@@ -1030,7 +1038,7 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ CARACTERESCADENA:cad PARENTESISDER 
      			ScopeIF scope = scopeManager.getCurrentScope();
 				IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
 				cadenas.add(cad.getLexema());
-				cb.addQuadruple("ESCRIBE","cadena"+cadenas.size());
+				cb.addQuadruple("WRSTR","cadena"+cadenas.size());
 				List code = cb.create();
                 bloque.setIntermediateCode(cb.create());
                 
@@ -1050,10 +1058,10 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 		        LabelIF l1 = lF.create ();
 		        LabelIF l2 = lF.create ();
 		        cb.addQuadruple ("BRF", exp.getResultado(), l1);
-		        cb.addQuadruple ("ESCRIBE", new Value(true));
+		        cb.addQuadruple ("WRINT", new Value(true));
 		        cb.addQuadruple ("BR", l2);
 		        cb.addQuadruple ("INL", l1);
-		        cb.addQuadruple ("ESCRIBE", new Value(false));
+		        cb.addQuadruple ("WRINT", new Value(false));
 		        cb.addQuadruple ("INL", l2);
 		    }else if (exp.getTipo() instanceof TypeArray){ //Es un Array
 		    	TypeArray array = (TypeArray) exp.getTipo();
@@ -1064,19 +1072,19 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 			        LabelIF l1 = lF.create ();
 			        LabelIF l2 = lF.create ();
 			        cb.addQuadruple ("BRF", exp.getResultado(), l1);
-			        cb.addQuadruple ("ESCRIBE", new Value(true));
+			        cb.addQuadruple ("WRINT", new Value(true));
 			        cb.addQuadruple ("BR", l2);
 			        cb.addQuadruple ("INL", l1);
-			        cb.addQuadruple ("ESCRIBE", new Value(false));
+			        cb.addQuadruple ("WRINT", new Value(false));
 			        cb.addQuadruple ("INL", l2);
 		    	
 		    	}else{ //Es un array de tipo Integer
 		    		//semanticErrorManager.semanticDebug("ARRAY de tipo INTEGER");
 		    	
-		    		cb.addQuadruple("ESCRIBE_INT", exp.getResultado());
+		    		cb.addQuadruple("WRINT", exp.getResultado());
 		    	}
             }else{ //Es un numero
-            	cb.addQuadruple("ESCRIBE_INT", exp.getResultado());
+            	cb.addQuadruple("WRINT", exp.getResultado());
             }
             
 			List code = cb.create();

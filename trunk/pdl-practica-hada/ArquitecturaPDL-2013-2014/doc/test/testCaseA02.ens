@@ -1,7 +1,19 @@
-Quadruple - [INICIO testCase02, 5, null]
-Quadruple - [ESCRIBE cadena1, null, null]
-Quadruple - [ESCRIBE cadena2, null, null]
-Quadruple - [FINAL null, null, null]
-Quadruple - [CADENA cadena0, "\n", ]
-Quadruple - [CADENA cadena1, "hola", ]
-Quadruple - [CADENA cadena2, "mundo", ]
+; INICIO PROGRAMA PRINCIPAL HAda 
+RES 11
+MOVE #65535 , .SP
+MOVE .SP , .IY
+SUB  .SP , #5
+MOVE .A , .SP
+MOVE .IY , /0
+WRSTR /cadena1; Escribimos un salto de linea
+WRSTR /cadena0
+WRSTR /cadena2; Escribimos un salto de linea
+WRSTR /cadena0
+HALT 
+
+; Inicio Cadenas de Texto
+
+cadena0: DATA "\n"
+cadena1: DATA "hola"
+cadena2: DATA "mundo"
+
