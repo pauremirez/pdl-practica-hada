@@ -14,6 +14,7 @@ public class Temporal
     private ScopeIF scope   = null;
     private int     address = 0;
     int desplazamiento;
+    private int size;
            
     /**
      * Constructor for Temporal.
@@ -26,6 +27,7 @@ public class Temporal
         super ();
         this.name = name;
         this.scope = scope;
+        this.size = 1;
     }
     
     
@@ -136,4 +138,13 @@ public class Temporal
     public void setDesplazamiento(int desplazamiento) {
         this.desplazamiento = desplazamiento;
     }
+    
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+
+	public int getSize() {
+		return size;
+	}
 }
