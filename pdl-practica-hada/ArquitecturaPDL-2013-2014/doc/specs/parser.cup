@@ -841,11 +841,11 @@ cuerpoFuncion:bloque2 {:
 :};  
 funcion::= FUNCTION ID error RETURN tipos IS cuerpoFuncion {:syntaxErrorManager.syntaxFatalError("001. Faltan los DOS PARENTESIS");:};
 			
-cuerpoFuncion::= BEGIN listaSentencias:bloque RETURN expresion:exp PUNTOYCOMA END ID PUNTOYCOMA
+cuerpoFuncion::= BEGIN listaSentencias:bloque PUNTOYCOMA END ID PUNTOYCOMA
 {:
 				 RESULT=bloque;
 					 :}  |
-				BEGIN RETURN expresion:exp PUNTOYCOMA END ID PUNTOYCOMA
+				BEGIN PUNTOYCOMA END ID PUNTOYCOMA
 				{:
 				BloqueSentencias bloque = new BloqueSentencias();
 				 RESULT=bloque;
@@ -1024,7 +1024,7 @@ listaSentencias::= sentencia:bloque {:
                 	cb.addQuadruples(blq.getIntermediateCode());
                 	List code = cb.create();
                 	bloque.setIntermediateCode(code);
-                	
+					
                 	 //semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 					RESULT=bloque;
 
@@ -1034,7 +1034,20 @@ sentencia::=sentenciaAsignacion:sent {: RESULT=sent; :}|
 			sentenciaIf:sent {: RESULT=sent; :} | 
 			sentenciaWhile:sent {: RESULT=sent; :} | 
 			sentenciaPutLine:sent {: RESULT=sent; :} | 
-			sentenciaProcedimiento:sent {: RESULT=sent;:};
+			sentenciaProcedimiento:sent {: RESULT=sent;:} | 
+			RETURN expresion:exp {:
+				BloqueSentencias bloque = new BloqueSentencias(exp);
+				ScopeIF scope = scopeManager.getCurrentScope();
+				IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);	
+				List code1 = exp.getIntermediateCode();
+				cb.addQuadruples (code1);
+				cb.addQuadruple("RET",exp.getResultado());
+				List code = cb.create();
+                bloque.setIntermediateCode(code);
+                
+                semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
+					RESULT=bloque;
+				:};
 
 // ------------------------
 // Sentencia PUTLINE
