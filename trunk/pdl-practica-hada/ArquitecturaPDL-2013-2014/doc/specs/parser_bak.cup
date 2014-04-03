@@ -34,19 +34,17 @@ action code {:
 	SyntaxErrorManager   syntaxErrorManager   = CompilerContext.getSyntaxErrorManager();
 	SemanticErrorManager semanticErrorManager = CompilerContext.getSemanticErrorManager ();
 	ScopeManagerIF       scopeManager         = CompilerContext.getScopeManager ();
-	FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
+	//FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
 
 	// Cadenas 
 	List cadenas = new ArrayList();
-	
-	// Etiquetas 
-	List etiqueta = new ArrayList();
 	
 	// Desplazamiento con RA principal
 	int despl=5;
 
 	// Desplazamiento x ambito
 	HashMap desplScope = new HashMap(); 
+	
 
 :}	
 
@@ -123,8 +121,8 @@ non terminal					program;
 non terminal  					seccionTipos;
 non terminal  					seccionVariables;
 non terminal BloqueSentencias	seccionSubProgramas;
-non terminal 					seccionConstantesSimbolicas;
-non terminal  					declaracionConstanteSimbolica;
+non terminal BloqueSentencias	seccionConstantesSimbolicas;
+non terminal BloqueSentencias	declaracionConstanteSimbolica;
 non terminal  					declaracionTipo;
 non terminal  					declaracionVariable;
 non terminal BloqueSentencias	declaracionSubPrograma;
@@ -179,81 +177,89 @@ program::=
   {: 
   		// No modificar esta estructura, aunque se pueden anadir mas acciones semanticas
   		// Comentar estas lineas para el 1er cuatrimestre
-  		
-  		//List intermediateCode = ax.getIntermediateCode ();
+  		List intermediateCode = ax.getIntermediateCode ();
   		//finalCodeFactory.create (intermediateCode);
-  		
 
-         ScopeIF scope = scopeManager.getCurrentScope();
-         Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
-				
-         desplScope.put(scopeManager.getCurrentScope().getName(), new Integer(despl));
-         var.setTablaDespl(desplScope);
-                              		
-  		 IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
-  		 cb.addQuadruple ("INICIO_PROGRAMA", var, new Value(despl));
-  		 
-  		 List intermediateCode = ax.getIntermediateCode ();
-		 
-  		 cb.addQuadruples (intermediateCode);
-         cb.addQuadruple ("FIN_PROGRAMA",null);
-         
-         // ponemos todas las cadena al final del programa
-         int i=1;
-         cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
-         for (Iterator it = cadenas.iterator(); it.hasNext();i++){
-              String nombre="cadena"+i;
-              cb.addQuadruple ("CADENA", nombre,it.next(), "");
-         }
-         
-         /*
-                  int i=1;
-         cb.addQuadruple ("CADENA", "","\"\\n\"", "");
-         for (Iterator it = cadenas.iterator(); it.hasNext();i++){
-              
-              cb.addQuadruple ("CADENA", "",it.next(), "");
-         }*/
-  		 
-  		 finalCodeFactory.setEnvironment(CompilerContext.getExecutionEnvironment());
-  		 finalCodeFactory.create(cb.create());
-
-         List code = cb.create();
-		 ax.setIntermediateCode(code);
-		 
-		 semanticErrorManager.semanticDebug(ax.getIntermediateCode());
   		
-  		 syntaxErrorManager.syntaxInfo ("Parsing process ended.");
+  		syntaxErrorManager.syntaxInfo ("Parsing process ended.");
    :};
 
 // ----------------------
 // Inicio programa
 // ----------------------
-axiom::= procedure PARENTESISIZQ PARENTESISDER IS cabecera:bloque1 cuerpo:bloque {:
-                  
-                            // Creamos el codigo CI de todo el arbol
-                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());                               
+axiom::= procedure PARENTESISIZQ PARENTESISDER IS cabecera:cab cuerpo:bloque {:
+                            // Tabla de nullazamientos para el CF
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                          
+							Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
 
-							cb.addQuadruples(bloque1.getIntermediateCode());
+							desplScope.put(scope.getName(), new Integer(despl));
+                            var.setTablaDespl(desplScope);
+							
+                            // Creamos el codigo CI de todo el arbol
+                            IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
+                            cb.addQuadruple("INICIO_PROGRAMA", var, new Value(despl));
+                            cb.addQuadruples(cab.getIntermediateCode());
                             cb.addQuadruples(bloque.getIntermediateCode());
+                            cb.addQuadruple("FIN_PROGRAMA", null);
+				
+                            // anyadimos todas las cadena al final del programa
+                            int i=1;
+                            cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
+                            for (Iterator it = cadenas.iterator(); it.hasNext();i++){
+                                String nombre="cadena"+i;
+                                cb.addQuadruple ("CADENA", nombre,it.next(), "");
+                            }
 
                             List code = cb.create();
                             Axiom ax = new Axiom();
                             ax.setIntermediateCode(code);
-                            			
-                            semanticErrorManager.semanticDebug(ax.getIntermediateCode());
+                            
+                            // Listado de todo el codigo intermedio --> DEBERAN COMENTARSE
+                            // ************************************************************
+                                Iterator it = code.iterator();
+                              	while ( it.hasNext() ) {
+                            		semanticErrorManager.semanticDebug("   "+it.next().toString());
+                            	}
+                            // ************************************************************				
+                           
+
                             RESULT=ax;
 				
 			:} | procedure PARENTESISIZQ PARENTESISDER IS cuerpo:bloque {:
-                            // Creamos el codigo CI de todo el arbol
-                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());   
+                            // Tabla de desplazamientos para el CF
+                            ScopeIF scope = scopeManager.getCurrentScope();
+                            
+							Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
 
+							desplScope.put(scope.getName(), new Integer(despl));
+                            var.setTablaDespl(desplScope);
+
+                            // Creamos el codigo CI de todo el arbol
+                            IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
+                            cb.addQuadruple("INICIO_PROGRAMA", var, null); 
                             cb.addQuadruples(bloque.getIntermediateCode());
+                            cb.addQuadruple("FIN_PROGRAMA", null);
+				
+                            // anyadimos todas las cadena al final del programa
+                            int i=1;
+                            cb.addQuadruple ("CADENA", "cadena0","\"\\n\"", "");
+                            for (Iterator it = cadenas.iterator(); it.hasNext();i++){
+                                String nombre="cadena"+i;
+                                cb.addQuadruple ("CADENA", nombre,it.next(), "");
+                            }
 
                             List code = cb.create();
                             Axiom ax = new Axiom();
                             ax.setIntermediateCode(code);
-                            			
-                            semanticErrorManager.semanticDebug(ax.getIntermediateCode());
+                            
+                            // Listado de todo el codigo intermedio --> DEBERAN COMENTARSE
+                            // ************************************************************
+                                Iterator it = code.iterator();
+                              	while ( it.hasNext() ) {
+                            		semanticErrorManager.semanticDebug("   "+it.next().toString());
+                            	}
+                            // ************************************************************				
                             RESULT=ax;
 				
 			:} ;
@@ -333,20 +339,8 @@ seccionVariables::= declaracionVariable {:
                             :}| seccionVariables declaracionVariable {:
                                 desplScope.put(scopeManager.getCurrentScope().getName(),despl); 
                             :};
-seccionSubProgramas::= declaracionSubPrograma:bloque {:
-                                RESULT=bloque; :}  | 
-                       declaracionSubPrograma:bloque1 seccionSubProgramas:bloque2 {:
-                                BloqueSentencias bloque = new BloqueSentencias();
-                                IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
-								List code1 = bloque1.getIntermediateCode();
-								List code2 = bloque2.getIntermediateCode();
-								cb.addQuadruples (code1);
-								cb.addQuadruples (code2);
-								List code=cb.create ();
-								bloque.setIntermediateCode (code); 
-                                
-                                RESULT=bloque;
-:};
+seccionSubProgramas::= declaracionSubPrograma | seccionSubProgramas declaracionSubPrograma;
+
 
 // --------------------
 // Seccion Constantes
@@ -532,159 +526,7 @@ declaracionSubPrograma::= procedimiento:bloque {: RESULT=bloque; :}| funcion:blo
 // ------------------------                     
 // Definicion de FUNCION 
 // ------------------------  
-funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER RETURN tipos:tp IS 
-{:
-			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
- 				// la funcion ha sido declarada
-            if (scopeManager.containsSymbol(idFunc.getLexema())) {
-				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
-            }else{ 
-                                
-				// Crear FUNCION en ambito
-				ScopeIF scope = scopeManager.getCurrentScope();
-                TypeTableIF tablaTipos = scope.getTypeTable();
-	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
-							
-                // a�adir funcion a TT
-                TypeFunction tipoFuncion = new TypeFunction(scope, idFunc.getLexema());
-				tablaTipos.addType(idFunc.getLexema(), tipoFuncion);
-							
-				// a�adir funcion a TS
-                SymbolFunction simboloFunc = new SymbolFunction(scope,idFunc.getLexema(),tablaTipos.getType(idFunc.getLexema()));
-				tablaSimbolos.addSymbol(idFunc.getLexema(), simboloFunc);
-							
-				// NUEVO ambito para funcion y tabla TS y TT
-				scopeManager.openScope(idFunc.getLexema());             
-														
-				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
-				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
 
-                // Grabo tipo retorno
-				tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
-
-				// Grabo parametros funcion
-                // ListaObjetos parametros = new ListaObjetos(listaArg) 
-				ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
-                                
-        			for (int i=0; i<parametros.size(); i++){
-                                    Parametro p = (Parametro) parametros.get(i);
-                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(),despl);
-                                    despl++;
-                                    // Creo lista ordenada de parametros en el PROCEDIMIENTO.
-                                    tipoFuncion.setTypeParametro(p.getColumna(),p.getTipo()); 
-                                    // Fijar paso parametros Ref/Valor en Symbolvar
-                                    simboloVar.setReferencia(p.getReferencia());
-                                    tablaSimbolos.addSymbol(p.getNombre(),simboloVar);                                  	
-                                    tipoFuncion.setParametro(simboloVar);
-                                } 
-       
-                // Grabo tipo retorno
-                tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
-                tipoFuncion.setHayRetorno(true);
-                LabelFactoryIF lf = CompilerContext.getLabelFactory();
-                LabelIF labelInicio = lf.create();
-                tipoFuncion.setEtiqSub(labelInicio);
-                LabelIF labelFin = lf.create();
-                tipoFuncion.setEtiqSubFin(labelFin);  
-                               
-                                
-            }
-:} 
-cabecera:bloque1 cuerpoFuncion:bloque2 {:
-                                BloqueSentencias bloque = new BloqueSentencias();
-				                IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
-								List code1 = bloque1.getIntermediateCode();
-								List code2 = bloque2.getIntermediateCode();
-				                ScopeIF scope = scopeManager.getCurrentScope();
-				                TypeFunction tipoFuncion = (TypeFunction) scopeManager.searchType(scope.getName());
-				                cb.addQuadruple("INICIO_SUBPROG", tipoFuncion.getEtiqSub().getName());
-								cb.addQuadruples (code1);
-								cb.addQuadruples (code2);
-				                cb.addQuadruple("FIN_SUBPROG", tipoFuncion.getEtiqSub().getName(), tipoFuncion.getEtiqSubFin().getName(),new Value(tipoFuncion.getScope().getLevel()));
-								List code=cb.create();
-								bloque.setIntermediateCode(code); 
-				
-				                // Cerramos Scope
-				                desplScope.put(scope.getName(), new Integer(despl));
-				                scopeManager.closeScope();
-				
-				                despl=((Integer)desplScope.get(scopeManager.getCurrentScope().getName())).intValue();
-				                // Comprobar que hay return de la funcion
-				
-				                if  (! tipoFuncion.getHayRetorno())
-				                  semanticErrorManager.semanticFatalError("352. La funci�n "+tipoFuncion.getName()+" no tiene retorno"); 
-				               
-				                semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
-				                RESULT=bloque;
-              
-:};
-funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS 
-{:
-			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
- 			// la funcion ha sido declarada
-            if (scopeManager.containsSymbol(idFunc.getLexema())) {
-				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
-            }else{ 
-                                
-				// Crear FUNCION en ambito
-				ScopeIF scope = scopeManager.getCurrentScope();
-                TypeTableIF tablaTipos = scope.getTypeTable();
-	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
-							
-                // a�adir funcion a TT
-                TypeFunction tipoFuncion = new TypeFunction(scope, idFunc.getLexema());
-				tablaTipos.addType(idFunc.getLexema(), tipoFuncion);
-							
-				// a�adir funcion a TS
-                SymbolFunction simboloFunc = new SymbolFunction(scope,idFunc.getLexema(),tablaTipos.getType(idFunc.getLexema()));
-				tablaSimbolos.addSymbol(idFunc.getLexema(), simboloFunc);
-							
-				// NUEVO ambito para funcion y tabla TS y TT
-				scopeManager.openScope(idFunc.getLexema()); 
-                                
-														
-				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
-				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
-
-                // Grabo tipo retorno
-                tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
-                tipoFuncion.setHayRetorno(true);
-                LabelFactoryIF lf = CompilerContext.getLabelFactory();
-                LabelIF labelInicio = lf.create();
-                tipoFuncion.setEtiqSub(labelInicio);
-                LabelIF labelFin = lf.create();
-                tipoFuncion.setEtiqSubFin(labelFin);  
-                               
-            }
-:} 
-cabecera:bloque1 cuerpoFuncion:bloque2 {:
-                                BloqueSentencias bloque = new BloqueSentencias();
-				                IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
-								List code1 = bloque1.getIntermediateCode();
-								List code2 = bloque2.getIntermediateCode();
-				                ScopeIF scope = scopeManager.getCurrentScope();
-				                TypeFunction tipoFuncion = (TypeFunction) scopeManager.searchType(scope.getName());
-				                cb.addQuadruple("INICIO_SUBPROG", tipoFuncion.getEtiqSub().getName());
-								cb.addQuadruples (code1);
-								cb.addQuadruples (code2);
-				                cb.addQuadruple("FIN_SUBPROG", tipoFuncion.getEtiqSub().getName(), tipoFuncion.getEtiqSubFin().getName(),new Value(tipoFuncion.getScope().getLevel()));
-								List code=cb.create();
-								bloque.setIntermediateCode(code); 
-				
-				                // Cerramos Scope
-				                desplScope.put(scope.getName(), new Integer(despl));
-				                scopeManager.closeScope();
-				
-				                despl=((Integer)desplScope.get(scopeManager.getCurrentScope().getName())).intValue();
-				                // Comprobar que hay return de la funcion
-				
-				                if  (! tipoFuncion.getHayRetorno())
-				                  semanticErrorManager.semanticFatalError("352. La funci�n "+tipoFuncion.getName()+" no tiene retorno"); 
-				               
-				                semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
-				                RESULT=bloque;
-              
-:}; 
 funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER RETURN tipos:tp IS
 {:
 			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
@@ -748,9 +590,6 @@ cuerpoFuncion:bloque2 {:
                 ScopeIF scope = scopeManager.getCurrentScope();
                 TypeFunction tipoFuncion = (TypeFunction) scopeManager.searchType(scope.getName());
                 cb.addQuadruple("INICIO_SUBPROG", tipoFuncion.getEtiqSub().getName());
-				
-				 semanticErrorManager.semanticDebug("***CODE2: " +code2);
-				
 				cb.addQuadruples (code2);
                 cb.addQuadruple("FIN_SUBPROG", tipoFuncion.getEtiqSub().getName(), tipoFuncion.getEtiqSubFin().getName(),new Value(tipoFuncion.getScope().getLevel()));
 				List code=cb.create();
@@ -765,91 +604,20 @@ cuerpoFuncion:bloque2 {:
 
                 if  (! tipoFuncion.getHayRetorno())
                   semanticErrorManager.semanticFatalError("352. La funci�n "+tipoFuncion.getName()+" no tiene retorno"); 
-                
-                 semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
-                RESULT=bloque;
-              
-:};
-funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS 
-{:
-			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
-               
- 				// la funcion ha sido declarada
-             if (scopeManager.containsSymbol(idFunc.getLexema())) {
-				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
-             }else{ 
-                                
-				// Crear FUNCION en ambito
-				ScopeIF scope = scopeManager.getCurrentScope();
-                TypeTableIF tablaTipos = scope.getTypeTable();
-	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
-							
-                // a�adir funcion a TT
-                TypeFunction tipoFuncion = new TypeFunction(scope, idFunc.getLexema());
-				tablaTipos.addType(idFunc.getLexema(), tipoFuncion);
-							
-				// a�adir funcion a TS
-                SymbolFunction simboloFunc = new SymbolFunction(scope,idFunc.getLexema(),tablaTipos.getType(idFunc.getLexema()));
-				tablaSimbolos.addSymbol(idFunc.getLexema(), simboloFunc);
-							
-				// NUEVO ambito para funcion y tabla TS y TT
-				scopeManager.openScope(idFunc.getLexema()); 
-                                
-														
-				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
-				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
-
-                // Grabo tipo retorno
-				tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
-
-				tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
-                tipoFuncion.setHayRetorno(true);
-                LabelFactoryIF lf = CompilerContext.getLabelFactory();
-                LabelIF labelInicio = lf.create();
-                tipoFuncion.setEtiqSub(labelInicio);
-                LabelIF labelFin = lf.create();
-                tipoFuncion.setEtiqSubFin(labelFin); 
-                               
-                                
-           }
-:} 
-cuerpoFuncion:bloque2 {:
-                BloqueSentencias bloque = new BloqueSentencias();
-                IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
-				List code2 = bloque2.getIntermediateCode();
-                ScopeIF scope = scopeManager.getCurrentScope();
-                TypeFunction tipoFuncion = (TypeFunction) scopeManager.searchType(scope.getName());
-                cb.addQuadruple("INICIO_SUBPROG", tipoFuncion.getEtiqSub().getName());
-				cb.addQuadruples (code2);
-                cb.addQuadruple("FIN_SUBPROG", tipoFuncion.getEtiqSub().getName(), tipoFuncion.getEtiqSubFin().getName(),new Value(tipoFuncion.getScope().getLevel()));
-				List code=cb.create();
-				bloque.setIntermediateCode(code); 
-
-                // Cerramos Scope
-                desplScope.put(scope.getName(), new Integer(despl));
-                scopeManager.closeScope();
-
-                despl=((Integer)desplScope.get(scopeManager.getCurrentScope().getName())).intValue();
-                // Comprobar que hay return de la funcion
-
-                if  (! tipoFuncion.getHayRetorno())
-                  semanticErrorManager.semanticFatalError("352. La funci�n "+tipoFuncion.getName()+" no tiene retorno"); 
-                
-                 semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
                 RESULT=bloque2;
               
-:};  
+:};
+
 funcion::= FUNCTION ID error RETURN tipos IS cuerpoFuncion {:syntaxErrorManager.syntaxFatalError("001. Faltan los DOS PARENTESIS");:};
 			
-cuerpoFuncion::= BEGIN listaSentencias:bloque RETURN expresion:exp PUNTOYCOMA END ID PUNTOYCOMA
+cuerpoFuncion::= BEGIN listaSentencias:bloque END ID PUNTOYCOMA
 {:
 				 RESULT=bloque;
-					 :}  |
-				BEGIN RETURN expresion:exp PUNTOYCOMA END ID PUNTOYCOMA
-				{:
-				BloqueSentencias bloque = new BloqueSentencias();
-				 RESULT=bloque;
-					 :} ;
+:} | BEGIN END ID PUNTOYCOMA
+{:
+	BloqueSentencias bloque = new BloqueSentencias();
+				 RESULT=bloque; 
+:};
 
 // ----------------------------                     
 // Definicion de PROCEDIMIENTO
@@ -858,87 +626,9 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
 {:
 				semanticErrorManager.semanticInfo("PROCEDIMIENTO: "+idProc.getLexema()+" en la linea: "+idProc.getLine());
  				// el procedimiento ha sido declarado
-                if (scopeManager.containsSymbol(idProc.getLexema())) {
-					semanticErrorManager.semanticFatalError("350. El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
-                }else{ 
-                                
-					// Crear FUNCION en ambito
-					ScopeIF scope = scopeManager.getCurrentScope();
-	                TypeTableIF tablaTipos = scope.getTypeTable();
-		  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
-								
-	                // a�adir funcion a TT
-	                TypeProcedure tipoProcedimiento = new TypeProcedure(scope, idProc.getLexema());
-					tablaTipos.addType(idProc.getLexema(), tipoProcedimiento);
-								
-					// a�adir funcion a TS
-	                 SymbolProcedure simboloProc = new SymbolProcedure(scope,idProc.getLexema(),tablaTipos.getType(idProc.getLexema()));
-					tablaSimbolos.addSymbol(idProc.getLexema(), simboloProc);
-								
-					// NUEVO ambito para funcion y tabla TS y TT
-					scopeManager.openScope(idProc.getLexema()); 
-	                                
-															
-					tablaTipos = scopeManager.getCurrentScope().getTypeTable();
-					tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
-
-
-					// Grabo parametros funcion
-	                // ListaObjetos parametros = new ListaObjetos(listaArg) 
-					ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
-                                
-        			for (int i=0; i<parametros.size(); i++){
-                                    Parametro p = (Parametro) parametros.get(i);
-                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
-                                    despl++;
-                                    // Creo lista ordenada de parametros en el PROCEDIMIENTO.
-                                    tipoProcedimiento.setTypeParametro(p.getColumna(),p.getTipo()); 
-                                    // Fijar paso parametros Ref/Valor en Symbolvar
-                                    simboloVar.setReferencia(p.getReferencia());
-                                    tablaSimbolos.addSymbol(p.getNombre(),simboloVar);                                  	
-                                    tipoProcedimiento.setParametro(simboloVar);
-                                } 
-
-                                LabelFactoryIF lf = CompilerContext.getLabelFactory();
-                                LabelIF labelInicio = lf.create();
-                                tipoProcedimiento.setEtiqSub(labelInicio);
-                                LabelIF labelFin = lf.create();
-                                tipoProcedimiento.setEtiqSubFin(labelFin);
-                                
-                              }
-:} 
-cabecera:bloque1 cuerpo:bloque2 {:
-                                ScopeIF scope = scopeManager.getCurrentScope();
-                                BloqueSentencias bloque = new BloqueSentencias();
-                                IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
-								List code1 = bloque1.getIntermediateCode();
-								List code2 = bloque2.getIntermediateCode();
-                                TypeProcedure tipoProc = (TypeProcedure) scopeManager.searchType(scope.getName());
-                                cb.addQuadruple("INICIO_SUBPROG", tipoProc.getEtiqSub().getName());
-                                cb.addQuadruples (code1);
-								cb.addQuadruples (code2);
-                                cb.addQuadruple("FIN_SUBPROG", tipoProc.getEtiqSub().getName(), tipoProc.getEtiqSubFin().getName(),new Value(tipoProc.getScope().getLevel()));
-								List code=cb.create ();
-								bloque.setIntermediateCode (code); 
-
-                                // Cerramos Scope
-                                desplScope.put(scope.getName(), new Integer(despl));
-                                scopeManager.closeScope();
-
-                                despl=((Integer)desplScope.get(scopeManager.getCurrentScope().getName())).intValue();
-                                
-                                semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
-                                RESULT=bloque;
-              
-:};
-procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER IS
-{:
-				semanticErrorManager.semanticInfo("PROCEDIMIENTO: "+idProc.getLexema()+" en la linea: "+idProc.getLine());
- 				
- 				// el procedimiento ha sido declarado
-                            if (scopeManager.containsSymbol(idProc.getLexema())) {
+              if (scopeManager.containsSymbol(idProc.getLexema())) {
 				semanticErrorManager.semanticFatalError("350. El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
-                            }else{ 
+              }else{ 
                                 
 				// Crear FUNCION en ambito
 				ScopeIF scope = scopeManager.getCurrentScope();
@@ -967,8 +657,68 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
                                 
         			for (int i=0; i<parametros.size(); i++){
                                     Parametro p = (Parametro) parametros.get(i);
-                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo(), despl);
-                                    despl++;
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo());
+                                    
+                                    // Creo lista ordenada de parametros en el PROCEDIMIENTO.
+                                    tipoProcedimiento.setTypeParametro(p.getColumna(),p.getTipo()); 
+                                    // Fijar paso parametros Ref/Valor en Symbolvar
+                                    simboloVar.setReferencia(p.getReferencia());
+                                    tablaSimbolos.addSymbol(p.getNombre(),simboloVar);                                  	
+                                    tipoProcedimiento.setParametro(simboloVar);
+                                }           
+             }
+:} 
+cabecera:bloque1 cuerpo:bloque2 {:
+                                BloqueSentencias bloque = new BloqueSentencias();
+                               
+                                ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeProcedure tipoProcedimiento = (TypeProcedure) scopeManager.searchType(scope.getName());
+                                
+
+                                // Cerramos Scope
+                               scopeManager.closeScope();
+
+                                 RESULT=bloque;
+              
+:};
+procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PARENTESISDER IS
+{:
+				semanticErrorManager.semanticInfo("PROCEDIMIENTO: "+idProc.getLexema()+" en la linea: "+idProc.getLine());
+ 				
+ 				// el procedimiento ha sido declarado
+           if (scopeManager.containsSymbol(idProc.getLexema())) {
+				semanticErrorManager.semanticFatalError("350. El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
+           }else{ 
+                                
+				// Crear FUNCION en ambito
+				ScopeIF scope = scopeManager.getCurrentScope();
+                TypeTableIF tablaTipos = scope.getTypeTable();
+	  			SymbolTableIF tablaSimbolos = scope.getSymbolTable();
+							
+                // a�adir funcion a TT
+                TypeProcedure tipoProcedimiento = new TypeProcedure(scope, idProc.getLexema());
+				tablaTipos.addType(idProc.getLexema(), tipoProcedimiento);
+							
+				// a�adir funcion a TS
+                 SymbolProcedure simboloProc = new SymbolProcedure(scope,idProc.getLexema(),tablaTipos.getType(idProc.getLexema()));
+				tablaSimbolos.addSymbol(idProc.getLexema(), simboloProc);
+							
+				// NUEVO ambito para funcion y tabla TS y TT
+				scopeManager.openScope(idProc.getLexema()); 
+                                
+														
+				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
+				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
+
+
+				// Grabo parametros funcion
+                // ListaObjetos parametros = new ListaObjetos(listaArg) 
+				ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
+                                
+        			for (int i=0; i<parametros.size(); i++){
+                                    Parametro p = (Parametro) parametros.get(i);
+                                    SymbolVariable simboloVar = new SymbolVariable (scopeManager.getCurrentScope(), p.getNombre(), p.getTipo());
+                                    
                                     // Creo lista ordenada de parametros en el PROCEDIMIENTO.
                                     tipoProcedimiento.setTypeParametro(p.getColumna(),p.getTipo()); 
                                     // Fijar paso parametros Ref/Valor en Symbolvar
@@ -976,38 +726,22 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
                                     tablaSimbolos.addSymbol(p.getNombre(),simboloVar);                                  	
                                     tipoProcedimiento.setParametro(simboloVar);
                                 } 
-							    LabelFactoryIF lf = CompilerContext.getLabelFactory();
-                                LabelIF labelInicio = lf.create();
-                                tipoProcedimiento.setEtiqSub(labelInicio);
-                                LabelIF labelFin = lf.create();
-                                tipoProcedimiento.setEtiqSubFin(labelFin);
+
                                
                                 
-                              }
+            }
 :} 
 cuerpo:bloque2 {:
-                                ScopeIF scope = scopeManager.getCurrentScope();
                                 BloqueSentencias bloque = new BloqueSentencias();
-                                IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
-								List code2 = bloque2.getIntermediateCode();
-                                TypeProcedure tipoProc = (TypeProcedure) scopeManager.searchType(scope.getName());
-                                cb.addQuadruple("INICIO_SUBPROG", tipoProc.getEtiqSub().getName());
-								
-								 semanticErrorManager.semanticDebug("***CODE2: " +code2);
-								
-								cb.addQuadruples (code2);
-                                cb.addQuadruple("FIN_SUBPROG", tipoProc.getEtiqSub().getName(), tipoProc.getEtiqSubFin().getName(),new Value(tipoProc.getScope().getLevel()));
-								List code=cb.create ();
-								bloque.setIntermediateCode (code); 
+                               
+                                ScopeIF scope = scopeManager.getCurrentScope();
+                                TypeProcedure tipoProcedimiento = (TypeProcedure) scopeManager.searchType(scope.getName());
+                                
 
                                 // Cerramos Scope
-                                desplScope.put(scope.getName(), new Integer(despl));
-                                scopeManager.closeScope();
+                               scopeManager.closeScope();
 
-                                despl=((Integer)desplScope.get(scopeManager.getCurrentScope().getName())).intValue();
-                                
-                                semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
-                                RESULT=bloque;
+                                 RESULT=bloque;
               
 :};
 
@@ -1024,8 +758,6 @@ listaSentencias::= sentencia:bloque {:
                 	cb.addQuadruples(blq.getIntermediateCode());
                 	List code = cb.create();
                 	bloque.setIntermediateCode(code);
-                	
-                	 //semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 					RESULT=bloque;
 
 				    :};
@@ -1034,7 +766,16 @@ sentencia::=sentenciaAsignacion:sent {: RESULT=sent; :}|
 			sentenciaIf:sent {: RESULT=sent; :} | 
 			sentenciaWhile:sent {: RESULT=sent; :} | 
 			sentenciaPutLine:sent {: RESULT=sent; :} | 
-			sentenciaProcedimiento:sent {: RESULT=sent;:};
+			sentenciaProcedimiento:sent {: RESULT=sent;:}  |
+			RETURN expresion:exp PUNTOYCOMA{:
+					BloqueSentencias bloque=new BloqueSentencias();
+					IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder (scopeManager.getCurrentScope());
+					OperandIF temp = exp.getResultado();
+                    cb.addQuadruple("RET", temp);
+                	List code = cb.create();
+                	bloque.setIntermediateCode(code);
+					RESULT=bloque;
+			:};
 
 // ------------------------
 // Sentencia PUTLINE
@@ -1045,13 +786,13 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ CARACTERESCADENA:cad PARENTESISDER 
        			
        			BloqueSentencias bloque = new BloqueSentencias();
      			ScopeIF scope = scopeManager.getCurrentScope();
-				IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
+				IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
 				cadenas.add(cad.getLexema());
-				cb.addQuadruple("WRSTR","cadena"+cadenas.size());
+				cb.addQuadruple("ESCRIBE","cadena"+cadenas.size());
 				List code = cb.create();
                 bloque.setIntermediateCode(cb.create());
                 
-                semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
+                //semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 					RESULT=bloque;		
 				:};
 
@@ -1059,42 +800,19 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 {:    
             BloqueSentencias bloque = new BloqueSentencias();
             ScopeIF scope = scopeManager.getCurrentScope();
-            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
+            IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
 			cb.addQuadruples(exp.getIntermediateCode());
 			
             if (exp.getTipo() instanceof TypeBoolean){ //Es un boolean
-            	
-		        if (exp.getResultado().toString().equals("0")){
-		        	cadenas.add("\""+new Value(false).toString()+"\"");
-		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
-		        }else if (exp.getResultado().toString().equals("1")){
-		        	cadenas.add("\""+new Value(true).toString()+"\"");
-		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
-		        }else{
-		        	LabelFactoryIF lF = new LabelFactory ();
-			        LabelIF l1 = lF.create ();
-			        LabelIF l2 = lF.create ();
-			       
-			        
-			        cb.addQuadruple("CMP", exp.getResultado(), new Value(0)); //comparo si es falso
-                    cb.addQuadruple("BNZ", l1);             // Salto si x!=0 --> Si no es falso
-                    cb.addQuadruple ("INL", l2);
-                    cadenas.add("\""+new Value(false).toString()+"\"");
-		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
-		        	cb.addQuadruple("BR", "etiqueta"+etiqueta.size());             // Salto incondicional
-                    cb.addQuadruple("BZ", l2);             // Salto si x!=0 --> Si no es falso
-                    cb.addQuadruple ("INL", l1);
-                    cadenas.add("\""+new Value(true).toString()+"\"");
-		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
-		        	cb.addQuadruple ("INL",  "etiqueta"+etiqueta.size());
-			       
-		        }
-		        
-		       
-		        
-
-
-		        	
+            	LabelFactoryIF lF = new LabelFactory ();
+		        LabelIF l1 = lF.create ();
+		        LabelIF l2 = lF.create ();
+		        cb.addQuadruple ("BRF", exp.getResultado(), l1);
+		        cb.addQuadruple ("ESCRIBE", new Value(true));
+		        cb.addQuadruple ("BR", l2);
+		        cb.addQuadruple ("INL", l1);
+		        cb.addQuadruple ("ESCRIBE", new Value(false));
+		        cb.addQuadruple ("INL", l2);
 		    }else if (exp.getTipo() instanceof TypeArray){ //Es un Array
 		    	TypeArray array = (TypeArray) exp.getTipo();
 		    	if (array.getTipo() instanceof TypeBoolean){ //Es un array de tipo boolean
@@ -1103,25 +821,20 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 		    		LabelFactoryIF lF = new LabelFactory ();
 			        LabelIF l1 = lF.create ();
 			        LabelIF l2 = lF.create ();
-			        cb.addQuadruple("CMP", exp.getResultado(), new Value(0)); //comparo si es falso
-                    cb.addQuadruple("BNZ", l1);             // Salto si x!=0 --> Si no es falso
-                    cb.addQuadruple ("INL", l2);
-                    cadenas.add("\""+new Value(false).toString()+"\"");
-		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
-		        	cb.addQuadruple("BR", "etiqueta"+etiqueta.size());             // Salto incondicional
-                    cb.addQuadruple("BZ", l2);             // Salto si x!=0 --> Si no es falso
-                    cb.addQuadruple ("INL", l1);
-                    cadenas.add("\""+new Value(true).toString()+"\"");
-		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
-		        	cb.addQuadruple ("INL",  "etiqueta"+etiqueta.size());
+			        cb.addQuadruple ("BRF", exp.getResultado(), l1);
+			        cb.addQuadruple ("ESCRIBE", new Value(true));
+			        cb.addQuadruple ("BR", l2);
+			        cb.addQuadruple ("INL", l1);
+			        cb.addQuadruple ("ESCRIBE", new Value(false));
+			        cb.addQuadruple ("INL", l2);
 		    	
 		    	}else{ //Es un array de tipo Integer
 		    		//semanticErrorManager.semanticDebug("ARRAY de tipo INTEGER");
 		    	
-		    		cb.addQuadruple("WRINT", exp.getResultado());
+		    		cb.addQuadruple("ESCRIBE_INT", exp.getResultado());
 		    	}
             }else{ //Es un numero
-            	cb.addQuadruple("WRINT", exp.getResultado());
+            	cb.addQuadruple("ESCRIBE_INT", exp.getResultado());
             }
             
 			List code = cb.create();
@@ -1145,8 +858,8 @@ sentenciaWhile::= WHILE:id expresion:exp LOOP listaSentencias:sent END LOOP PUNT
                               BloqueSentencias bloque = new BloqueSentencias();
                               ScopeIF scope = scopeManager.getCurrentScope();
 								
-							  IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
-                              TemporalFactoryIF tf = new TemporalFactory(scope);				
+							  IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
+                              TemporalFactoryIF tf = CompilerContext.getTemporalFactory(scope);				
                               Temporal temporal = (Temporal) tf.create(); 
                               temporal.setDesplazamiento(despl);
                               despl++;
@@ -1156,18 +869,17 @@ sentenciaWhile::= WHILE:id expresion:exp LOOP listaSentencias:sent END LOOP PUNT
                               LabelIF FIN= lf.create();				
                         	
                               bloque.setResultado(temporal);
-                              cb.addQuadruple("INL", INICIO);
+                              cb.addQuadruple("ETIQUETA", INICIO);
                               cb.addQuadruples(sent.getIntermediateCode());
                               cb.addQuadruples(exp.getIntermediateCode());
                               cb.addQuadruple("CMP", exp.getResultado(), new Value(0));
                               cb.addQuadruple("BNZ", FIN);             // Salto si NO negativo
                               cb.addQuadruple("BR", INICIO);
-                              cb.addQuadruple("INL", FIN);
+                              cb.addQuadruple("ETIQUETA", FIN);
     		
                               List code = cb.create();
                               bloque.setIntermediateCode(code);
                              
-                              semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
                               RESULT=bloque;
                             :};
 
@@ -1182,16 +894,16 @@ sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent END IF PUNTOYCOMA
                                   BloqueSentencias bloque = new BloqueSentencias();
 				  				  ScopeIF scope = scopeManager.getCurrentScope();
 				  				  
-				  				  IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
+				  				  IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
 
-                                  LabelFactoryIF lf = CompilerContext.getLabelFactory();
+                                  LabelFactoryIF lf = new LabelFactory();
                                   LabelIF LFALSE = lf.create();
 
                                   cb.addQuadruples(exp.getIntermediateCode());
                                   cb.addQuadruple("CMP", exp.getResultado(), new Value(1));
 	    			  			  cb.addQuadruple("BNZ",LFALSE);   // Salto negativo
 					 			  cb.addQuadruples(sent.getIntermediateCode());
-								  cb.addQuadruple("INL", LFALSE);
+								  cb.addQuadruple("ETIQUETA", LFALSE);
                                   cb.addQuadruple ("NOP", null);
                                   List code = cb.create();
                                   bloque.setIntermediateCode(code);
@@ -1208,9 +920,9 @@ sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent1 ELSE listaSentenci
                                 semanticErrorManager.semanticFatalError ("330. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es LOGICA.");
                                 BloqueSentencias bloque = new BloqueSentencias();
 								ScopeIF scope = scopeManager.getCurrentScope();
-								IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
+								IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
 				
-								LabelFactoryIF lf = CompilerContext.getLabelFactory();
+								LabelFactoryIF lf = new LabelFactory();
 								LabelIF LTRUE = lf.create();
 								LabelIF LFALSE = lf.create();
                                 cb.addQuadruples(exp.getIntermediateCode());
@@ -1218,14 +930,13 @@ sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent1 ELSE listaSentenci
 								cb.addQuadruple("BNZ",LFALSE);   // Salto no cero
 								cb.addQuadruples(sent1.getIntermediateCode());
 								cb.addQuadruple("BR",LTRUE);  // Salto incondicional
-								cb.addQuadruple("INL", LFALSE);
+								cb.addQuadruple("ETIQUETA", LFALSE);
 								cb.addQuadruples(sent2.getIntermediateCode());
-								cb.addQuadruple("INL", LTRUE);
+								cb.addQuadruple("ETIQUETA", LTRUE);
                                 cb.addQuadruple("NOP", null);
                                 List code = cb.create();
                                 bloque.setIntermediateCode(code);
 
-							 semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
                                 RESULT=bloque;
 				:};
 
@@ -1354,10 +1065,9 @@ sentenciaAsignacion::= ID:id PUNTO ID:campo ASIGNACION expresion:exp PUNTOYCOMA 
                                     ScopeIF scope = scopeManager.getCurrentScope();
                                    
                                     BloqueSentencias bloque = new BloqueSentencias();
-                                   			
-                                    //semanticErrorManager.semanticDebug(bloque.getIntermediateCode());	
+                                   				
                                     RESULT=bloque;
-							 							
+														
                     		}
 				:};
 
@@ -1398,7 +1108,7 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
                            		}else{	
                            			
 					      			TemporalFactory tF = new TemporalFactory(scope);
-					      			IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
+					      			IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
 					      			int rDim = tipoArray.getValIni()-tipoArray.getValFin()+1;
 					      			TemporalIF temp = tF.create();
 					      			TemporalIF tempI = tF.create();
@@ -1416,9 +1126,7 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
 					      			bloque.setResultadoIndex(tempI);
 					      			bloque.setIntermediateCode(cb.create());
                           		}
-                            }
-                            
-                              semanticErrorManager.semanticDebug(bloque.getIntermediateCode());					
+                            }					
                             RESULT = bloque;
                         :}; //vE(1):=20;
 
@@ -1454,44 +1162,25 @@ sentenciaFuncion ::= ID:idFunc PARENTESISIZQ lista_parametros_llamada:listaPar P
                                   semanticErrorManager.semanticFatalError ("344. El num. de parametros no coincide en tipos o numero para la funci�n " + idFunc.getLexema() + " [" + idFunc.getLine() + ":" + idFunc.getColumn() + "]");
             		    
                             Expresion exp = new Expresion(tipoFunc.getTipoRetorno(), idFunc.getLine(), idFunc.getColumn());
-                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
+                             
                             
-                            // Temporal para el retorno
-                            TemporalFactoryIF tf = new TemporalFactory(scope);				
-                            Temporal temporal = (Temporal) tf.create(); // Temporal donde se almacenara retorno
-                            temporal.setDesplazamiento(despl);
-                            despl++;
-                            exp.setResultado(temporal);
                             
-                            // Obtener desplazamiento Funci�n
-                            int desplFunc=((Integer)desplScope.get(idFunc.getLexema())).intValue();
-                            Value valor = new Value(desplFunc);
+                            // Obtener desplazamiento Funcion
+                           
                             List lista1 = tipoFunc.getListaParametros();
                                      
-                            cb.addQuadruple("INICIO_ARGUMENTOS", null, null, null);
+                          
 					
 			    for (int i=listaPar.size()-1;i>=0; i--){
                                 SymbolVariable s = (SymbolVariable) lista1.get(listaPar.size()-i-1);
-                                int d = s.getDesplazamiento();
                                 Expresion expPar = (Expresion) listaPar.get(i);
-                                cb.addQuadruples(expPar.getIntermediateCode());
                                 if ( s.getReferencia() ) {
                                     if ( !expPar.getReferencia())
                                         semanticErrorManager.semanticFatalError ("346. El par�metro es por referencia y no admite expresiones." + idFunc.getLexema() + " [" + idFunc.getLine() + ":" + idFunc.getColumn() + "]");
-                                    cb.addQuadruple("ARGUMENTO_REF", expPar.getResultado(), new Value(d));
-                                 }else{
-                                    cb.addQuadruple("ARGUMENTO", expPar.getResultado(), new Value(d));
+                                  }else{
                                  }
                             }
-                            Variable var = new Variable(idFunc.getLexema());
-                            LabelFactoryIF lf = CompilerContext.getLabelFactory();
-                            LabelIF label = lf.create();
-                            var.setEtiqRetorno(label);
-                            var.setEtiqSub(tipoFunc.getEtiqSub());
-                            cb.addQuadruple ("CALL", var, new Value(tipoFunc.getScope().getLevel()), temporal);
-                            exp.setIntermediateCode(cb.create());
-                            
-                            semanticErrorManager.semanticDebug(exp.getIntermediateCode());		
+                           
                             RESULT=exp;
 			:};
 
@@ -1504,6 +1193,9 @@ lista_parametros_llamada::= expresion:exp COMA lista_parametros_llamada:listaPar
                             lista.add(exp);
                             RESULT=lista;
                             :};
+                            
+                            
+
 
 // ------------------------
 // Sentencia PROCEDIMIENTO
@@ -1537,39 +1229,8 @@ sentenciaProcedimiento::= ID:idProc PARENTESISIZQ lista_parametros_llamada:lista
                                 semanticErrorManager.semanticFatalError ("336. El num. de parametros no coincide en para el procedimiento " + idProc.getLexema() + " [" + idProc.getLine() + ":" + idProc.getColumn() + "]");
             		    
                             BloqueSentencias bloque = new BloqueSentencias();
-                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
-                            // Obtener desplazamiento Procedimiento
-                            int desplProc=((Integer)desplScope.get(idProc.getLexema())).intValue();
-                            Value valor = new Value(desplProc);
-                            List lista1 = tipoProc.getListaParametros();
 
-                            cb.addQuadruple("INICIO_ARGUMENTOS", null, null, null);
-
-                            for (int i=listaPar.size()-1;i>=0; i--) {
-                                SymbolVariable s = (SymbolVariable) lista1.get(listaPar.size()-i-1);
-                                int d = s.getDesplazamiento();
-                                Expresion expPar = (Expresion) listaPar.get(i);
-                                cb.addQuadruples(expPar.getIntermediateCode());
-                                if ( s.getReferencia() ) {
-                                    if ( !expPar.getReferencia())
-                                        semanticErrorManager.semanticFatalError ("338. El parametro es por referencia y no admite expresiones." + idProc.getLexema() + " [" + idProc.getLine() + ":" + idProc.getColumn() + "]");
-                                    cb.addQuadruple("ARGUMENTO_REF", expPar.getResultado(), new Value(d));
-                                 }else{
-                                    cb.addQuadruple("ARGUMENTO", expPar.getResultado(), new Value(d));
-                                 }
-                            }
-                            Variable var = new Variable(idProc.getLexema());
-                            LabelFactoryIF lf = CompilerContext.getLabelFactory();
-                            LabelIF label = lf.create();
-                            var.setEtiqRetorno(label);
-                            var.setEtiqSub(tipoProc.getEtiqSub());
-
-                            // No hay retorno, se pasa valor cero en operando2
-                            cb.addQuadruple ("CALL", var, new Value(tipoProc.getScope().getLevel()), new Value(0));
-                            bloque.setIntermediateCode(cb.create());
-                            
-                              semanticErrorManager.semanticDebug(bloque.getIntermediateCode());	
-                              RESULT=bloque;	
+			    RESULT = bloque;
                             :};
 
 // --------------------
@@ -1577,7 +1238,8 @@ sentenciaProcedimiento::= ID:idProc PARENTESISIZQ lista_parametros_llamada:lista
 // --------------------
 expresion::=expresion:exp1 MENOS:id expresion:exp2
 {:
-						    Expresion exp = new Expresion(scopeManager.searchType("INTEGER"), id.getLine(), id.getColumn());
+						semanticErrorManager.semanticInfo("OPERACION RESTA");	
+                            Expresion exp = new Expresion(scopeManager.searchType("INTEGER"), id.getLine(), id.getColumn());
                             if (exp.castingTipos(exp1 , exp2) ) {
                                  semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
                             }else{
@@ -1608,7 +1270,7 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
                             ScopeIF scope = scopeManager.getCurrentScope();
                             IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
                             Expresion exp = new Expresion(scopeManager.searchType("INTEGER"), id.getLine(), id.getColumn());
-                            TemporalFactoryIF tf = new TemporalFactory(scope);				
+                            TemporalFactoryIF tf = CompilerContext.getTemporalFactory(scope);				
                             Temporal temporal = (Temporal) tf.create(); 
                             
 						 // Suma CONJUNTOS
@@ -1667,7 +1329,7 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
 
                                 Value verdad = new Value(1);
                                 Value falso = new Value(0);
-        						LabelFactoryIF lf = CompilerContext.getLabelFactory();					
+        						LabelFactoryIF lf = new LabelFactory();					
                                 LabelIF LTRUE = lf.create();
         						LabelIF LFIN = lf.create();				
 
@@ -1675,11 +1337,11 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
                                 cb.addQuadruple ("BZ", LTRUE); 
                                 cb.addQuadruple ("CMP", verdad, exp2.getResultado()); 
                                 cb.addQuadruple ("BZ", LTRUE); 
-                                cb.addQuadruple ("MV", temporal, falso);
+                                cb.addQuadruple ("ASIG", temporal, falso);
                                 cb.addQuadruple ("BR", LFIN); 
-                                cb.addQuadruple ("INL", LTRUE);
-                                cb.addQuadruple ("MV", temporal, verdad);
-                                cb.addQuadruple ("INL", LFIN);
+                                cb.addQuadruple ("ETIQUETA", LTRUE);
+                                cb.addQuadruple ("ASIG", temporal, verdad);
+                                cb.addQuadruple ("ETIQUETA", LFIN);
                                 
 								List code=cb.create ();
 								exp.setResultado (temporal); 
@@ -1709,23 +1371,23 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
 
                                 Value verdad = new Value(1);
                                 Value falso = new Value(0);
-        						LabelFactoryIF lf = CompilerContext.getLabelFactory();					
+        						LabelFactoryIF lf = new LabelFactory();					
                                 LabelIF LTRUE_1 = lf.create();
                                 LabelIF LTRUE_2 = lf.create();
         						LabelIF LFIN = lf.create();				
 
                                 cb.addQuadruple ("CMP", verdad, exp1.getResultado()); 
                                 cb.addQuadruple ("BZ", LTRUE_1); 
-                                cb.addQuadruple ("MV", temporal, falso);
+                                cb.addQuadruple ("ASIG", temporal, falso);
                                 cb.addQuadruple ("BR", LFIN); 
-                                cb.addQuadruple ("INL", LTRUE_1);
+                                cb.addQuadruple ("ETIQUETA", LTRUE_1);
                                 cb.addQuadruple ("CMP", verdad, exp2.getResultado()); 
                                 cb.addQuadruple ("BZ", LTRUE_2); 
-                                cb.addQuadruple ("MV", temporal, falso);
+                                cb.addQuadruple ("ASIG", temporal, falso);
                                 cb.addQuadruple ("BR", LFIN); 
-                                cb.addQuadruple ("INL", LTRUE_2);
-                                cb.addQuadruple ("MV", temporal, verdad);
-                                cb.addQuadruple ("INL", LFIN);
+                                cb.addQuadruple ("ETIQUETA", LTRUE_2);
+                                cb.addQuadruple ("ASIG", temporal, verdad);
+                                cb.addQuadruple ("ETIQUETA", LFIN);
                                 
 				List code=cb.create ();
 				exp.setResultado (temporal); 
@@ -1754,17 +1416,17 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
 								  cb.addQuadruples (code2);
                                   Value verdad = new Value(1);
                                   Value falso = new Value(0);
-        			  			  LabelFactoryIF lf = CompilerContext.getLabelFactory();					
+        			  			  LabelFactoryIF lf = new LabelFactory();					
                                   LabelIF LTRUE = lf.create();
         			  				LabelIF LFIN = lf.create();				
                                   // Hacemos cmp al reves para contemplar caso ambos iguales
                                   cb.addQuadruple ("CMP", exp2.getResultado(), exp1.getResultado()); 
                                   cb.addQuadruple ("BN", LTRUE); 
-                                  cb.addQuadruple ("MV", temporal, falso);
+                                  cb.addQuadruple ("ASIG", temporal, falso);
                                   cb.addQuadruple ("BR", LFIN);
-                                  cb.addQuadruple ("INL", LTRUE);
-                                  cb.addQuadruple ("MV", temporal, verdad);
-                                  cb.addQuadruple ("INL", LFIN);
+                                  cb.addQuadruple ("ETIQUETA", LTRUE);
+                                  cb.addQuadruple ("ASIG", temporal, verdad);
+                                  cb.addQuadruple ("ETIQUETA", LFIN);
                                 
 				  List code=cb.create ();
 				  exp.setResultado (temporal); 
@@ -1793,17 +1455,17 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
 								  cb.addQuadruples (code2);
                                   Value verdad = new Value(1);
                                   Value falso = new Value(0);
-        			  			  LabelFactoryIF lf = CompilerContext.getLabelFactory();					
+        			  			  LabelFactoryIF lf = new LabelFactory();					
                                   LabelIF LTRUE = lf.create();
         			  			  LabelIF LFIN = lf.create();				
                                   // Hacemos cmp al reves para contemplar caso ambos iguales
                                   cb.addQuadruple ("CMP", exp1.getResultado(), exp2.getResultado()); 
                                   cb.addQuadruple ("BN", LTRUE); 
-                                  cb.addQuadruple ("MV", temporal, falso);
+                                  cb.addQuadruple ("ASIG", temporal, falso);
                                   cb.addQuadruple ("BR", LFIN);
-                                  cb.addQuadruple ("INL", LTRUE);
-                                  cb.addQuadruple ("MV", temporal, verdad);
-                                  cb.addQuadruple ("INL", LFIN);
+                                  cb.addQuadruple ("ETIQUETA", LTRUE);
+                                  cb.addQuadruple ("ASIG", temporal, verdad);
+                                  cb.addQuadruple ("ETIQUETA", LFIN);
                                 
 								  List code=cb.create ();
 								  exp.setResultado (temporal); 
@@ -1835,16 +1497,16 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
                             cb.addQuadruples (code2);
                             Value verdad = new Value(1);
                             Value falso = new Value(0);
-                            LabelFactoryIF lf = CompilerContext.getLabelFactory();					
+                            LabelFactoryIF lf = new LabelFactory();					
                             LabelIF LTRUE = lf.create();
                             LabelIF LFIN = lf.create();
                             cb.addQuadruple ("CMP", exp1.getResultado(), exp2.getResultado()); 
                             cb.addQuadruple ("BZ", LTRUE); 
-                            cb.addQuadruple ("MV", temporal, falso);
+                            cb.addQuadruple ("ASIG", temporal, falso);
                             cb.addQuadruple ("BR", LFIN);
-                            cb.addQuadruple ("INL", LTRUE);
-                            cb.addQuadruple ("MV", temporal, verdad);
-                            cb.addQuadruple ("INL", LFIN);
+                            cb.addQuadruple ("ETIQUETA", LTRUE);
+                            cb.addQuadruple ("ASIG", temporal, verdad);
+                            cb.addQuadruple ("ETIQUETA", LFIN);
 
                             List code=cb.create ();
                             exp.setResultado (temporal); 
@@ -1877,16 +1539,16 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
                             cb.addQuadruples (code2);
                             Value verdad = new Value(1);
                             Value falso = new Value(0);
-                            LabelFactoryIF lf = CompilerContext.getLabelFactory();					
+                            LabelFactoryIF lf = new LabelFactory();					
                             LabelIF LTRUE = lf.create();
                             LabelIF LFIN = lf.create();
                             cb.addQuadruple ("CMP", exp1.getResultado(), exp2.getResultado()); 
                             cb.addQuadruple ("BNZ", LTRUE); 
-                            cb.addQuadruple ("MV", temporal, falso);
+                            cb.addQuadruple ("ASIG", temporal, falso);
                             cb.addQuadruple ("BR", LFIN);
-                            cb.addQuadruple ("INL", LTRUE);
-                            cb.addQuadruple ("MV", temporal, verdad);
-                            cb.addQuadruple ("INL", LFIN);
+                            cb.addQuadruple ("ETIQUETA", LTRUE);
+                            cb.addQuadruple ("ASIG", temporal, verdad);
+                            cb.addQuadruple ("ETIQUETA", LFIN);
 
                             List code=cb.create ();
                             exp.setResultado (temporal); 
@@ -1896,7 +1558,7 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
 				  			RESULT=exp;
                             :} | 
 			PARENTESISIZQ expresion:exp PARENTESISDER {: 
-					//semanticErrorManager.semanticDebug(exp.getIntermediateCode());
+					semanticErrorManager.semanticDebug(exp.getIntermediateCode());
 					RESULT=exp; 
                             :}; //Vector
 expresion::= ID:id
@@ -1920,7 +1582,7 @@ expresion::= ID:id
 				        				exp.setResultado(var);       
 				       
                                     }
-                                //semanticErrorManager.semanticDebug(exp.getIntermediateCode());
+                                semanticErrorManager.semanticDebug(exp.getIntermediateCode());
                        		    RESULT = exp;
                     		}
                 		:};
@@ -1930,7 +1592,7 @@ expresion::= ENTERO:num {:
 			    			Value resultado=new Value(Integer.parseInt(num.getLexema()));
                             exp.setResultado(resultado);  // Guardamos el valor operador
                 
-			                //semanticErrorManager.semanticDebug(exp.getIntermediateCode());
+			                semanticErrorManager.semanticDebug(exp.getIntermediateCode());
 						    RESULT = exp;
 			                            :}|
 			ID:id PUNTO ID:campo {:
@@ -1957,7 +1619,7 @@ expresion::= ENTERO:num {:
                             Variable var2 = new Variable(campo.getLexema(), scope);
                             var2.setDesplCampo(simboloCampo.getDesplazamiento());
                             
-                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
+                            IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
                             TemporalFactoryIF tf = new TemporalFactory(scope);
                             Temporal temporal = (Temporal) tf.create();
                             temporal.setDesplazamiento(despl);
@@ -2034,7 +1696,7 @@ expresion::= ENTERO:num {:
                             		
 					      			TemporalFactoryIF tF = new TemporalFactory(scope);
                             
-					      			IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
+					      			IntermediateCodeBuilder cb = new IntermediateCodeBuilder(scope);
 					      			int rDim = tipoArray.getValIni()-tipoArray.getValFin()+1;
 					      			TemporalIF temp = tF.create();
 					      			TemporalIF tempI = tF.create();
@@ -2051,11 +1713,10 @@ expresion::= ENTERO:num {:
 					      			exp.setResultado(temp);
 					      			
 					      			exp.setIntermediateCode(cb.create());
-							  semanticErrorManager.semanticDebug(exp.getIntermediateCode());
+							
                                 RESULT=exp;	
                               }								
                             :};//v(1)
-
 
 // -------------
 // Definiciones
@@ -2149,5 +1810,4 @@ lista_parametros::= lista_argumentos:listaArg DOSPUNTOS modo tipos:tp {:
 			    			}
 							RESULT=lista1;	
                             :};
-
 

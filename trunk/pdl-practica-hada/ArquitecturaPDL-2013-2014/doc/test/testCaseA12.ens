@@ -1,31 +1,103 @@
-Quadruple - [INICIO testCase12, 6, null]
-Quadruple - [INICIO_SUBPROG L_0, null, null]
-Quadruple - [MV y, x, null]
-Quadruple - [SUB T_0, x, 1]
-Quadruple - [MV x, T_0, null]
-Quadruple - [CMP 0, x, null]
-Quadruple - [BN L_2, null, null]
-Quadruple - [ASIG T_1, 0, null]
-Quadruple - [BR L_3, null, null]
-Quadruple - [ETIQUETA L_2, null, null]
-Quadruple - [ASIG T_1, 1, null]
-Quadruple - [ETIQUETA L_3, null, null]
-Quadruple - [CMP T_1, 1, null]
-Quadruple - [BNZ L_5, null, null]
-Quadruple - [INICIO_ARGUMENTOS null, null, null]
-Quadruple - [ARGUMENTO x, 6, null]
-Quadruple - [CALL decrementa, 0, 0]
-Quadruple - [ETIQUETA L_5, null, null]
-Quadruple - [NOP null, null, null]
-Quadruple - [ESCRIBE_INT y, null, null]
-Quadruple - [FIN_SUBPROG L_0, L_1, 0]
-Quadruple - [ESCRIBE cadena1, null, null]
-Quadruple - [ESCRIBE cadena2, null, null]
-Quadruple - [MV cinco, 5, null]
-Quadruple - [INICIO_ARGUMENTOS null, null, null]
-Quadruple - [ARGUMENTO cinco, 6, null]
-Quadruple - [CALL decrementa, 0, 0]
-Quadruple - [FINAL null, null, null]
-Quadruple - [CADENA cadena0, "\n", ]
-Quadruple - [CADENA cadena1, "RECURSIVIDAD", ]
-Quadruple - [CADENA cadena2, "12345:", ]
+; INICIO PROGRAMA PRINCIPAL HAda 
+RES 21
+MOVE #65535 , .SP
+MOVE .SP , .IY
+SUB  .SP , #6
+MOVE .A , .SP
+MOVE .IY , /0
+;-- Definicion FUNCION/PROCEDIMIENTO 
+BR /FIN_L0
+L0 :
+
+null
+SUB #-6[.IY], #1
+MOVE .A, #-8[.IY]
+null
+; Traducir Quadruple - [CMP 0, x, null]
+CMP #0, #-6[.IY]
+; Salto si negativo L_2
+BN /L2
+; Traducir Quadruple - [ASIG T_1, 0, null]
+MOVE #0, #-9[.IY]
+BR /L3
+; Etiqueta de salto L_2
+L2 :
+; Traducir Quadruple - [ASIG T_1, 1, null]
+MOVE #1, #-9[.IY]
+; Etiqueta de salto L_3
+L3 :
+; Traducir Quadruple - [CMP T_1, 1, null]
+CMP #-9[.IY], #1
+; Salto si no cero a etiqueta L_5
+BNZ /L5
+; INICIO ARGUMENTOS FIN
+; Cargado argumento Quadruple - [ARGUMENTO x, 6, null]
+; Llamada Funcion Quadruple - [CALL decrementa, 0, 0]
+MOVE .SP , .IX
+MOVE #-6[.IY] , #-6[.IX]
+MOVE /0 , #-2[.IY]
+MOVE .IY , /0
+MOVE .IY , .IX
+MOVE .SP , .IY
+SUB .SP , #10
+MOVE .A , .SP
+MOVE #RET_L4 , #-1[.IY]
+MOVE .IX , #-3[.IY]
+MOVE #REF_L4 , #-4[.IY]
+BR /L0
+REF_L4:
+BR /REF_L0
+RET_L4: 
+NOP 
+
+; Etiqueta de salto L_5
+L5 :
+NOP
+WRINT #-7[.IY]
+L1 : 
+; Retorno Argumentos REFERENCIA 
+MOVE #-4[.IY] , .R5 
+MOVE .R5 , .PC 
+REF_L0: 
+; Retorno Subprograma 
+MOVE #0[.IY] , .R9
+MOVE #-1[.IY] , .R7
+MOVE #-2[.IY] , /0
+MOVE .IY , .SP
+MOVE .IX , .IY
+MOVE #-3[.IY], .IX
+MOVE .R7 , .PC
+FIN_L0 : 
+
+; Escribimos un salto de linea
+
+; Escribimos un salto de linea
+
+null
+; INICIO ARGUMENTOS FIN
+; Cargado argumento Quadruple - [ARGUMENTO cinco, 6, null]
+; Llamada Funcion Quadruple - [CALL decrementa, 0, 0]
+MOVE .SP , .IX
+MOVE #-5[.IY] , #-6[.IX]
+MOVE /0 , #-2[.IY]
+MOVE .IY , /0
+MOVE .IY , .IX
+MOVE .SP , .IY
+SUB .SP , #10
+MOVE .A , .SP
+MOVE #RET_L6 , #-1[.IY]
+MOVE .IX , #-3[.IY]
+MOVE #REF_L6 , #-4[.IY]
+BR /L0
+REF_L6:
+BR /REF_L0
+RET_L6: 
+NOP 
+
+HALT 
+
+; Inicio Cadenas de Texto
+
+cadena0:  DATA "\n"
+cadena1:  DATA "RECURSIVIDAD"
+cadena2:  DATA "12345:"

@@ -1,69 +1,135 @@
-Quadruple - [INICIO testCase05, 11, null]
-Quadruple - [ESCRIBE cadena1, null, null]
-Quadruple - [MV t, 1, null]
-Quadruple - [ESCRIBE cadena2, null, null]
-Quadruple - [CMP 1, 1, null]
-Quadruple - [BZ L_0, null, null]
-Quadruple - [ASIG T_0, 0, null]
-Quadruple - [BR L_2, null, null]
-Quadruple - [ETIQUETA L_0, null, null]
-Quadruple - [CMP 1, 1, null]
-Quadruple - [BZ L_1, null, null]
-Quadruple - [ASIG T_0, 0, null]
-Quadruple - [BR L_2, null, null]
-Quadruple - [ETIQUETA L_1, null, null]
-Quadruple - [ASIG T_0, 1, null]
-Quadruple - [ETIQUETA L_2, null, null]
-Quadruple - [CMP 1, t, null]
-Quadruple - [BZ L_3, null, null]
-Quadruple - [ASIG T_1, 0, null]
-Quadruple - [BR L_5, null, null]
-Quadruple - [ETIQUETA L_3, null, null]
-Quadruple - [CMP 1, T_0, null]
-Quadruple - [BZ L_4, null, null]
-Quadruple - [ASIG T_1, 0, null]
-Quadruple - [BR L_5, null, null]
-Quadruple - [ETIQUETA L_4, null, null]
-Quadruple - [ASIG T_1, 1, null]
-Quadruple - [ETIQUETA L_5, null, null]
-Quadruple - [CMP T_1, 1, null]
-Quadruple - [BNZ L_6, null, null]
-Quadruple - [ESCRIBE cadena3, null, null]
-Quadruple - [ETIQUETA L_6, null, null]
-Quadruple - [NOP null, null, null]
-Quadruple - [MV x, 2, null]
-Quadruple - [ESCRIBE cadena4, null, null]
-Quadruple - [CMP 1, x, null]
-Quadruple - [BN L_7, null, null]
-Quadruple - [ASIG T_2, 0, null]
-Quadruple - [BR L_8, null, null]
-Quadruple - [ETIQUETA L_7, null, null]
-Quadruple - [ASIG T_2, 1, null]
-Quadruple - [ETIQUETA L_8, null, null]
-Quadruple - [CMP T_2, 1, null]
-Quadruple - [BNZ L_9, null, null]
-Quadruple - [ESCRIBE cadena5, null, null]
-Quadruple - [ETIQUETA L_9, null, null]
-Quadruple - [NOP null, null, null]
-Quadruple - [ESCRIBE cadena6, null, null]
-Quadruple - [CMP x, 2, null]
-Quadruple - [BNZ L_10, null, null]
-Quadruple - [ASIG T_3, 0, null]
-Quadruple - [BR L_11, null, null]
-Quadruple - [ETIQUETA L_10, null, null]
-Quadruple - [ASIG T_3, 1, null]
-Quadruple - [ETIQUETA L_11, null, null]
-Quadruple - [CMP T_3, 1, null]
-Quadruple - [BNZ L_12, null, null]
-Quadruple - [ESCRIBE cadena7, null, null]
-Quadruple - [ETIQUETA L_12, null, null]
-Quadruple - [NOP null, null, null]
-Quadruple - [FINAL null, null, null]
-Quadruple - [CADENA cadena0, "\n", ]
-Quadruple - [CADENA cadena1, "IF OPERADORES", ]
-Quadruple - [CADENA cadena2, "t(cierto):", ]
-Quadruple - [CADENA cadena3, "cierto", ]
-Quadruple - [CADENA cadena4, "x menor (cierto):", ]
-Quadruple - [CADENA cadena5, "cierto", ]
-Quadruple - [CADENA cadena6, "x desigual (cierto):", ]
-Quadruple - [CADENA cadena7, "cierto", ]
+; INICIO PROGRAMA PRINCIPAL HAda 
+RES 11
+MOVE #65535 , .SP
+MOVE .SP , .IY
+SUB  .SP , #11
+MOVE .A , .SP
+MOVE .IY , /0
+WRSTR /cadena1
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [MV t, 1, null]
+MOVE #1, #-5[.IY]
+WRSTR /cadena2
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [CMP 1, 1, null]
+CMP #1, #1
+; Salto si cero a etiqueta L_0
+BZ /L_0
+; Traducir Quadruple - [MV T_0, 0, null]
+MOVE #0, #-7[.IY]
+BR /L_2
+; Etiqueta de salto L_0
+L_0 :
+; Traducir Quadruple - [CMP 1, 1, null]
+CMP #1, #1
+; Salto si cero a etiqueta L_1
+BZ /L_1
+; Traducir Quadruple - [MV T_0, 0, null]
+MOVE #0, #-7[.IY]
+BR /L_2
+; Etiqueta de salto L_1
+L_1 :
+; Traducir Quadruple - [MV T_0, 1, null]
+MOVE #1, #-7[.IY]
+; Etiqueta de salto L_2
+L_2 :
+; Traducir Quadruple - [CMP 1, t, null]
+CMP #1, #-5[.IY]
+; Salto si cero a etiqueta L_3
+BZ /L_3
+; Traducir Quadruple - [MV T_1, 0, null]
+MOVE #0, #-8[.IY]
+BR /L_5
+; Etiqueta de salto L_3
+L_3 :
+; Traducir Quadruple - [CMP 1, T_0, null]
+CMP #1, #-7[.IY]
+; Salto si cero a etiqueta L_4
+BZ /L_4
+; Traducir Quadruple - [MV T_1, 0, null]
+MOVE #0, #-8[.IY]
+BR /L_5
+; Etiqueta de salto L_4
+L_4 :
+; Traducir Quadruple - [MV T_1, 1, null]
+MOVE #1, #-8[.IY]
+; Etiqueta de salto L_5
+L_5 :
+; Traducir Quadruple - [CMP T_1, 1, null]
+CMP #-8[.IY], #1
+; Salto si no cero a etiqueta L_6
+BNZ /L_6
+WRSTR /cadena3
+WRCHAR #10
+WRCHAR #13
+; Etiqueta de salto L_6
+L_6 :
+NOP
+; Traducir Quadruple - [MV x, 2, null]
+MOVE #2, #-6[.IY]
+WRSTR /cadena4
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [CMP 1, x, null]
+CMP #1, #-6[.IY]
+; Salto si negativo L_7
+BN /L_7
+; Traducir Quadruple - [MV T_2, 0, null]
+MOVE #0, #-9[.IY]
+BR /L_8
+; Etiqueta de salto L_7
+L_7 :
+; Traducir Quadruple - [MV T_2, 1, null]
+MOVE #1, #-9[.IY]
+; Etiqueta de salto L_8
+L_8 :
+; Traducir Quadruple - [CMP T_2, 1, null]
+CMP #-9[.IY], #1
+; Salto si no cero a etiqueta L_9
+BNZ /L_9
+WRSTR /cadena5
+WRCHAR #10
+WRCHAR #13
+; Etiqueta de salto L_9
+L_9 :
+NOP
+WRSTR /cadena6
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [CMP x, 2, null]
+CMP #-6[.IY], #2
+; Salto si no cero a etiqueta L_10
+BNZ /L_10
+; Traducir Quadruple - [MV T_3, 0, null]
+MOVE #0, #-10[.IY]
+BR /L_11
+; Etiqueta de salto L_10
+L_10 :
+; Traducir Quadruple - [MV T_3, 1, null]
+MOVE #1, #-10[.IY]
+; Etiqueta de salto L_11
+L_11 :
+; Traducir Quadruple - [CMP T_3, 1, null]
+CMP #-10[.IY], #1
+; Salto si no cero a etiqueta L_12
+BNZ /L_12
+WRSTR /cadena7
+WRCHAR #10
+WRCHAR #13
+; Etiqueta de salto L_12
+L_12 :
+NOP
+HALT 
+
+; Inicio Cadenas de Texto
+
+cadena0: DATA "\n"
+cadena1: DATA "IF OPERADORES"
+cadena2: DATA "t(cierto):"
+cadena3: DATA "cierto"
+cadena4: DATA "x menor (cierto):"
+cadena5: DATA "cierto"
+cadena6: DATA "x desigual (cierto):"
+cadena7: DATA "cierto"

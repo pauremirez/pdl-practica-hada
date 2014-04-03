@@ -1,0 +1,71 @@
+; INICIO PROGRAMA PRINCIPAL HAda 
+RES 21
+MOVE #65535 , .SP
+MOVE .SP , .IY
+SUB  .SP , #9
+MOVE .A , .SP
+MOVE .IY , /0
+;-- Definicion FUNCION/PROCEDIMIENTO 
+BR /FIN_L_0
+L_0 :
+
+L_1 : 
+; Retorno Argumentos REFERENCIA 
+MOVE #-4[.IY] , .R5 
+MOVE .R5 , .PC 
+REF_L_0: 
+; Retorno Subprograma 
+MOVE #0[.IY] , .R9
+MOVE #-1[.IY] , .R7
+MOVE #-2[.IY] , /0
+MOVE .IY , .SP
+MOVE .IX , .IY
+MOVE #-3[.IY], .IX
+MOVE .R7 , .PC
+FIN_L_0 : 
+
+WRSTR /cadena1
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [MV a, 5, null]
+MOVE #5, #-6[.IY]
+; Traducir Quadruple - [MV b, 3, null]
+MOVE #3, #-7[.IY]
+; INICIO ARGUMENTOS FIN
+; Cargado argumento Quadruple - [ARGUMENTO a, 5, null]
+; Cargado argumento Quadruple - [ARGUMENTO b, 6, null]
+; Llamada Funcion Quadruple - [CALL resta, 0, T_0]
+MOVE .SP , .IX
+MOVE #-6[.IY] , #-5[.IX]
+MOVE #-7[.IY] , #-6[.IX]
+MOVE /0 , #-2[.IY]
+MOVE .IY , /0
+MOVE .IY , .IX
+MOVE .SP , .IY
+SUB .SP , #8
+MOVE .A , .SP
+MOVE #RET_L_2 , #-1[.IY]
+MOVE .IX , #-3[.IY]
+MOVE #REF_L_2 , #-4[.IY]
+BR /L_0
+REF_L_2:
+BR /REF_L_0
+RET_L_2: 
+MOVE .R9 , #-8[.IY]
+
+; Traducir Quadruple - [MV z, T_0, null]
+MOVE #-8[.IY], #-5[.IY]
+WRSTR /cadena2
+WRCHAR #10
+WRCHAR #13
+WRINT #-5[.IY]
+; Escribimos un salto de linea
+WRSTR /cadena0
+HALT 
+
+; Inicio Cadenas de Texto
+
+cadena0: DATA "\n"
+cadena1: DATA "SUBPROGRAMAS FUNCIONES"
+cadena2: DATA "z(2):"
+
