@@ -17,10 +17,16 @@ public class BloqueSentencias extends NonTerminal {
     private OperandIF resultado;
     private OperandIF resultadoIndex;
     
+    Expresion exp;
+    
     public BloqueSentencias() {
-      //   this.tieneDevuelve = false;
         this.codigoIntermedio = new ArrayList();
     }
+    
+    public BloqueSentencias(Expresion exp) {
+       this.exp=exp;
+       this.codigoIntermedio = new ArrayList();
+      }
 
     public OperandIF getResultado() {
         return resultado;
