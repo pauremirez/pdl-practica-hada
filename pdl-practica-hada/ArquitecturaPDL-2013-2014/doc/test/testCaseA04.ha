@@ -13,7 +13,7 @@ begin
         Put_line("x(1):");
         Put_line(x);
 
-	t := True;
+	t := true;
         Put_line("t(true):");
         Put_line(t);
 

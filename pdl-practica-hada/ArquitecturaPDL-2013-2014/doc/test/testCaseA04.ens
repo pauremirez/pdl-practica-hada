@@ -1,19 +1,54 @@
-Quadruple - [INICIO testCase04, 8, null]
-Quadruple - [ESCRIBE cadena1, null, null]
-Quadruple - [SUB T_0, 2, 1]
-Quadruple - [MV x, T_0, null]
-Quadruple - [ESCRIBE cadena2, null, null]
-Quadruple - [ESCRIBE_INT x, null, null]
-Quadruple - [MV t, 1, null]
-Quadruple - [ESCRIBE cadena3, null, null]
-Quadruple - [BRF t, L_0, null]
-Quadruple - [ESCRIBE true, null, null]
-Quadruple - [BR L_1, null, null]
-Quadruple - [INL L_0, null, null]
-Quadruple - [ESCRIBE false, null, null]
-Quadruple - [INL L_1, null, null]
-Quadruple - [FINAL null, null, null]
-Quadruple - [CADENA cadena0, "\n", ]
-Quadruple - [CADENA cadena1, "VARIABLES Y ARITMETICA SIMPLE", ]
-Quadruple - [CADENA cadena2, "x(1):", ]
-Quadruple - [CADENA cadena3, "t(true):", ]
+; INICIO PROGRAMA PRINCIPAL HAda 
+RES 11
+MOVE #65535 , .SP
+MOVE .SP , .IY
+SUB  .SP , #8
+MOVE .A , .SP
+MOVE .IY , /0
+WRSTR /cadena1
+WRCHAR #10
+WRCHAR #13
+SUB #2, #1
+MOVE .A, #-7[.IY]
+; Traducir Quadruple - [MV x, T_0, null]
+MOVE #-7[.IY], #-5[.IY]
+WRSTR /cadena2
+WRCHAR #10
+WRCHAR #13
+WRINT #-5[.IY]
+; Escribimos un salto de linea
+WRSTR /cadena0
+; Traducir Quadruple - [MV t, 1, null]
+MOVE #1, #-6[.IY]
+WRSTR /cadena3
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [CMP t, 0, null]
+CMP #-6[.IY], #0
+; Salto si no cero a etiqueta L_0
+BNZ /L_0
+; Etiqueta de salto L_1
+L_1 :
+WRSTR /cadena4
+WRCHAR #10
+WRCHAR #13
+BR /etiqueta0
+; Salto si cero a etiqueta L_1
+BZ /L_1
+; Etiqueta de salto L_0
+L_0 :
+WRSTR /cadena5
+WRCHAR #10
+WRCHAR #13
+; Etiqueta de salto etiqueta0
+etiqueta0 :
+HALT 
+
+; Inicio Cadenas de Texto
+
+cadena0: DATA "\n"
+cadena1: DATA "VARIABLES Y ARITMETICA SIMPLE"
+cadena2: DATA "x(1):"
+cadena3: DATA "t(true):"
+cadena4: DATA "false"
+cadena5: DATA "true"

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
 import compiler.intermediate.Temporal;
 import compiler.intermediate.Value;
 import compiler.intermediate.Variable;
@@ -143,16 +142,18 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         }else if (oper.equals("ACCESO_PUNTERO")){ rdo=traducir_ACCESO_PUNTERO(quadruple);
         }else if (oper.equals("DIR_MEM")){ rdo=traducir_DIR_MEM(quadruple);
         }else if (oper.equals("DIR_MEM_REGISTRO")){ rdo=traducir_DIR_MEM_REGISTRO(quadruple);
-        }else if (oper.equals("ASIG")){ rdo=traducir_ASIG(quadruple);
+        }else if (oper.equals("MV")){ rdo=traducir_MV(quadruple);
         }else if (oper.equals("ASIG_REGISTRO")){ rdo=traducir_ASIG_REGISTRO(quadruple);
         }else if (oper.equals("ASIG_PUNTERO")){ rdo=traducir_ASIG_PUNTERO(quadruple);
         }else if (oper.equals("ASIG_REGISTRO_PUNTERO")){ rdo=traducir_ASIG_REGISTRO_PUNTERO(quadruple);
         }else if (oper.equals("ASIG_SET")){ rdo=traducir_ASIG_SET(quadruple);
-        }else if (oper.equals("ETIQUETA")){ rdo=traducir_ETIQUETA(quadruple);
+        }else if (oper.equals("INL")){ rdo=traducir_INL(quadruple);
         }else if (oper.equals("BZ")){ rdo=traducir_BZ(quadruple);
         }else if (oper.equals("BNZ")){ rdo=traducir_BNZ(quadruple);
         }else if (oper.equals("BN")){ rdo=traducir_BN(quadruple);        
         }else if (oper.equals("BR")){ rdo=traducir_BR(quadruple);
+        }else if (oper.equals("BRF")){ rdo=traducir_BRF(quadruple);
+        }else if (oper.equals("BRT")){ rdo=traducir_BRT(quadruple);
         }else if (oper.equals("BP")){ rdo=traducir_BP(quadruple);
         }else if (oper.equals("INC")){ rdo=traducir_INC(quadruple);
         }else if (oper.equals("CALL")){ rdo=traducir_CALL(quadruple);
@@ -166,9 +167,8 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         }else if (oper.equals("CARGAR_SET")){ rdo=traducir_CARGAR_SET(quadruple);
         }else if (oper.equals("IN_SET")){ rdo=traducir_IN_SET(quadruple);
         }else if (oper.equals("UNION_SET")){ rdo=traducir_UNION_SET(quadruple);
-        
+        }else if (oper.equals("INL")){ rdo=traducir_INL(quadruple);
         }else if (oper.equals("WRSTR")){ rdo=traducir_WRSTR(quadruple);
-        }else if (oper.equals("WRTLN")){ rdo=traducir_WRTLN(quadruple);
         }else if (oper.equals("WRINT")){ rdo=traducir_WRINT(quadruple);
         }else if (oper.equals("NOP")){ rdo="NOP";
         }
@@ -559,7 +559,7 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         return trad;
     }
 
-    private String traducir_ASIG(QuadrupleIF quadruple){
+    private String traducir_MV(QuadrupleIF quadruple){
         String trad= "; Traducir "+quadruple.toString() +"\n";
         OperandIF oper1= quadruple.getFirstOperand();
         OperandIF rdo= quadruple.getResult();
@@ -787,45 +787,67 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         }
         return trad;
     }
-    private String traducir_ETIQUETA(QuadrupleIF quadruple){
+    private String traducir_INL(QuadrupleIF quadruple){
         OperandIF rdo = quadruple.getResult();
         String trad = "; Etiqueta de salto " + rdo+"\n";
-        trad = trad + cambiarEtiqueta(rdo.toString()) + " :";
+        //trad = trad + cambiarEtiqueta(rdo.toString()) + " :";
+        trad = trad + rdo.toString() + " :";
         return trad;
     }
     private String traducir_BZ(QuadrupleIF quadruple){
         String trad=""; 
         OperandIF rdo= quadruple.getResult();
         trad = "; Salto si cero a etiqueta " + rdo+"\n";
-        trad = trad + "BZ /" + cambiarEtiqueta(rdo.toString()); 
+        //trad = trad + "BZ /" + cambiarEtiqueta(rdo.toString()); 
+        trad = trad + "BZ /" + rdo.toString(); 
         return trad;
     }
     private String traducir_BNZ(QuadrupleIF quadruple){
         String trad=""; 
         OperandIF rdo= quadruple.getResult();
         trad = "; Salto si no cero a etiqueta " + rdo+"\n";
-        trad = trad + "BNZ /" + cambiarEtiqueta(rdo.toString()); 
+        //trad = trad + "BNZ /" + cambiarEtiqueta(rdo.toString()); 
+        trad = trad + "BNZ /" + rdo.toString(); 
         return trad;
     }
     private String traducir_BN(QuadrupleIF quadruple){
         String trad=""; 
         OperandIF rdo= quadruple.getResult();
         trad = "; Salto si negativo " + rdo+"\n";
-        trad = trad + "BN /" + cambiarEtiqueta(rdo.toString()); 
+        //trad = trad + "BN /" + cambiarEtiqueta(rdo.toString());
+        trad = trad + "BN /" + rdo.toString(); 
         return trad;
     }
     private String traducir_BR(QuadrupleIF quadruple){
         String trad=""; 
         OperandIF rdo= quadruple.getResult();
         trad = "; Salto incondicional " + rdo+"\n";
-        trad="BR /" + cambiarEtiqueta(rdo.toString()); 
+        //trad="BR /" + cambiarEtiqueta(rdo.toString()); 
+        trad="BR /" + rdo.toString(); 
+        return trad;
+    }
+    private String traducir_BRF(QuadrupleIF quadruple){
+        String trad=""; 
+        OperandIF rdo= quadruple.getResult();
+        trad = "; Si !x, salto incondicional " + rdo+"\n";
+        //trad="BR /" + cambiarEtiqueta(rdo.toString()); 
+        trad="BRF /" + rdo.toString(); 
+        return trad;
+    }
+    private String traducir_BRT(QuadrupleIF quadruple){
+        String trad=""; 
+        OperandIF rdo= quadruple.getResult();
+        trad = "; Si x, salto incondicional " + rdo+"\n";
+        //trad="BR /" + cambiarEtiqueta(rdo.toString()); 
+        trad="BRT /" + rdo.toString(); 
         return trad;
     }
     private String traducir_BP(QuadrupleIF quadruple){
         String trad=""; 
         OperandIF rdo= quadruple.getResult();
         trad = "; Salto si positiv0 " + rdo+"\n";
-        trad = trad + "BP /" + cambiarEtiqueta(rdo.toString()); 
+        //trad = trad + "BP /" + cambiarEtiqueta(rdo.toString()); 
+        trad = trad + "BP /" + rdo.toString(); 
         return trad;
     }
     private String traducir_INC(QuadrupleIF quadruple){
@@ -1072,8 +1094,11 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         int nivel = Integer.parseInt(valor.getValue().toString());
         OperandIF oper2 = quadruple.getSecondOperand();
         
-        String etiqRet = cambiarEtiqueta(rdo.getEtiqRetorno().toString());
-        String etiq = cambiarEtiqueta(rdo.getEtiqSub().toString());
+        //String etiqRet = cambiarEtiqueta(rdo.getEtiqRetorno().toString());
+        //String etiq = cambiarEtiqueta(rdo.getEtiqSub().toString());
+        
+        String etiqRet = rdo.getEtiqRetorno().toString();
+        String etiq = rdo.getEtiqSub().toString();
         
         // Desplazamiento
         Integer d = (Integer)this.tablaScopes.get(rdo.getName());
@@ -1138,8 +1163,10 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         
         OperandIF oper1 = quadruple.getFirstOperand();
         Variable resultado = (Variable) rdo;
-        String etiqRetorno = cambiarEtiqueta(resultado.getEtiqRetorno().getName());
-            
+        //String etiqRetorno = cambiarEtiqueta(resultado.getEtiqRetorno().getName());
+        String etiqRetorno = resultado.getEtiqRetorno().getName();
+        
+        
         if (oper1 instanceof Value){
             Value cte = (Value) oper1;
             operador1 = "#" + cte.getValue();
@@ -1171,7 +1198,8 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         String trad=";-- Definicion FUNCION/PROCEDIMIENTO \n";
         OperandIF rdo = (OperandIF) quadruple.getResult();        
         
-        String etiq = cambiarEtiqueta(rdo.toString());
+        //String etiq = cambiarEtiqueta(rdo.toString());
+        String etiq = rdo.toString();
         trad=trad+"BR /FIN_"+etiq+"\n";
         trad=trad +etiq + " :\n";
         return trad;      
@@ -1183,13 +1211,15 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         Value valor = (Value) quadruple.getSecondOperand();
         int nivel = Integer.parseInt(valor.getValue().toString());
         
-        String etiqFin = cambiarEtiqueta(oper1.toString());
+        //String etiqFin = cambiarEtiqueta(oper1.toString());
+        String etiqFin = oper1.toString();
         trad=trad+etiqFin+" : \n";
         // Pasar valores por Referencia (Copia - valor)
         trad=trad+"; Retorno Argumentos REFERENCIA \n";
         trad=trad+"MOVE #-4["+REGISTERS[4]+"] , "+REGISTERS[11] +" \n"; 
         trad=trad+"MOVE "+REGISTERS[11] +" , "+REGISTERS[0]+" \n";
-        trad=trad+"REF_"+cambiarEtiqueta(rdo.toString())+": \n";
+        //trad=trad+"REF_"+cambiarEtiqueta(rdo.toString())+": \n";
+        trad=trad+"REF_"+rdo.toString()+": \n";
                 
         trad=trad+"; Retorno Subprograma \n";
         trad=trad+"MOVE "+RA_VALOR_RETORNO+" , "+REGISTERS[15] +""+"\n"; // se queda el valor de retorno en el R9
@@ -1203,7 +1233,8 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         trad=trad+"MOVE "+RA_VINCULO_CONTROL +", "+REGISTERS[3]+"\n";        
         trad=trad+"MOVE .R7 , "+REGISTERS[0]+"\n";
         
-        trad=trad+"FIN_"+cambiarEtiqueta(rdo.toString())+" : \n";
+        //trad=trad+"FIN_"+cambiarEtiqueta(rdo.toString())+" : \n";
+        trad=trad+"FIN_"+rdo.toString()+" : \n";
         return trad;      
   }
         private String traducir_INICIO_ARGUMENTOS(QuadrupleIF quadruple){
@@ -1333,30 +1364,51 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
             }
        }
        trad= trad+"WRINT "+resultado;
+       trad = trad + "\n; Escribimos un salto de linea\n";
+       trad = trad + "WRSTR /cadena0";
        return trad;
 
     }
     
     // Escribir una cadena
      private String traducir_WRSTR(QuadrupleIF quadruple) {
-        String trad = "";
-        String operador = quadruple.getResult().toString();
-        trad= "WRSTR /" + operador;
-        
-        trad = trad + "; Escribimos un salto de linea\n";
-        trad = trad + "WRSTR /cadena0";
-        return trad;
+    	 String trad = "";
+         String operador = quadruple.getResult().toString();
+         OperandIF o = quadruple.getFirstOperand();
+         trad= "WRSTR /" + operador + "\nWRCHAR #10\nWRCHAR #13";
+         
+         //trad = trad + "\n; Escribimos un salto de linea\n";
+         //trad = trad + "WRSTR /cadena0";
+         
+         return trad;
+
     }
-    private String traducir_WRTLN(QuadrupleIF quadruple) {
+
+     
+/*     private String traducir_INL(QuadrupleIF quadruple) {
+         String trad = "";
+         trad = "; Traducir INL: Salto a una etiqueta\n";
+         String etiq = eliminaPuntos(quadruple.getResult().toString());
+         trad = "; Definimos la posicion de la etiqueta " + etiq;
+         trad = trad + "\n\t" + etiq + " :";
+         return trad;
+     }
+*/     
+     private String eliminaPuntos(String cadena) {
+         return cadena.replace(".", "");
+     }
+     
+     
+ /*   private String traducir_WRTLN(QuadrupleIF quadruple) {
         String trad = "";
         trad = "; Escribimos un salto de linea\n";
         trad = trad + "WRSTR /cadena0";
         return trad;
-    }
+    }*/
 	
-    private String cambiarEtiqueta(String etiq){
+/*    private String cambiarEtiqueta(String etiq){
        return etiq.replace("_", "");
-   }
+   }*/
        
 
 

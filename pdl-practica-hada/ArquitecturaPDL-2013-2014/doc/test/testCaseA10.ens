@@ -1,23 +1,43 @@
-Quadruple - [INICIO testCase10, 9, null]
-Quadruple - [ESCRIBE cadena1, null, null]
-Quadruple - [MV x, 5, null]
-Quadruple - [ESCRIBE cadena2, null, null]
-Quadruple - [ETIQUETA L_2, null, null]
-Quadruple - [ESCRIBE_INT x, null, null]
-Quadruple - [SUB T_1, x, 1]
-Quadruple - [MV x, T_1, null]
-Quadruple - [CMP 1, x, null]
-Quadruple - [BN L_0, null, null]
-Quadruple - [ASIG T_0, 0, null]
-Quadruple - [BR L_1, null, null]
-Quadruple - [ETIQUETA L_0, null, null]
-Quadruple - [ASIG T_0, 1, null]
-Quadruple - [ETIQUETA L_1, null, null]
-Quadruple - [CMP T_0, 0, null]
-Quadruple - [BNZ L_3, null, null]
-Quadruple - [BR L_2, null, null]
-Quadruple - [ETIQUETA L_3, null, null]
-Quadruple - [FINAL null, null, null]
-Quadruple - [CADENA cadena0, "\n", ]
-Quadruple - [CADENA cadena1, "CRONTROL FLUJO WHILE", ]
-Quadruple - [CADENA cadena2, "x(5,4,3,2):", ]
+; INICIO PROGRAMA PRINCIPAL HAda 
+RES 11
+MOVE #65535 , .SP
+MOVE .SP , .IY
+SUB  .SP , #9
+MOVE .A , .SP
+MOVE .IY , /0
+WRSTR /cadena1
+null
+WRSTR /cadena2
+; Etiqueta de salto L_2
+L2 :
+WRINT #-5[.IY]
+SUB #-5[.IY], #1
+MOVE .A, #-7[.IY]
+null
+; Traducir Quadruple - [CMP 1, x, null]
+CMP #1, #-5[.IY]
+; Salto si negativo L_0
+BN /L0
+; Traducir Quadruple - [ASIG T_0, 0, null]
+MOVE #0, #-6[.IY]
+BR /L1
+; Etiqueta de salto L_0
+L0 :
+; Traducir Quadruple - [ASIG T_0, 1, null]
+MOVE #1, #-6[.IY]
+; Etiqueta de salto L_1
+L1 :
+; Traducir Quadruple - [CMP T_0, 0, null]
+CMP #-6[.IY], #0
+; Salto si no cero a etiqueta L_3
+BNZ /L3
+BR /L2
+; Etiqueta de salto L_3
+L3 :
+HALT 
+
+; Inicio Cadenas de Texto
+
+cadena0:  DATA "\n"
+cadena1:  DATA "CRONTROL FLUJO WHILE"
+cadena2:  DATA "x(5,4,3,2):"

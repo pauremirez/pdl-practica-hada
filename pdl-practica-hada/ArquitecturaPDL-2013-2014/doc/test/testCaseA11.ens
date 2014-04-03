@@ -1,22 +1,103 @@
-Quadruple - [INICIO testCase11, 6, null]
-Quadruple - [INICIO_SUBPROG L_0, null, null]
-Quadruple - [INICIO_SUBPROG L_2, null, null]
-Quadruple - [SUB T_0, y, x]
-Quadruple - [MV w, T_0, null]
-Quadruple - [ESCRIBE cadena1, null, null]
-Quadruple - [ESCRIBE_INT w, null, null]
-Quadruple - [FIN_SUBPROG L_2, L_3, 1]
-Quadruple - [MV y, 5, null]
-Quadruple - [INICIO_ARGUMENTOS null, null, null]
-Quadruple - [ARGUMENTO x, 8, null]
-Quadruple - [CALL resta, 1, 0]
-Quadruple - [FIN_SUBPROG L_0, L_1, 0]
-Quadruple - [ESCRIBE cadena2, null, null]
-Quadruple - [MV once, 11, null]
-Quadruple - [INICIO_ARGUMENTOS null, null, null]
-Quadruple - [ARGUMENTO once, 6, null]
-Quadruple - [CALL proc1, 0, 0]
-Quadruple - [FINAL null, null, null]
-Quadruple - [CADENA cadena0, "\n", ]
-Quadruple - [CADENA cadena1, "w(6):", ]
-Quadruple - [CADENA cadena2, "PROCEDIMIENTOS ANIDADOS", ]
+; INICIO PROGRAMA PRINCIPAL HAda 
+RES 31
+MOVE #65535 , .SP
+MOVE .SP , .IY
+SUB  .SP , #6
+MOVE .A , .SP
+MOVE .IY , /0
+;-- Definicion FUNCION/PROCEDIMIENTO 
+BR /FIN_L0
+L0 :
+
+;-- Definicion FUNCION/PROCEDIMIENTO 
+BR /FIN_L2
+L2 :
+
+MOVE /1 , .R1 
+SUB .R1 , #7
+MOVE [.A] , .R2 
+SUB .R2, #-8[.IY]
+MOVE .A, #-10[.IY]
+null
+WRSTR /cadena1
+WRINT #-9[.IY]
+L3 : 
+; Retorno Argumentos REFERENCIA 
+MOVE #-4[.IY] , .R5 
+MOVE .R5 , .PC 
+REF_L2: 
+; Retorno Subprograma 
+MOVE #0[.IY] , .R9
+MOVE #-1[.IY] , .R7
+MOVE #-2[.IY] , /1
+MOVE .IY , .SP
+MOVE .IX , .IY
+MOVE #-3[.IY], .IX
+MOVE .R7 , .PC
+FIN_L2 : 
+
+null
+; INICIO ARGUMENTOS FIN
+; Cargado argumento Quadruple - [ARGUMENTO x, 8, null]
+; Llamada Funcion Quadruple - [CALL resta, 1, 0]
+MOVE .SP , .IX
+MOVE #-6[.IY] , #-8[.IX]
+MOVE /1 , #-2[.IY]
+MOVE .IY , /1
+MOVE .IY , .IX
+MOVE .SP , .IY
+SUB .SP , #11
+MOVE .A , .SP
+MOVE #RET_L4 , #-1[.IY]
+MOVE .IX , #-3[.IY]
+MOVE #REF_L4 , #-4[.IY]
+BR /L2
+REF_L4:
+BR /REF_L2
+RET_L4: 
+NOP 
+
+L1 : 
+; Retorno Argumentos REFERENCIA 
+MOVE #-4[.IY] , .R5 
+MOVE .R5 , .PC 
+REF_L0: 
+; Retorno Subprograma 
+MOVE #0[.IY] , .R9
+MOVE #-1[.IY] , .R7
+MOVE #-2[.IY] , /0
+MOVE .IY , .SP
+MOVE .IX , .IY
+MOVE #-3[.IY], .IX
+MOVE .R7 , .PC
+FIN_L0 : 
+
+WRSTR /cadena2
+null
+; INICIO ARGUMENTOS FIN
+; Cargado argumento Quadruple - [ARGUMENTO once, 6, null]
+; Llamada Funcion Quadruple - [CALL proc1, 0, 0]
+MOVE .SP , .IX
+MOVE #-5[.IY] , #-6[.IX]
+MOVE /0 , #-2[.IY]
+MOVE .IY , /0
+MOVE .IY , .IX
+MOVE .SP , .IY
+SUB .SP , #8
+MOVE .A , .SP
+MOVE #RET_L5 , #-1[.IY]
+MOVE .IX , #-3[.IY]
+MOVE #REF_L5 , #-4[.IY]
+BR /L0
+REF_L5:
+BR /REF_L0
+RET_L5: 
+NOP 
+
+HALT 
+
+; Inicio Cadenas de Texto
+
+cadena0:  DATA "\n"
+cadena1:  DATA "w(6):"
+cadena2:  DATA "PROCEDIMIENTOS ANIDADOS"
