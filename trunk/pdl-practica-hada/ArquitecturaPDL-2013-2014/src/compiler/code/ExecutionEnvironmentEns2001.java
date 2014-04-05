@@ -172,6 +172,7 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         }else if (oper.equals("WRSTR")){ rdo=traducir_WRSTR(quadruple);
         }else if (oper.equals("WRINT")){ rdo=traducir_WRINT(quadruple);
         }else if (oper.equals("NOP")){ rdo="NOP";
+        }else if (oper.equals("VECTOR")){ rdo=traducir_VECTOR(quadruple);
         }
         return rdo;
          
@@ -232,7 +233,10 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 Variable var = (Variable) oper1;
                 SymbolVariable SimVar = (SymbolVariable) var.getAmbito().getSymbolTable().getSymbol(var.getName());
                 if ( SimVar.getScope().getName().equals(var.getScope().getName()) ){ 
+                   //operador1 = "#-" + SimVar.getDesplazamiento()+2 + "["+REGISTERS[4]+"]";
                    operador1 = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
+                   
+                   System.out.println("DESPL-SUB: "+SimVar.getDesplazamiento() );
                 }else {
                    // Variable en otro ambito 
                    trad=trad+"MOVE /"+SimVar.getScope().getLevel()+" , "+REGISTERS[7] +"\n";
@@ -244,6 +248,8 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 Temporal temp = (Temporal) oper1;
                 int desp = temp.getDesplazamiento();
                 operador1 = "#-" + desp + "["+REGISTERS[4]+"]";
+                
+                
             }
         }
         // Segundo Operador
@@ -1161,18 +1167,35 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         String trad= "; Traducir "+quadruple.toString() +"\n";
         String operador1= "";
         OperandIF rdo = quadruple.getResult();
+        String resultado="";
+        
+        System.out.println("rdo.class: "+ rdo.getClass());
 
-        TemporalIF resultado = (Temporal) rdo;
+    /*    TemporalIF resultado = (Temporal) rdo;
         String etiqRetorno = resultado.getName();
         
         Temporal temp = (Temporal) rdo;
-        operador1= "#-"+temp.getDesplazamiento()+"["+REGISTERS[4]+"]";
+        operador1= "#-"+temp.getDesplazamiento()+"["+REGISTERS[4]+"]";*/
+        if (rdo instanceof Value) {
+            Value cte = (Value) rdo;
+            resultado = "#" + cte.getValue();
+        } else {
+            if (rdo instanceof Variable) {
+                Variable var = (Variable) rdo;
+                SymbolVariable SimVar = (SymbolVariable) var.getScope().getSymbolTable().getSymbol(var.getName());
+                resultado = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
+            } else{
+                Temporal temp=(Temporal) rdo; 
+                int desp=temp.getDesplazamiento();
+                resultado="#-" + desp + "["+REGISTERS[4]+"]";
+            }
+        }
         
-        trad = trad + "MOVE "+operador1 +" , "+RA_VALOR_RETORNO +"\n";
-        trad = trad +"MOVE #"+ etiqRetorno +" , "+REGISTERS[0]+"\n";  
-       
-
-        return trad;      
+        
+        trad= trad+ "MOVE " + resultado + " , #-3[" + REGISTERS[3] + "]\n";
+        trad = trad +"MOVE #-1["+REGISTERS[4]+"] , "+REGISTERS[0]+"\n"; 
+ 
+        return trad;
      }
      
    /*  private String traducir_RETURN(QuadrupleIF quadruple){
@@ -1368,7 +1391,11 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 SymbolVariable SimVar=(SymbolVariable) var.getAmbito().getSymbolTable().getSymbol(var.getName());
                 resultado = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
                 if ( SimVar.getScope().getName().equals(var.getScope().getName()) ){ 
-                 resultado = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
+                 resultado = "#-" + (SimVar.getDesplazamiento() +2)+ "["+REGISTERS[4]+"]";
+                 //resultado = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
+                 
+                 
+                 System.out.println("DESPL-WRTINT: "+SimVar.getDesplazamiento());
                }else {
                    // Variable en otro ambito 
                    trad=trad+"MOVE /"+SimVar.getScope().getLevel()+" , "+REGISTERS[7] +" \n";
@@ -1379,12 +1406,12 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
             }else{
                 Temporal temp =(Temporal) rdo; 
                 int desp=temp.getDesplazamiento();
-                 resultado = "#-" + desp + "["+REGISTERS[4]+"]";
+                resultado = "#-" + desp + "["+REGISTERS[4]+"]";
+                
+                
             }
        }
-       trad= trad+"WRINT "+resultado;
-       trad = trad + "\n; Escribimos un salto de linea\n";
-       trad = trad + "WRSTR /cadena0";
+       trad= trad+"WRINT "+resultado + "\nWRCHAR #10\nWRCHAR #13";;
        return trad;
 
     }
@@ -1428,6 +1455,44 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
 /*    private String cambiarEtiqueta(String etiq){
        return etiq.replace("_", "");
    }*/
+     
+     private String traducir_VECTOR(QuadrupleIF quadruple){
+         String trad= "; Traducir "+quadruple.toString() +"\n";
+         String operador1= "";
+         OperandIF rdo = quadruple.getResult();
+         
+         OperandIF oper1 = quadruple.getFirstOperand();
+         Variable resultado = (Variable) rdo;
+         //String etiqRetorno = cambiarEtiqueta(resultado.getEtiqRetorno().getName());
+       //  String etiqRetorno = resultado.getEtiqRetorno().getName();
+         
+         
+         if (oper1 instanceof Value){
+             Value cte = (Value) oper1;
+             operador1 = "#" + cte.getValue();
+         }else{
+             if (oper1 instanceof Variable) {
+                 Variable var = (Variable) oper1;
+                 SymbolVariable SimVar=(SymbolVariable) var.getAmbito().getSymbolTable().getSymbol(var.getName());
+                 if ( SimVar.getScope().getName().equals(var.getScope().getName()) ){ 
+                    operador1 = "#-"+SimVar.getDesplazamiento()+"["+REGISTERS[4]+"]";
+                 }else {
+                     
+                    // Variable en otro ambito 
+                    trad=trad+"MOVE /"+SimVar.getScope().getLevel()+" , "+REGISTERS[7] +" \n";
+                    trad=trad+"SUB "+REGISTERS[7] +" , #"+SimVar.getDesplazamiento()+"\n";
+                    trad=trad+"MOVE [REGISTERS[5]] , "+REGISTERS[8] +" \n";
+                    operador1 = ""+REGISTERS[8] +"";
+                 }
+            }else{
+                 Temporal temp = (Temporal) oper1;
+                 operador1= "#-"+temp.getDesplazamiento()+"["+REGISTERS[4]+"]";
+            }
+         }
+         trad = trad + "MOVE "+operador1 +" , "+REGISTERS[5]+"\n";
+         trad = trad +"MOVE #-1["+REGISTERS[4]+"] , "+REGISTERS[0]+"\n"; 
+         return trad;      
+      }
        
 
 

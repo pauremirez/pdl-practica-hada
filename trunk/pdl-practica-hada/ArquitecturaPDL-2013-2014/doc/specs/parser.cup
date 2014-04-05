@@ -1094,6 +1094,7 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
                     cb.addQuadruple ("INL", l2);
                     cadenas.add("\""+new Value(false).toString()+"\"");
 		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
+		        	etiqueta.add(etiqueta.size()+1);
 		        	cb.addQuadruple("BR", "etiqueta"+etiqueta.size());             // Salto incondicional
                     cb.addQuadruple("BZ", l2);             // Salto si x!=0 --> Si no es falso
                     cb.addQuadruple ("INL", l1);
@@ -1121,6 +1122,7 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
                     cb.addQuadruple ("INL", l2);
                     cadenas.add("\""+new Value(false).toString()+"\"");
 		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
+		        	etiqueta.add(etiqueta.size()+1);
 		        	cb.addQuadruple("BR", "etiqueta"+etiqueta.size());             // Salto incondicional
                     cb.addQuadruple("BZ", l2);             // Salto si x!=0 --> Si no es falso
                     cb.addQuadruple ("INL", l1);
@@ -1130,7 +1132,7 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 		    	
 		    	}else{ //Es un array de tipo Integer
 		    		//semanticErrorManager.semanticDebug("ARRAY de tipo INTEGER");
-		    	
+		    		      			
 		    		cb.addQuadruple("WRINT", exp.getResultado());
 		    	}
             }else{ //Es un numero
@@ -1410,7 +1412,7 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
                         			semanticErrorManager.semanticFatalError ("308. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no son compatibles.");
                            		}else{	
                            			
-					      			TemporalFactory tF = new TemporalFactory(scope);
+					      			/*TemporalFactory tF = new TemporalFactory(scope);
 					      			IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
 					      			int rDim = tipoArray.getValIni()-tipoArray.getValFin()+1;
 					      			TemporalIF temp = tF.create();
@@ -1427,7 +1429,7 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
 					      			
 					      			bloque.setResultado(temp);
 					      			bloque.setResultadoIndex(tempI);
-					      			bloque.setIntermediateCode(cb.create());
+					      			bloque.setIntermediateCode(cb.create());*/
                           		}
                             }
                             
@@ -2014,10 +2016,7 @@ expresion::= ENTERO:num {:
                     } else {
                                     SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
                                     Expresion exp = new Expresion(simbolo.getType(), id.getLine(), id.getColumn());
-                                    
-                                    
-                                    
-                                    
+
                                     // Existe la var y es del tipo vector
                             if (! (simbolo.getType() instanceof TypeArray)) 
                                 semanticErrorManager.semanticFatalError ("312. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es un tipo CONJUNTO.");
@@ -2040,15 +2039,13 @@ expresion::= ENTERO:num {:
                                         semanticErrorManager.semanticFatalError ("308. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no son compatibles.");
                        }					
                             
-
-
-
-	      	            	Value resultado=new Value(Integer.parseInt(num.getLexema()));
+	      	            			Value resultado=new Value(Integer.parseInt(num.getLexema()));
                             		
 					      			TemporalFactoryIF tF = new TemporalFactory(scope);
                             
 					      			IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
-					      			int rDim = tipoArray.getValIni()-tipoArray.getValFin()+1;
+					      			//int rDim =tipoArray.getValFin()-tipoArray.getValIni()+1;
+					      			
 					      			TemporalIF temp = tF.create();
 					      			TemporalIF tempI = tF.create();
 					      			OperandIF tempE = exp.getResultado();
@@ -2056,11 +2053,18 @@ expresion::= ENTERO:num {:
 					      		
 					      			//cb.addQuadruples (exp.getIntermediateCode());
 					      			//cb.addQuadruple ("MVA", temp, id.getLexema());
-					      			cb.addQuadruple ("MV", temp, 0);
+					      	/*		cb.addQuadruple ("MV", temp, 0);
 					      			cb.addQuadruple ("MUL", tempIE, temp ,rDim);
 					      			cb.addQuadruple ("ADD", tempIE, tempE);
-					      			cb.addQuadruple ("MVP", tempIE, tempIE); //???
+					      			cb.addQuadruple ("MVP", tempIE, tempIE); *///???
 					      			
+					      			 Variable var = new Variable(id.getLexema(), scope);
+                                     var.setAmbito(tipoArray.getScope());
+                                     List code1 = exp.getIntermediateCode();
+                                     cb.addQuadruples (code1);
+                                     
+					      			cb.addQuadruple ("VECTOR",var,num.getLexema());
+					      						      			
 					      			exp.setResultado(temp);
 					      			
 					      			exp.setIntermediateCode(cb.create());
