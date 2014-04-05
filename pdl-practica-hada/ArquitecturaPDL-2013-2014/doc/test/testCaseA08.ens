@@ -9,6 +9,12 @@ MOVE .IY , /0
 BR /FIN_L_0
 L_0 :
 
+SUB #-5[.IY], #-6[.IY]
+MOVE .A, #-7[.IY]
+; Traducir Quadruple - [RET T_0, null, null]
+MOVE #-7[.IY] , #-3[.IX]
+MOVE #-1[.IY] , .PC
+
 L_1 : 
 ; Retorno Argumentos REFERENCIA 
 MOVE #-4[.IY] , .R5 
@@ -58,9 +64,9 @@ MOVE #-8[.IY], #-5[.IY]
 WRSTR /cadena2
 WRCHAR #10
 WRCHAR #13
-WRINT #-5[.IY]
-; Escribimos un salto de linea
-WRSTR /cadena0
+WRINT #-7[.IY]
+WRCHAR #10
+WRCHAR #13
 HALT 
 
 ; Inicio Cadenas de Texto
