@@ -15,7 +15,6 @@ begin
 
 	t := true;
         Put_line("t(true):");
-        Put_line(t);
-
+        Put_line(t);    
 
 end testCase04;

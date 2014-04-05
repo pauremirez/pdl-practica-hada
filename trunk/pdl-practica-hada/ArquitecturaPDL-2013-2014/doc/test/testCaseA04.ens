@@ -15,9 +15,9 @@ MOVE #-7[.IY], #-5[.IY]
 WRSTR /cadena2
 WRCHAR #10
 WRCHAR #13
-WRINT #-5[.IY]
-; Escribimos un salto de linea
-WRSTR /cadena0
+WRINT #-7[.IY]
+WRCHAR #10
+WRCHAR #13
 ; Traducir Quadruple - [MV t, 1, null]
 MOVE #1, #-6[.IY]
 WRSTR /cadena3
@@ -32,7 +32,7 @@ L_1 :
 WRSTR /cadena4
 WRCHAR #10
 WRCHAR #13
-BR /etiqueta0
+BR /etiqueta1
 ; Salto si cero a etiqueta L_1
 BZ /L_1
 ; Etiqueta de salto L_0
@@ -40,8 +40,8 @@ L_0 :
 WRSTR /cadena5
 WRCHAR #10
 WRCHAR #13
-; Etiqueta de salto etiqueta0
-etiqueta0 :
+; Etiqueta de salto etiqueta1
+etiqueta1 :
 HALT 
 
 ; Inicio Cadenas de Texto
