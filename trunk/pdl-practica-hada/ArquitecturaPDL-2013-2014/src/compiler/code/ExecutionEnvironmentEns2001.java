@@ -224,6 +224,8 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         String operador2="";
         String resultado="";
         
+        System.out.println("rdo: "+rdo.getClass() );
+        
         // Primer Operador
         if (oper1 instanceof Value) {
             Value cte = (Value) oper1;
@@ -235,8 +237,6 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 if ( SimVar.getScope().getName().equals(var.getScope().getName()) ){ 
                    //operador1 = "#-" + SimVar.getDesplazamiento()+2 + "["+REGISTERS[4]+"]";
                    operador1 = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
-                   
-                   System.out.println("DESPL-SUB: "+SimVar.getDesplazamiento() );
                 }else {
                    // Variable en otro ambito 
                    trad=trad+"MOVE /"+SimVar.getScope().getLevel()+" , "+REGISTERS[7] +"\n";
@@ -285,14 +285,22 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 Variable var = (Variable) rdo;
                 SymbolVariable SimVar = (SymbolVariable) var.getScope().getSymbolTable().getSymbol(var.getName());
                 resultado = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
+            
+                System.out.println("RESTA:SimVar: "+SimVar );
+                System.out.println("RESTA:SimVar.getDesplazamiento(): "+SimVar.getDesplazamiento() );
             } else{
                 Temporal temp=(Temporal) rdo; 
                 int desp=temp.getDesplazamiento();
                 resultado="#-" + desp + "["+REGISTERS[4]+"]";
+                
+         
             }
         }
+        
+     
+        
         trad=trad+"SUB " + operador1 + ", " + operador2 + "\n";
-        trad=trad+"MOVE " + ""+REGISTERS[5]+", " + resultado;
+        trad=trad+"MOVE " +REGISTERS[5]+", " + resultado+ "\n"; //Resultado en .A
         return trad;
     }
     private String traducir_ADD(QuadrupleIF quadruple){
@@ -369,8 +377,9 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 resultado="#-" + desp + "["+REGISTERS[4]+"]";
             }
         }
+
         trad=trad+"ADD " + operador1 + ", " + operador2 + "\n";
-        trad= trad + "MOVE " + ""+REGISTERS[5]+", " + resultado;
+        trad= trad + "MOVE " + ""+REGISTERS[5]+", " + resultado+"\n";
         return trad;
     }
     
@@ -681,6 +690,7 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
             trad= trad+"SUB "+REGISTERS[7] +" , #"+(SimVar1.getDesplazamiento()+var2.getDesplCampo())+"\n";  
         }
         trad= trad+"MOVE "+operador2+" , ["+REGISTERS[5]+"]";
+        trad=trad+"MOVE " +operador2+", " + REGISTERS[15]; //Resultado en .R9
         return trad;
     }
     
@@ -1194,6 +1204,7 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         
         trad= trad+ "MOVE " + resultado + " , #-3[" + REGISTERS[3] + "]\n";
         trad = trad +"MOVE #-1["+REGISTERS[4]+"] , "+REGISTERS[0]+"\n"; 
+
  
         return trad;
      }
@@ -1391,11 +1402,10 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 SymbolVariable SimVar=(SymbolVariable) var.getAmbito().getSymbolTable().getSymbol(var.getName());
                 resultado = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
                 if ( SimVar.getScope().getName().equals(var.getScope().getName()) ){ 
-                 resultado = "#-" + (SimVar.getDesplazamiento() +2)+ "["+REGISTERS[4]+"]";
-                 //resultado = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
-                 
-                 
-                 System.out.println("DESPL-WRTINT: "+SimVar.getDesplazamiento());
+                 resultado = "#-" + SimVar.getDesplazamiento()+ "["+REGISTERS[4]+"]";
+                 //resultado = "#-" + (SimVar.getDesplazamiento()+2) + "["+REGISTERS[4]+"]";
+
+                 System.out.println("RESULT-WRINT: "+resultado );
                }else {
                    // Variable en otro ambito 
                    trad=trad+"MOVE /"+SimVar.getScope().getLevel()+" , "+REGISTERS[7] +" \n";
@@ -1407,14 +1417,15 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 Temporal temp =(Temporal) rdo; 
                 int desp=temp.getDesplazamiento();
                 resultado = "#-" + desp + "["+REGISTERS[4]+"]";
-                
-                
+
             }
        }
-       trad= trad+"WRINT "+resultado + "\nWRCHAR #10\nWRCHAR #13";;
+       trad= trad+"WRINT "+resultado + "\nWRCHAR #10\nWRCHAR #13";
+       
        return trad;
 
     }
+    
     
     // Escribir una cadena
      private String traducir_WRSTR(QuadrupleIF quadruple) {

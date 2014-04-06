@@ -6,38 +6,48 @@ SUB  .SP , #9
 MOVE .A , .SP
 MOVE .IY , /0
 WRSTR /cadena1
-null
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [MV x, 5, null]
+MOVE #5, #-5[.IY]
 WRSTR /cadena2
+WRCHAR #10
+WRCHAR #13
 ; Etiqueta de salto L_2
-L2 :
-WRINT #-5[.IY]
-SUB #-5[.IY], #1
-MOVE .A, #-7[.IY]
-null
+L_2 :
 ; Traducir Quadruple - [CMP 1, x, null]
 CMP #1, #-5[.IY]
 ; Salto si negativo L_0
-BN /L0
-; Traducir Quadruple - [ASIG T_0, 0, null]
+BN /L_0
+; Traducir Quadruple - [MV T_0, 0, null]
 MOVE #0, #-6[.IY]
-BR /L1
+BR /L_1
 ; Etiqueta de salto L_0
-L0 :
-; Traducir Quadruple - [ASIG T_0, 1, null]
+L_0 :
+; Traducir Quadruple - [MV T_0, 1, null]
 MOVE #1, #-6[.IY]
 ; Etiqueta de salto L_1
-L1 :
+L_1 :
 ; Traducir Quadruple - [CMP T_0, 0, null]
 CMP #-6[.IY], #0
-; Salto si no cero a etiqueta L_3
-BNZ /L3
-BR /L2
+; Salto si cero a etiqueta L_3
+BZ /L_3
+WRINT #-5[.IY]
+WRCHAR #10
+WRCHAR #13
+SUB #-5[.IY], #1
+MOVE .A, #-7[.IY]
+
+; Traducir Quadruple - [MV x, T_1, null]
+MOVE #-7[.IY], #-5[.IY]
+; Salto si positiv0 L_2
+BP /L_2
 ; Etiqueta de salto L_3
-L3 :
+L_3 :
 HALT 
 
 ; Inicio Cadenas de Texto
 
-cadena0:  DATA "\n"
-cadena1:  DATA "CRONTROL FLUJO WHILE"
-cadena2:  DATA "x(5,4,3,2):"
+cadena0: DATA "\n"
+cadena1: DATA "CRONTROL FLUJO WHILE"
+cadena2: DATA "x(5,4,3,2):"

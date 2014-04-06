@@ -1104,11 +1104,6 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 			       
 		        }
 		        
-		       
-		        
-
-
-		        	
 		    }else if (exp.getTipo() instanceof TypeArray){ //Es un Array
 		    	TypeArray array = (TypeArray) exp.getTipo();
 		    	if (array.getTipo() instanceof TypeBoolean){ //Es un array de tipo boolean
@@ -1135,7 +1130,7 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 		    		      			
 		    		cb.addQuadruple("WRINT", exp.getResultado());
 		    	}
-            }else{ //Es un numero
+            }else{//Es un numero
             	cb.addQuadruple("WRINT", exp.getResultado());
             }
             
@@ -1167,17 +1162,24 @@ sentenciaWhile::= WHILE:id expresion:exp LOOP listaSentencias:sent END LOOP PUNT
                               despl++;
                                     
                               LabelFactoryIF lf = CompilerContext.getLabelFactory();					
-                              LabelIF INICIO = lf.create();
-                              LabelIF FIN= lf.create();				
+                              LabelIF INICIO_BUCLE = lf.create();
+                              LabelIF FIN_BUCLE= lf.create();				
                         	
                               bloque.setResultado(temporal);
-                              cb.addQuadruple("INL", INICIO);
-                              cb.addQuadruples(sent.getIntermediateCode());
+                              
+                              semanticErrorManager.semanticDebug("exp: "+exp.getIntermediateCode());
+                              
+                              
+                              cb.addQuadruple("INL", INICIO_BUCLE);
                               cb.addQuadruples(exp.getIntermediateCode());
                               cb.addQuadruple("CMP", exp.getResultado(), new Value(0));
-                              cb.addQuadruple("BNZ", FIN);             // Salto si NO negativo
-                              cb.addQuadruple("BR", INICIO);
-                              cb.addQuadruple("INL", FIN);
+                              cb.addQuadruple("BZ", FIN_BUCLE);
+                              cb.addQuadruples(sent.getIntermediateCode()); 
+                              cb.addQuadruple("BP", INICIO_BUCLE);           // Salto si NO negativo
+                              cb.addQuadruple("INL", FIN_BUCLE);
+                              
+                              
+                              
     		
                               List code = cb.create();
                               bloque.setIntermediateCode(code);
@@ -1228,6 +1230,7 @@ sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent1 ELSE listaSentenci
 								LabelFactoryIF lf = CompilerContext.getLabelFactory();
 								LabelIF LTRUE = lf.create();
 								LabelIF LFALSE = lf.create();
+								
                                 cb.addQuadruples(exp.getIntermediateCode());
                                 cb.addQuadruple("CMP", exp.getResultado(), new Value(1));
 								cb.addQuadruple("BNZ",LFALSE);   // Salto no cero
@@ -1854,7 +1857,7 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
                             LabelIF LTRUE = lf.create();
                             LabelIF LFIN = lf.create();
                             cb.addQuadruple ("CMP", exp1.getResultado(), exp2.getResultado()); 
-                            cb.addQuadruple ("BZ", LTRUE); 
+                            cb.addQuadruple ("BN", LTRUE); 
                             cb.addQuadruple ("MV", temporal, falso);
                             cb.addQuadruple ("BR", LFIN);
                             cb.addQuadruple ("INL", LTRUE);
