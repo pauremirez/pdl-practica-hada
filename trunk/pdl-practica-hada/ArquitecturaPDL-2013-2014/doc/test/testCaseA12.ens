@@ -6,30 +6,33 @@ SUB  .SP , #6
 MOVE .A , .SP
 MOVE .IY , /0
 ;-- Definicion FUNCION/PROCEDIMIENTO 
-BR /FIN_L0
-L0 :
+BR /FIN_L_0
+L_0 :
 
-null
+; Traducir Quadruple - [MV y, x, null]
+MOVE #-6[.IY], #-7[.IY]
 SUB #-6[.IY], #1
 MOVE .A, #-8[.IY]
-null
+
+; Traducir Quadruple - [MV x, T_0, null]
+MOVE #-8[.IY], #-6[.IY]
 ; Traducir Quadruple - [CMP 0, x, null]
 CMP #0, #-6[.IY]
 ; Salto si negativo L_2
-BN /L2
-; Traducir Quadruple - [ASIG T_1, 0, null]
+BN /L_2
+; Traducir Quadruple - [MV T_1, 0, null]
 MOVE #0, #-9[.IY]
-BR /L3
+BR /L_3
 ; Etiqueta de salto L_2
-L2 :
-; Traducir Quadruple - [ASIG T_1, 1, null]
+L_2 :
+; Traducir Quadruple - [MV T_1, 1, null]
 MOVE #1, #-9[.IY]
 ; Etiqueta de salto L_3
-L3 :
+L_3 :
 ; Traducir Quadruple - [CMP T_1, 1, null]
 CMP #-9[.IY], #1
 ; Salto si no cero a etiqueta L_5
-BNZ /L5
+BNZ /L_5
 ; INICIO ARGUMENTOS FIN
 ; Cargado argumento Quadruple - [ARGUMENTO x, 6, null]
 ; Llamada Funcion Quadruple - [CALL decrementa, 0, 0]
@@ -41,24 +44,26 @@ MOVE .IY , .IX
 MOVE .SP , .IY
 SUB .SP , #10
 MOVE .A , .SP
-MOVE #RET_L4 , #-1[.IY]
+MOVE #RET_L_4 , #-1[.IY]
 MOVE .IX , #-3[.IY]
-MOVE #REF_L4 , #-4[.IY]
-BR /L0
-REF_L4:
-BR /REF_L0
-RET_L4: 
+MOVE #REF_L_4 , #-4[.IY]
+BR /L_0
+REF_L_4:
+BR /REF_L_0
+RET_L_4: 
 NOP 
 
 ; Etiqueta de salto L_5
-L5 :
+L_5 :
 NOP
 WRINT #-7[.IY]
-L1 : 
+WRCHAR #10
+WRCHAR #13
+L_1 : 
 ; Retorno Argumentos REFERENCIA 
 MOVE #-4[.IY] , .R5 
 MOVE .R5 , .PC 
-REF_L0: 
+REF_L_0: 
 ; Retorno Subprograma 
 MOVE #0[.IY] , .R9
 MOVE #-1[.IY] , .R7
@@ -67,13 +72,16 @@ MOVE .IY , .SP
 MOVE .IX , .IY
 MOVE #-3[.IY], .IX
 MOVE .R7 , .PC
-FIN_L0 : 
+FIN_L_0 : 
 
-; Escribimos un salto de linea
-
-; Escribimos un salto de linea
-
-null
+WRSTR /cadena1
+WRCHAR #10
+WRCHAR #13
+WRSTR /cadena2
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [MV cinco, 5, null]
+MOVE #5, #-5[.IY]
 ; INICIO ARGUMENTOS FIN
 ; Cargado argumento Quadruple - [ARGUMENTO cinco, 6, null]
 ; Llamada Funcion Quadruple - [CALL decrementa, 0, 0]
@@ -85,19 +93,19 @@ MOVE .IY , .IX
 MOVE .SP , .IY
 SUB .SP , #10
 MOVE .A , .SP
-MOVE #RET_L6 , #-1[.IY]
+MOVE #RET_L_6 , #-1[.IY]
 MOVE .IX , #-3[.IY]
-MOVE #REF_L6 , #-4[.IY]
-BR /L0
-REF_L6:
-BR /REF_L0
-RET_L6: 
+MOVE #REF_L_6 , #-4[.IY]
+BR /L_0
+REF_L_6:
+BR /REF_L_0
+RET_L_6: 
 NOP 
 
 HALT 
 
 ; Inicio Cadenas de Texto
 
-cadena0:  DATA "\n"
-cadena1:  DATA "RECURSIVIDAD"
-cadena2:  DATA "12345:"
+cadena0: DATA "\n"
+cadena1: DATA "RECURSIVIDAD"
+cadena2: DATA "12345:"
