@@ -37,6 +37,7 @@ WRCHAR #10
 WRCHAR #13
 SUB #-5[.IY], #1
 MOVE .A, #-7[.IY]
+MOVE .A, .R9
 
 ; Traducir Quadruple - [MV x, T_1, null]
 MOVE #-7[.IY], #-5[.IY]

@@ -19,7 +19,7 @@ procedure testCase11 () is
 			w:= y-x;
 			Put_line("w(6):");  
 			Put_line(w);   
-		end proc2; 
+		end resta; 
 
 	begin  
 		y:=5;

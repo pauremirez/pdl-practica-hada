@@ -18,6 +18,7 @@ SUB .R1 , #7
 MOVE [.A] , .R2 
 SUB .R2, #-8[.IY]
 MOVE .A, #-10[.IY]
+MOVE .A, .R9
 
 ; Traducir Quadruple - [MV w, T_0, null]
 MOVE #-10[.IY], #-9[.IY]
@@ -33,13 +34,13 @@ MOVE #-4[.IY] , .R5
 MOVE .R5 , .PC 
 REF_L_2: 
 ; Retorno Subprograma 
-MOVE #0[.IY] , .R9
 MOVE #-1[.IY] , .R7
 MOVE #-2[.IY] , /1
 MOVE .IY , .SP
 MOVE .IX , .IY
 MOVE #-3[.IY], .IX
 MOVE .R7 , .PC
+MOVE .A, #-5[.IY] 
 FIN_L_2 : 
 
 ; Traducir Quadruple - [MV y, 5, null]
@@ -62,7 +63,7 @@ BR /L_2
 REF_L_4:
 BR /REF_L_2
 RET_L_4: 
-NOP 
+MOVE .R9 , #-5[.IY]
 
 L_1 : 
 ; Retorno Argumentos REFERENCIA 
@@ -70,13 +71,13 @@ MOVE #-4[.IY] , .R5
 MOVE .R5 , .PC 
 REF_L_0: 
 ; Retorno Subprograma 
-MOVE #0[.IY] , .R9
 MOVE #-1[.IY] , .R7
 MOVE #-2[.IY] , /0
 MOVE .IY , .SP
 MOVE .IX , .IY
 MOVE #-3[.IY], .IX
 MOVE .R7 , .PC
+MOVE .A, #-5[.IY] 
 FIN_L_0 : 
 
 WRSTR /cadena2
@@ -102,7 +103,7 @@ BR /L_0
 REF_L_5:
 BR /REF_L_0
 RET_L_5: 
-NOP 
+MOVE .R9 , #-5[.IY]
 
 HALT 
 

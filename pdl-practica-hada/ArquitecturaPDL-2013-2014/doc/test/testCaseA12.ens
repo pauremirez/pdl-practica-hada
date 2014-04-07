@@ -13,6 +13,7 @@ L_0 :
 MOVE #-6[.IY], #-7[.IY]
 SUB #-6[.IY], #1
 MOVE .A, #-8[.IY]
+MOVE .A, .R9
 
 ; Traducir Quadruple - [MV x, T_0, null]
 MOVE #-8[.IY], #-6[.IY]
@@ -51,7 +52,7 @@ BR /L_0
 REF_L_4:
 BR /REF_L_0
 RET_L_4: 
-NOP 
+MOVE .R9 , #-5[.IY]
 
 ; Etiqueta de salto L_5
 L_5 :
@@ -65,13 +66,13 @@ MOVE #-4[.IY] , .R5
 MOVE .R5 , .PC 
 REF_L_0: 
 ; Retorno Subprograma 
-MOVE #0[.IY] , .R9
 MOVE #-1[.IY] , .R7
 MOVE #-2[.IY] , /0
 MOVE .IY , .SP
 MOVE .IX , .IY
 MOVE #-3[.IY], .IX
 MOVE .R7 , .PC
+MOVE .A, #-5[.IY] 
 FIN_L_0 : 
 
 WRSTR /cadena1
@@ -100,7 +101,7 @@ BR /L_0
 REF_L_6:
 BR /REF_L_0
 RET_L_6: 
-NOP 
+MOVE .R9 , #-5[.IY]
 
 HALT 
 
