@@ -224,6 +224,8 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         String operador2="";
         String resultado="";
         
+        System.out.println("oper1: "+oper1.getClass() );
+        System.out.println("oper2: "+oper2.getClass() );
         System.out.println("rdo: "+rdo.getClass() );
         
         // Primer Operador
@@ -237,6 +239,9 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 if ( SimVar.getScope().getName().equals(var.getScope().getName()) ){ 
                    //operador1 = "#-" + SimVar.getDesplazamiento()+2 + "["+REGISTERS[4]+"]";
                    operador1 = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
+                   
+                   System.out.println("oper1-desp: "+operador1 );
+                   
                 }else {
                    // Variable en otro ambito 
                    trad=trad+"MOVE /"+SimVar.getScope().getLevel()+" , "+REGISTERS[7] +"\n";
@@ -262,6 +267,8 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 SymbolVariable SimVar = (SymbolVariable) var.getAmbito().getSymbolTable().getSymbol(var.getName());
                 if ( SimVar.getScope().getName().equals(var.getScope().getName()) ){ 
                    operador2 = "#-" + SimVar.getDesplazamiento() + "["+REGISTERS[4]+"]";
+                   
+                   System.out.println("oper2-desp: "+operador2 );
                 }else {
                     
                    // Variable en otro ambito 
@@ -293,14 +300,15 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
                 int desp=temp.getDesplazamiento();
                 resultado="#-" + desp + "["+REGISTERS[4]+"]";
                 
-         
+                System.out.println("rdo-desp: "+resultado );
             }
         }
         
-     
-        
         trad=trad+"SUB " + operador1 + ", " + operador2 + "\n";
         trad=trad+"MOVE " +REGISTERS[5]+", " + resultado+ "\n"; //Resultado en .A
+        
+       trad=trad+"MOVE " +REGISTERS[5]+", " + REGISTERS[15]+ "\n"; //Resultado en .R9
+        
         return trad;
     }
     private String traducir_ADD(QuadrupleIF quadruple){
@@ -1167,7 +1175,8 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
             Temporal operando2 = (Temporal) oper2;
             trad=trad+"MOVE "+REGISTERS[15] +" , #-"+ operando2.getDesplazamiento()+"["+REGISTERS[4]+"]\n";
         } else {
-            trad=trad+"NOP \n";    
+            //trad=trad+"NOP \n";
+            trad=trad+"MOVE .R9 , #-5[.IY]\n";
         }    
         contadorLlamadas--;
         return trad;      
@@ -1275,8 +1284,8 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         trad=trad+"REF_"+rdo.toString()+": \n";
                 
         trad=trad+"; Retorno Subprograma \n";
-        trad=trad+"MOVE "+RA_VALOR_RETORNO+" , "+REGISTERS[15] +""+"\n"; // se queda el valor de retorno en el R9
-        trad=trad+"MOVE "+RA_DIRECCION_RETORNO+" , .R7\n";
+//        trad=trad+"MOVE "+RA_VALOR_RETORNO+" , "+REGISTERS[15] +""+"\n"; // se queda el valor de retorno en el R9
+        trad=trad+"MOVE "+RA_DIRECCION_RETORNO+" , "+REGISTERS[13]+"\n";
         
         // Arreglo ambitos
         trad=trad+"MOVE "+RA_VINCULO_ACCESO+" , /"+nivel+"\n";
@@ -1284,7 +1293,9 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         trad=trad+"MOVE "+REGISTERS[4]+" , "+REGISTERS[1]+"\n";
         trad=trad+"MOVE "+REGISTERS[3]+" , "+REGISTERS[4]+"\n";
         trad=trad+"MOVE "+RA_VINCULO_CONTROL +", "+REGISTERS[3]+"\n";        
-        trad=trad+"MOVE .R7 , "+REGISTERS[0]+"\n";
+        trad=trad+"MOVE "+REGISTERS[13] +" , "+REGISTERS[0]+"\n";
+        
+        trad=trad+ "MOVE .A, #-5[.IY] \n"; //Arreglo para imprimir el dato como WRTINT
         
         //trad=trad+"FIN_"+cambiarEtiqueta(rdo.toString())+" : \n";
         trad=trad+"FIN_"+rdo.toString()+" : \n";

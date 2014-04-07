@@ -11,6 +11,8 @@ L_0 :
 
 SUB #-5[.IY], #-6[.IY]
 MOVE .A, #-7[.IY]
+MOVE .A, .R9
+
 ; Traducir Quadruple - [RET T_0, null, null]
 MOVE #-7[.IY] , #-3[.IX]
 MOVE #-1[.IY] , .PC
@@ -21,13 +23,13 @@ MOVE #-4[.IY] , .R5
 MOVE .R5 , .PC 
 REF_L_0: 
 ; Retorno Subprograma 
-MOVE #0[.IY] , .R9
 MOVE #-1[.IY] , .R7
 MOVE #-2[.IY] , /0
 MOVE .IY , .SP
 MOVE .IX , .IY
 MOVE #-3[.IY], .IX
 MOVE .R7 , .PC
+MOVE .A, #-5[.IY] 
 FIN_L_0 : 
 
 WRSTR /cadena1
@@ -64,7 +66,7 @@ MOVE #-8[.IY], #-5[.IY]
 WRSTR /cadena2
 WRCHAR #10
 WRCHAR #13
-WRINT #-7[.IY]
+WRINT #-5[.IY]
 WRCHAR #10
 WRCHAR #13
 HALT 
