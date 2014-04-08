@@ -11,6 +11,7 @@ import compiler.semantic.Utilidades;
 import es.uned.lsi.compiler.semantic.ScopeIF;
 import es.uned.lsi.compiler.semantic.symbol.SymbolIF;
 import es.uned.lsi.compiler.semantic.symbol.SymbolTableIF;
+import es.uned.lsi.compiler.semantic.type.TypeIF;
 
 
 
@@ -24,6 +25,10 @@ public class SymbolTable
   
     private ScopeIF scope = null;
     private HashMap tabla = new HashMap();
+    private int desplazamiento;
+    private boolean referencia;
+    private int size;       // Tamanyo para conjuntos
+    private int address;
     
     /**
      * Constructor for SymbolTable.
@@ -42,6 +47,8 @@ public class SymbolTable
         this ();
         this.scope = scope;
     }
+    
+       
     
     /**
      * Returns the scope of the Symbol table. 
@@ -181,8 +188,7 @@ public class SymbolTable
 
 	@Override
 	public int getSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return size;
 	}
 
 	@Override
@@ -196,5 +202,48 @@ public class SymbolTable
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+    public boolean getReferencia() {
+        return referencia;
+    }
 
+    public void setReferencia(boolean referencia) {
+        this.referencia = referencia;
+    }
+
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+    /**
+     * Return a string representing the object.
+     * @return a string representing the object.
+     */
+    public String toStringVariable()
+    {
+        // TODO: Student Work (optional)
+        return super.toString();
+    } 
+    
+    public int getDesplazamiento() {
+        return this.desplazamiento;
+    }
+
+    public void setDesplazamiento(int desplazamiento) {
+        this.desplazamiento = desplazamiento;
+    }
+    
+	/**
+	 * @return the address
+	 */
+	public int getAddress() {
+		return address;
+	}
+
+	/**
+	 * @param address the address to set
+	 */
+	public void setAddress(int address) {
+		this.address = address;
+	}
 }

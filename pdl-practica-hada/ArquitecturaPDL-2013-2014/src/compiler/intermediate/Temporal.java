@@ -147,4 +147,8 @@ public class Temporal
 	public int getSize() {
 		return size;
 	}
+	
+	public void setScope(ScopeIF scope){
+		this.scope=scope;
+	}
 }

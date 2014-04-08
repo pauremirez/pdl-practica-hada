@@ -1,0 +1,100 @@
+; INICIO PROGRAMA PRINCIPAL HAda 
+RES 11
+MOVE #65535 , .SP
+MOVE .SP , .IY
+SUB  .SP , #20
+MOVE .A , .SP
+MOVE .IY , /0
+WRSTR /cadena1
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [ASIGN_VECTOR vE, 1, 20]
+MOVE #20 , #-6[.IY]
+
+; Traducir Quadruple - [ASIGN_VECTOR vE, 2, 30]
+MOVE #30 , #-7[.IY]
+
+WRSTR /cadena2
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [VALOR_VECTOR vE, 1, null]
+MOVE #-6[.IY] , .A
+MOVE .A , #0[.IY]
+
+WRINT #-6[.IY]
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [VALOR_VECTOR vE, 2, null]
+MOVE #-7[.IY] , .A
+MOVE .A , #0[.IY]
+
+WRINT #-7[.IY]
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [ASIGN_VECTOR vL, 1, 1]
+MOVE #1 , #-16[.IY]
+
+; Traducir Quadruple - [ASIGN_VECTOR vL, 2, 0]
+MOVE #0 , #-17[.IY]
+
+WRSTR /cadena3
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [VALOR_VECTOR vL, 1, null]
+MOVE #-16[.IY] , .A
+MOVE .A , #0[.IY]
+
+; Traducir Quadruple - [CMP T_4, 0, null]
+CMP #-0[.IY], #0
+; Salto si no cero a etiqueta L_0
+BNZ /L_0
+; Etiqueta de salto L_1
+L_1 :
+WRSTR /cadena4
+WRCHAR #10
+WRCHAR #13
+BR /etiqueta1
+; Salto si cero a etiqueta L_1
+BZ /L_1
+; Etiqueta de salto L_0
+L_0 :
+WRSTR /cadena5
+WRCHAR #10
+WRCHAR #13
+; Etiqueta de salto etiqueta1
+etiqueta1 :
+; Traducir Quadruple - [VALOR_VECTOR vL, 2, null]
+MOVE #-17[.IY] , .A
+MOVE .A , #0[.IY]
+
+; Traducir Quadruple - [CMP T_5, 0, null]
+CMP #-0[.IY], #0
+; Salto si no cero a etiqueta L_2
+BNZ /L_2
+; Etiqueta de salto L_3
+L_3 :
+WRSTR /cadena6
+WRCHAR #10
+WRCHAR #13
+BR /etiqueta2
+; Salto si cero a etiqueta L_3
+BZ /L_3
+; Etiqueta de salto L_2
+L_2 :
+WRSTR /cadena7
+WRCHAR #10
+WRCHAR #13
+; Etiqueta de salto etiqueta2
+etiqueta2 :
+HALT 
+
+; Inicio Cadenas de Texto
+
+cadena0: DATA "\n"
+cadena1: DATA "VECTORES"
+cadena2: DATA "vE(20,30):"
+cadena3: DATA "vL(true,false):"
+cadena4: DATA "false"
+cadena5: DATA "true"
+cadena6: DATA "false"
+cadena7: DATA "true"

@@ -154,6 +154,7 @@ non terminal					tipos;
 non terminal ListaObjetos		parametro;
 non terminal					modo;
 non terminal BloqueSentencias	procedure;
+non terminal Expresion 			vector;
 
 //-----------------------------------------
 // Declaracion de relaciones de precedencia
@@ -1112,7 +1113,7 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 		    		LabelFactoryIF lF = new LabelFactory ();
 			        LabelIF l1 = lF.create ();
 			        LabelIF l2 = lF.create ();
-			        cb.addQuadruple("CMP", exp.getResultado(), new Value(0)); //comparo si es falso
+		    		cb.addQuadruple("CMP", exp.getResultado(), new Value(0)); //comparo si es falso
                     cb.addQuadruple("BNZ", l1);             // Salto si x!=0 --> Si no es falso
                     cb.addQuadruple ("INL", l2);
                     cadenas.add("\""+new Value(false).toString()+"\"");
@@ -1127,12 +1128,60 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 		    	
 		    	}else{ //Es un array de tipo Integer
 		    		//semanticErrorManager.semanticDebug("ARRAY de tipo INTEGER");
-		    		      			
+		    		
+		    		//cb.addQuadruple("ARREGLO_ARRAY", var);     			
 		    		cb.addQuadruple("WRINT", exp.getResultado());
 		    	}
             }else{//Es un numero
             	cb.addQuadruple("WRINT", exp.getResultado());
             }
+            
+			List code = cb.create();
+            bloque.setIntermediateCode(cb.create());
+            
+            semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
+			RESULT=bloque;
+	   :}; 
+	   
+sentenciaPutLine::= PUTLINE:id PARENTESISIZQ vector:vect PARENTESISDER PUNTOYCOMA
+{:    
+            BloqueSentencias bloque = new BloqueSentencias();
+            ScopeIF scope = scopeManager.getCurrentScope();
+            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
+			cb.addQuadruples(vect.getIntermediateCode());
+			
+            if (vect.getTipo() instanceof TypeArray){ //Es un Array
+		    	TypeArray array = (TypeArray) vect.getTipo();
+		    	if (array.getTipo() instanceof TypeBoolean){ //Es un array de tipo boolean
+		    		//semanticErrorManager.semanticDebug("ARRAY de tipo BOOLEAN");
+		    		
+		    		LabelFactoryIF lF = new LabelFactory ();
+			        LabelIF l1 = lF.create ();
+			        LabelIF l2 = lF.create ();
+			        cb.addQuadruple("CMP", vect.getResultado(), new Value(0)); //comparo si es falso
+                    cb.addQuadruple("BNZ", l1);             // Salto si x!=0 --> Si no es falso
+                    cb.addQuadruple ("INL", l2);
+                    cadenas.add("\""+new Value(false).toString()+"\"");
+		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
+		        	etiqueta.add(etiqueta.size()+1);
+		        	cb.addQuadruple("BR", "etiqueta"+etiqueta.size());             // Salto incondicional
+                    cb.addQuadruple("BZ", l2);             // Salto si x!=0 --> Si no es falso
+                    cb.addQuadruple ("INL", l1);
+                    cadenas.add("\""+new Value(true).toString()+"\"");
+		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
+		        	cb.addQuadruple ("INL",  "etiqueta"+etiqueta.size());
+		    	
+		    	}else{ //Es un array de tipo Integer
+		    		//semanticErrorManager.semanticDebug("ARRAY de tipo INTEGER");
+		    		
+		    		TemporalFactoryIF tf = new TemporalFactory(scope);
+		    		Temporal temporal = (Temporal) tf.create(); 
+                    temporal.setDesplazamiento(despl);
+                    despl++;
+		    		vect.setResultado(temporal); 			
+		    		cb.addQuadruple("WRINT_ARRAY", temporal);
+		    	}
+           }
             
 			List code = cb.create();
             bloque.setIntermediateCode(cb.create());
@@ -1400,6 +1449,7 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
                             semanticErrorManager.semanticInfo ("VECTOR--> "+id.getLexema()+" de tipo : "+ simbolo.getType().getName());
                             
                             // Asignacion entre limites
+                            
                             TypeArray tipoArray = (TypeArray) simbolo.getType();
                             int n = Integer.parseInt(num.getLexema());
                             if (n < tipoArray.getValIni() || n > tipoArray.getValFin())
@@ -1415,27 +1465,35 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
                         			semanticErrorManager.semanticFatalError ("308. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no son compatibles.");
                            		}else{	
                            			
-					      			/*TemporalFactory tF = new TemporalFactory(scope);
+					      			TemporalFactory tF = new TemporalFactory(scope);
 					      			IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
-					      			int rDim = tipoArray.getValIni()-tipoArray.getValFin()+1;
-					      			TemporalIF temp = tF.create();
-					      			TemporalIF tempI = tF.create();
-					      			OperandIF tempE = exp.getResultado();
-					      			TemporalIF tempIE = tF.create();
-					      		
-					      			cb.addQuadruples (exp.getIntermediateCode());
-					      			//cb.addQuadruple ("MVA", temp, id.getLexema());
-					      			cb.addQuadruple ("MV", temp, 0);
-					      			cb.addQuadruple ("MUL", tempIE, temp ,rDim);
-					      			cb.addQuadruple ("ADD", tempIE, tempE);
-					      			cb.addQuadruple ("MVP", tempIE, tempIE); //???
 					      			
-					      			bloque.setResultado(temp);
-					      			bloque.setResultadoIndex(tempI);
-					      			bloque.setIntermediateCode(cb.create());*/
+					      			int dimArray = tipoArray.getValFin()-tipoArray.getValIni()+1;
+					      		//	TemporalIF t1 = tF.create();
+					      		//	TemporalIF t2 = tF.create();
+					      		//	TemporalIF t3 = tF.create();
+					      			OperandIF tempExp = exp.getResultado();
+					      			cb.addQuadruples (exp.getIntermediateCode());
+					      		
+					      		/*	cb.addQuadruples (exp.getIntermediateCode());
+					      			cb.addQuadruple ("MV", t1, tempExp);
+					      			cb.addQuadruple ("MV", t2, num.getLexema());
+					      			cb.addQuadruple ("MUL", t3, t2 ,dimArray);
+					      			cb.addQuadruple ("MV", t3, t1); */
+					      			
+					      			Variable var = new Variable(id.getLexema(), scope);
+                                    var.setAmbito(tipoArray.getScope());
+                                    var.setSize(dimArray);
+                                    List code1 = exp.getIntermediateCode();
+                                    cb.addQuadruples (code1);
+					      			
+					      			cb.addQuadruple ("ASIGN_VECTOR",var,num.getLexema(),exp.getResultado());
+					      			
+					      			bloque.setResultado(tempExp);
+					      			bloque.setIntermediateCode(cb.create());
                           		}
                             }
-                            
+                            semanticErrorManager.semanticDebug("ASIGNACION VECTORES");
                               semanticErrorManager.semanticDebug(bloque.getIntermediateCode());					
                             RESULT = bloque;
                         :}; //vE(1):=20;
@@ -2008,8 +2066,8 @@ expresion::= ENTERO:num {:
 							exp.setResultado(resultado);
 							
                                 RESULT=exp;			
-                         :} |
-			ID:id PARENTESISIZQ ENTERO:num PARENTESISDER {:
+                         :};
+vector::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER {:
 					ScopeIF scope = scopeManager.getCurrentScope();
 			        SymbolTableIF tablaSimbolos = scope.getSymbolTable();
                   		TypeTableIF tablaTipos = scope.getTypeTable();
@@ -2047,13 +2105,13 @@ expresion::= ENTERO:num {:
 					      			TemporalFactoryIF tF = new TemporalFactory(scope);
                             
 					      			IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
-					      			//int rDim =tipoArray.getValFin()-tipoArray.getValIni()+1;
+					      			int dimArray =tipoArray.getValFin()-tipoArray.getValIni()+1;
 					      			
 					      			TemporalIF temp = tF.create();
-					      			TemporalIF tempI = tF.create();
+					      	/*		TemporalIF tempI = tF.create();
 					      			OperandIF tempE = exp.getResultado();
 					      			TemporalIF tempIE = tF.create();
-					      		
+					      	*/	
 					      			//cb.addQuadruples (exp.getIntermediateCode());
 					      			//cb.addQuadruple ("MVA", temp, id.getLexema());
 					      	/*		cb.addQuadruple ("MV", temp, 0);
@@ -2061,17 +2119,20 @@ expresion::= ENTERO:num {:
 					      			cb.addQuadruple ("ADD", tempIE, tempE);
 					      			cb.addQuadruple ("MVP", tempIE, tempIE); *///???
 					      			
-					      			 Variable var = new Variable(id.getLexema(), scope);
-                                     var.setAmbito(tipoArray.getScope());
-                                     List code1 = exp.getIntermediateCode();
-                                     cb.addQuadruples (code1);
-                                     
-					      			cb.addQuadruple ("VECTOR",var,num.getLexema());
+					      			Variable var = new Variable(id.getLexema(), scope);
+                                    var.setAmbito(tipoArray.getScope());
+                                    var.setSize(dimArray);
+                                    var.setDesplazamiento(despl);
+                                    List code1 = exp.getIntermediateCode();
+                                    cb.addQuadruples (code1);
+					      			
+					      			cb.addQuadruple ("VALOR_VECTOR",var,num.getLexema());
 					      						      			
 					      			exp.setResultado(temp);
 					      			
 					      			exp.setIntermediateCode(cb.create());
-							  semanticErrorManager.semanticDebug(exp.getIntermediateCode());
+					      			//semanticErrorManager.semanticDebug("VECTORES");
+							  //semanticErrorManager.semanticDebug(exp.getIntermediateCode());
                                 RESULT=exp;	
                               }								
                             :};//v(1)
