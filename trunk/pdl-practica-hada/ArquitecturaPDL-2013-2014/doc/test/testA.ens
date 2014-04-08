@@ -1,15 +1,74 @@
-Quadruple - [INICIO testA, 9, null]
-Quadruple - [INICIO_SUBPROG L_0, null, null]
-Quadruple - [FIN_SUBPROG L_0, L_1, 0]
-Quadruple - [MV e, 1, null]
-Quadruple - [MV f, 4, null]
-Quadruple - [INICIO_ARGUMENTOS null, null, null]
-Quadruple - [ARGUMENTO f, 5, null]
-Quadruple - [ARGUMENTO e, 6, null]
-Quadruple - [CALL resta, 0, T_0]
-Quadruple - [MV d, T_0, null]
-Quadruple - [ESCRIBE cadena1, null, null]
-Quadruple - [ESCRIBE_INT d, null, null]
-Quadruple - [FINAL null, null, null]
-Quadruple - [CADENA cadena0, "\n", ]
-Quadruple - [CADENA cadena1, "resultado:", ]
+; INICIO PROGRAMA PRINCIPAL HAda 
+RES 21
+MOVE #65535 , .SP
+MOVE .SP , .IY
+SUB  .SP , #9
+MOVE .A , .SP
+MOVE .IY , /0
+;-- Definicion FUNCION/PROCEDIMIENTO 
+BR /FIN_L_0
+L_0 :
+
+SUB #-5[.IY], #-6[.IY]
+MOVE .A, #-7[.IY]
+MOVE .A, .R9
+
+; Traducir Quadruple - [RET T_0, null, null]
+MOVE #-7[.IY] , #-3[.IX]
+MOVE #-1[.IY] , .PC
+
+L_1 : 
+; Retorno Argumentos REFERENCIA 
+MOVE #-4[.IY] , .R5 
+MOVE .R5 , .PC 
+REF_L_0: 
+; Retorno Subprograma 
+MOVE #-1[.IY] , .R7
+MOVE #-2[.IY] , /0
+MOVE .IY , .SP
+MOVE .IX , .IY
+MOVE #-3[.IY], .IX
+MOVE .R7 , .PC
+MOVE .A, #-5[.IY] 
+FIN_L_0 : 
+
+; Traducir Quadruple - [MV e, 1, null]
+MOVE #1, #-6[.IY]
+; Traducir Quadruple - [MV f, 4, null]
+MOVE #4, #-7[.IY]
+; INICIO ARGUMENTOS FIN
+; Cargado argumento Quadruple - [ARGUMENTO f, 5, null]
+; Cargado argumento Quadruple - [ARGUMENTO e, 6, null]
+; Llamada Funcion Quadruple - [CALL resta, 0, T_0]
+MOVE .SP , .IX
+MOVE #-7[.IY] , #-5[.IX]
+MOVE #-6[.IY] , #-6[.IX]
+MOVE /0 , #-2[.IY]
+MOVE .IY , /0
+MOVE .IY , .IX
+MOVE .SP , .IY
+SUB .SP , #8
+MOVE .A , .SP
+MOVE #RET_L_2 , #-1[.IY]
+MOVE .IX , #-3[.IY]
+MOVE #REF_L_2 , #-4[.IY]
+BR /L_0
+REF_L_2:
+BR /REF_L_0
+RET_L_2: 
+MOVE .R9 , #-8[.IY]
+
+; Traducir Quadruple - [MV d, T_0, null]
+MOVE #-8[.IY], #-5[.IY]
+WRSTR /cadena1
+WRCHAR #10
+WRCHAR #13
+WRINT #-5[.IY]
+WRCHAR #10
+WRCHAR #13
+HALT 
+
+; Inicio Cadenas de Texto
+
+cadena0: DATA "\n"
+cadena1: DATA "resultado:"

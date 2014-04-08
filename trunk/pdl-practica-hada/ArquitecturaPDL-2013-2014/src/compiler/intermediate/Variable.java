@@ -20,6 +20,9 @@ public class Variable implements VariableIF
     private LabelIF etiqSub;
     private int desplCampo;   // Utilizada unicamente para registros
     private ScopeIF ambito;
+    private int size;
+    private int valor;
+    private int desplazamiento;
 
     /**
      * Constructor for Variable.
@@ -180,5 +183,29 @@ public int getDesplCampo() {
 	@Override
 	public boolean isGlobal() {
 		return scope.getLevel()==0;
+	}
+	
+	public int getSize(){
+		return size;
+	}
+	
+	public void setSize(int size){
+		this.size=size;
+	}
+
+	public int getValor() {
+		return valor;
+	}
+
+	public void setValor(int valor) {
+		this.valor = valor;
+	}
+
+	public int getDesplazamiento() {
+		return desplazamiento;
+	}
+
+	public void setDesplazamiento(int desplazamiento) {
+		this.desplazamiento = desplazamiento;
 	}
 }
