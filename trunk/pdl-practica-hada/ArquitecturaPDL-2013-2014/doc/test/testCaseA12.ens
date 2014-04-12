@@ -70,7 +70,7 @@ MOVE #-1[.IY] , .R7
 MOVE #-2[.IY] , /0
 MOVE .IY , .SP
 MOVE .IX , .IY
-MOVE #-3[.IY], .IX
+MOVE #-3[.IY] , .IX
 MOVE .R7 , .PC
 MOVE .A, #-5[.IY] 
 FIN_L_0 : 

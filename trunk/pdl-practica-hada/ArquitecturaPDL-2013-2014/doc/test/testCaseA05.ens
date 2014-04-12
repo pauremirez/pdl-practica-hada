@@ -98,8 +98,8 @@ NOP
 WRSTR /cadena6
 WRCHAR #10
 WRCHAR #13
-; Traducir Quadruple - [CMP x, 2, null]
-CMP #-6[.IY], #2
+; Traducir Quadruple - [CMP x, 3, null]
+CMP #-6[.IY], #3
 ; Salto si no cero a etiqueta L_10
 BNZ /L_10
 ; Traducir Quadruple - [MV T_3, 0, null]
