@@ -17,7 +17,7 @@ procedure testCase11 () is
 		begin  
 			-- y accesible
 			w:= y-x;
-			Put_line("w(6):");  
+			Put_line("w(-6):");  
 			Put_line(w);   
 		end resta; 
 
