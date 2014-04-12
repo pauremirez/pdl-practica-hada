@@ -27,7 +27,7 @@ begin
 	Put_line("x desigual (cierto):");
 
 	-- if con parentesis. Es posible al ser una expresion logica en si misma
-	if (x/=2) then		
+	if (x/=3) then		
         	Put_line("cierto");
 	end if;
 

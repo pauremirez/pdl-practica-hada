@@ -180,10 +180,6 @@ program::=
   {: 
   		// No modificar esta estructura, aunque se pueden anadir mas acciones semanticas
   		// Comentar estas lineas para el 1er cuatrimestre
-  		
-  		//List intermediateCode = ax.getIntermediateCode ();
-  		//finalCodeFactory.create (intermediateCode);
-  		
 
          ScopeIF scope = scopeManager.getCurrentScope();
          Variable var = new Variable(scopeManager.getCurrentScope().getName(),scope); 
@@ -206,22 +202,14 @@ program::=
               String nombre="cadena"+i;
               cb.addQuadruple ("CADENA", nombre,it.next(), "");
          }
-         
-         /*
-                  int i=1;
-         cb.addQuadruple ("CADENA", "","\"\\n\"", "");
-         for (Iterator it = cadenas.iterator(); it.hasNext();i++){
-              
-              cb.addQuadruple ("CADENA", "",it.next(), "");
-         }*/
-  		 
+
   		 finalCodeFactory.setEnvironment(CompilerContext.getExecutionEnvironment());
   		 finalCodeFactory.create(cb.create());
 
          List code = cb.create();
 		 ax.setIntermediateCode(code);
 		 
-		 semanticErrorManager.semanticDebug(ax.getIntermediateCode());
+		 //semanticErrorManager.semanticDebug(ax.getIntermediateCode());
   		
   		 syntaxErrorManager.syntaxInfo ("Parsing process ended.");
    :};
@@ -345,7 +333,6 @@ seccionSubProgramas::= declaracionSubPrograma:bloque {:
 								cb.addQuadruples (code2);
 								List code=cb.create ();
 								bloque.setIntermediateCode (code); 
-                                
                                 RESULT=bloque;
 :};
 
@@ -443,9 +430,7 @@ declaracionTipo::= TYPE ID:id IS ARRAY PARENTESISIZQ ENTERO:value1 PUNTOPUNTO EN
 		typeArray.setTipo (scopeManager.searchType(typeId.getLexema()));
 		tableType.addType(name,typeArray);
 		TypeIF typeVar=scopeManager.searchType(typeId.getLexema());
-		if(!(typeVar instanceof TypeRecord) && !(typeVar instanceof TypeArray)){
-			semanticErrorManager.semanticFatalError("El TIPO "+name+" en la linea "+id.getLine()+" y columna "+id.getColumn()+" no es del tipo RECORD/ARRAY");
-		}
+		
 	}
 :};
 
@@ -538,7 +523,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESIS
 			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
  				// la funcion ha sido declarada
             if (scopeManager.containsSymbol(idFunc.getLexema())) {
-				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
+				semanticErrorManager.semanticFatalError("La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
             }else{ 
                                 
 				// Crear FUNCION en ambito
@@ -586,9 +571,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESIS
                 LabelIF labelInicio = lf.create();
                 tipoFuncion.setEtiqSub(labelInicio);
                 LabelIF labelFin = lf.create();
-                tipoFuncion.setEtiqSubFin(labelFin);  
-                               
-                                
+                tipoFuncion.setEtiqSubFin(labelFin);                   
             }
 :} 
 cabecera:bloque1 cuerpoFuncion:bloque2 {:
@@ -613,7 +596,7 @@ cabecera:bloque1 cuerpoFuncion:bloque2 {:
 				                // Comprobar que hay return de la funcion
 				
 				                if  (! tipoFuncion.getHayRetorno())
-				                  semanticErrorManager.semanticFatalError("352. La funci�n "+tipoFuncion.getName()+" no tiene retorno"); 
+				                  semanticErrorManager.semanticFatalError("La funcion "+tipoFuncion.getName()+" no tiene retorno"); 
 				               
 				                semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 				                RESULT=bloque;
@@ -624,7 +607,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS
 			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
  			// la funcion ha sido declarada
             if (scopeManager.containsSymbol(idFunc.getLexema())) {
-				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
+				semanticErrorManager.semanticFatalError("La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
             }else{ 
                                 
 				// Crear FUNCION en ambito
@@ -654,8 +637,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS
                 LabelIF labelInicio = lf.create();
                 tipoFuncion.setEtiqSub(labelInicio);
                 LabelIF labelFin = lf.create();
-                tipoFuncion.setEtiqSubFin(labelFin);  
-                               
+                tipoFuncion.setEtiqSubFin(labelFin);      
             }
 :} 
 cabecera:bloque1 cuerpoFuncion:bloque2 {:
@@ -680,7 +662,7 @@ cabecera:bloque1 cuerpoFuncion:bloque2 {:
 				                // Comprobar que hay return de la funcion
 				
 				                if  (! tipoFuncion.getHayRetorno())
-				                  semanticErrorManager.semanticFatalError("352. La funci�n "+tipoFuncion.getName()+" no tiene retorno"); 
+				                  semanticErrorManager.semanticFatalError("La funci�n "+tipoFuncion.getName()+" no tiene retorno"); 
 				               
 				                semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 				                RESULT=bloque;
@@ -691,7 +673,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESIS
 			semanticErrorManager.semanticInfo("FUNCION: "+idFunc.getLexema()+" en la linea: "+idFunc.getLine());
  				// la funcion ha sido declarada
             if (scopeManager.containsSymbol(idFunc.getLexema())) {
-				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
+				semanticErrorManager.semanticFatalError("La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
            }else{ 
                                 
 				// Crear FUNCION en ambito
@@ -718,7 +700,6 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ lista_parametros:listaArg PARENTESIS
 				tipoFuncion.setTipoRetorno(scopeManager.searchType(tp.toString()));
 
 				// Grabo parametros funcion
-                // ListaObjetos parametros = new ListaObjetos(listaArg) 
 				ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
                                 
        			for (int i=0; i<parametros.size(); i++){
@@ -750,8 +731,6 @@ cuerpoFuncion:bloque2 {:
                 TypeFunction tipoFuncion = (TypeFunction) scopeManager.searchType(scope.getName());
                 cb.addQuadruple("INICIO_SUBPROG", tipoFuncion.getEtiqSub().getName());
 				
-				 semanticErrorManager.semanticDebug("***CODE2: " +code2);
-				
 				cb.addQuadruples (code2);
                 cb.addQuadruple("FIN_SUBPROG", tipoFuncion.getEtiqSub().getName(), tipoFuncion.getEtiqSubFin().getName(),new Value(tipoFuncion.getScope().getLevel()));
 				List code=cb.create();
@@ -765,9 +744,9 @@ cuerpoFuncion:bloque2 {:
                 // Comprobar que hay return de la funcion
 
                 if  (! tipoFuncion.getHayRetorno())
-                  semanticErrorManager.semanticFatalError("352. La funci�n "+tipoFuncion.getName()+" no tiene retorno"); 
+                  semanticErrorManager.semanticFatalError("La funcion "+tipoFuncion.getName()+" no tiene retorno"); 
                 
-                 semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
+                semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
                 RESULT=bloque;
               
 :};
@@ -777,7 +756,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS
                
  				// la funcion ha sido declarada
              if (scopeManager.containsSymbol(idFunc.getLexema())) {
-				semanticErrorManager.semanticFatalError("350. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
+				semanticErrorManager.semanticFatalError("La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" ya ha sido declarada");
              }else{ 
                                 
 				// Crear FUNCION en ambito
@@ -794,8 +773,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS
 				tablaSimbolos.addSymbol(idFunc.getLexema(), simboloFunc);
 							
 				// NUEVO ambito para funcion y tabla TS y TT
-				scopeManager.openScope(idFunc.getLexema()); 
-                                
+				scopeManager.openScope(idFunc.getLexema());                     
 														
 				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
 				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
@@ -809,9 +787,7 @@ funcion::= FUNCTION ID:idFunc PARENTESISIZQ PARENTESISDER RETURN tipos:tp IS
                 LabelIF labelInicio = lf.create();
                 tipoFuncion.setEtiqSub(labelInicio);
                 LabelIF labelFin = lf.create();
-                tipoFuncion.setEtiqSubFin(labelFin); 
-                               
-                                
+                tipoFuncion.setEtiqSubFin(labelFin);                    
            }
 :} 
 cuerpoFuncion:bloque2 {:
@@ -834,7 +810,7 @@ cuerpoFuncion:bloque2 {:
                 // Comprobar que hay return de la funcion
 
                 if  (! tipoFuncion.getHayRetorno())
-                  semanticErrorManager.semanticFatalError("352. La funci�n "+tipoFuncion.getName()+" no tiene retorno"); 
+                  semanticErrorManager.semanticFatalError("La funcion "+tipoFuncion.getName()+" no tiene retorno"); 
                 
                  semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
                 RESULT=bloque2;
@@ -845,12 +821,12 @@ funcion::= FUNCTION ID error RETURN tipos IS cuerpoFuncion {:syntaxErrorManager.
 cuerpoFuncion::= BEGIN listaSentencias:bloque PUNTOYCOMA END ID PUNTOYCOMA
 {:
 				 RESULT=bloque;
-					 :}  |
+:}  |
 				BEGIN PUNTOYCOMA END ID PUNTOYCOMA
-				{:
+{:
 				BloqueSentencias bloque = new BloqueSentencias();
 				 RESULT=bloque;
-					 :} ;
+:} ;
 
 // ----------------------------                     
 // Definicion de PROCEDIMIENTO
@@ -860,7 +836,7 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
 				semanticErrorManager.semanticInfo("PROCEDIMIENTO: "+idProc.getLexema()+" en la linea: "+idProc.getLine());
  				// el procedimiento ha sido declarado
                 if (scopeManager.containsSymbol(idProc.getLexema())) {
-					semanticErrorManager.semanticFatalError("350. El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
+					semanticErrorManager.semanticFatalError("El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
                 }else{ 
                                 
 					// Crear FUNCION en ambito
@@ -873,19 +849,16 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
 					tablaTipos.addType(idProc.getLexema(), tipoProcedimiento);
 								
 					// a�adir funcion a TS
-	                 SymbolProcedure simboloProc = new SymbolProcedure(scope,idProc.getLexema(),tablaTipos.getType(idProc.getLexema()));
+	                SymbolProcedure simboloProc = new SymbolProcedure(scope,idProc.getLexema(),tablaTipos.getType(idProc.getLexema()));
 					tablaSimbolos.addSymbol(idProc.getLexema(), simboloProc);
 								
 					// NUEVO ambito para funcion y tabla TS y TT
 					scopeManager.openScope(idProc.getLexema()); 
-	                                
-															
+	                                									
 					tablaTipos = scopeManager.getCurrentScope().getTypeTable();
 					tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
 
-
 					// Grabo parametros funcion
-	                // ListaObjetos parametros = new ListaObjetos(listaArg) 
 					ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
                                 
         			for (int i=0; i<parametros.size(); i++){
@@ -905,7 +878,6 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
                                 tipoProcedimiento.setEtiqSub(labelInicio);
                                 LabelIF labelFin = lf.create();
                                 tipoProcedimiento.setEtiqSubFin(labelFin);
-                                
                               }
 :} 
 cabecera:bloque1 cuerpo:bloque2 {:
@@ -938,7 +910,7 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
  				
  				// el procedimiento ha sido declarado
                             if (scopeManager.containsSymbol(idProc.getLexema())) {
-				semanticErrorManager.semanticFatalError("350. El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
+				semanticErrorManager.semanticFatalError("El procediiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" ya ha sido declarado");
                             }else{ 
                                 
 				// Crear FUNCION en ambito
@@ -955,15 +927,13 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
 				tablaSimbolos.addSymbol(idProc.getLexema(), simboloProc);
 							
 				// NUEVO ambito para funcion y tabla TS y TT
-				scopeManager.openScope(idProc.getLexema()); 
-                                
+				scopeManager.openScope(idProc.getLexema());                     
 														
 				tablaTipos = scopeManager.getCurrentScope().getTypeTable();
 				tablaSimbolos = scopeManager.getCurrentScope().getSymbolTable();
 
 
 				// Grabo parametros funcion
-                // ListaObjetos parametros = new ListaObjetos(listaArg) 
 				ArrayList parametros = new ArrayList(Utilidades.ordenaParametros(listaArg));
                                 
         			for (int i=0; i<parametros.size(); i++){
@@ -982,8 +952,6 @@ procedimiento::= PROCEDURE ID:idProc PARENTESISIZQ lista_parametros:listaArg PAR
                                 tipoProcedimiento.setEtiqSub(labelInicio);
                                 LabelIF labelFin = lf.create();
                                 tipoProcedimiento.setEtiqSubFin(labelFin);
-                               
-                                
                               }
 :} 
 cuerpo:bloque2 {:
@@ -993,8 +961,6 @@ cuerpo:bloque2 {:
 								List code2 = bloque2.getIntermediateCode();
                                 TypeProcedure tipoProc = (TypeProcedure) scopeManager.searchType(scope.getName());
                                 cb.addQuadruple("INICIO_SUBPROG", tipoProc.getEtiqSub().getName());
-								
-								 semanticErrorManager.semanticDebug("***CODE2: " +code2);
 								
 								cb.addQuadruples (code2);
                                 cb.addQuadruple("FIN_SUBPROG", tipoProc.getEtiqSub().getName(), tipoProc.getEtiqSubFin().getName(),new Value(tipoProc.getScope().getLevel()));
@@ -1009,15 +975,14 @@ cuerpo:bloque2 {:
                                 
                                 semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
                                 RESULT=bloque;
-              
 :};
 
 // ----------------------------                     
 // Definicion de SENTENCIAS		
 // ---------------------------- 
 listaSentencias::= sentencia:bloque {:
-                                RESULT=bloque;
-					:}				    | 
+                  RESULT=bloque;
+:}	| 
 		sentencia:sent listaSentencias:blq {:
 					BloqueSentencias bloque = new BloqueSentencias();
                     IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder (scopeManager.getCurrentScope());
@@ -1028,8 +993,7 @@ listaSentencias::= sentencia:bloque {:
 					
                 	 //semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 					RESULT=bloque;
-
-				    :};
+:};
 
 sentencia::=sentenciaAsignacion:sent {: RESULT=sent; :}| 
 			sentenciaIf:sent {: RESULT=sent; :} | 
@@ -1048,16 +1012,14 @@ sentencia::=sentenciaAsignacion:sent {: RESULT=sent; :}|
                 
                 semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 					RESULT=bloque;
-				:};
+:};
 
 // ------------------------
 // Sentencia PUTLINE
 // ------------------------
 sentenciaPutLine::= PUTLINE:id PARENTESISIZQ CARACTERESCADENA:cad PARENTESISDER PUNTOYCOMA
 {:
-     			//semanticErrorManager.semanticInfo ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] es una CADENA DE CARACTERES.");
-       			
-       			BloqueSentencias bloque = new BloqueSentencias();
+     			BloqueSentencias bloque = new BloqueSentencias();
      			ScopeIF scope = scopeManager.getCurrentScope();
 				IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
 				cadenas.add(cad.getLexema());
@@ -1089,7 +1051,6 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 			        LabelIF l1 = lF.create ();
 			        LabelIF l2 = lF.create ();
 			       
-			        
 			        cb.addQuadruple("CMP", exp.getResultado(), new Value(0)); //comparo si es falso
                     cb.addQuadruple("BNZ", l1);             // Salto si x!=0 --> Si no es falso
                     cb.addQuadruple ("INL", l2);
@@ -1102,7 +1063,6 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
                     cadenas.add("\""+new Value(true).toString()+"\"");
 		        	cb.addQuadruple("WRSTR","cadena"+cadenas.size());
 		        	cb.addQuadruple ("INL",  "etiqueta"+etiqueta.size());
-			       
 		        }
 		        
 		    }else if (exp.getTipo() instanceof TypeArray){ //Es un Array
@@ -1127,9 +1087,7 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ expresion:exp PARENTESISDER PUNTOYC
 		        	cb.addQuadruple ("INL",  "etiqueta"+etiqueta.size());
 		    	
 		    	}else{ //Es un array de tipo Integer
-		    		//semanticErrorManager.semanticDebug("ARRAY de tipo INTEGER");
-		    		
-		    		//cb.addQuadruple("ARREGLO_ARRAY", var);     			
+		    		//semanticErrorManager.semanticDebug("ARRAY de tipo INTEGER");   			
 		    		cb.addQuadruple("WRINT", exp.getResultado());
 		    	}
             }else{//Es un numero
@@ -1185,14 +1143,9 @@ sentenciaPutLine::= PUTLINE:id PARENTESISIZQ vector:vect PARENTESISDER PUNTOYCOM
             
 			List code = cb.create();
             bloque.setIntermediateCode(cb.create());
-            
             semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
 			RESULT=bloque;
 	   :}; 
-
-
-//parametroPutLine::= cadenaCaracteres  | expresion;
-//cadenaCaracteres::= CARACTERESCADENA;
 // ------------------------
 // Sentencia WHILE
 // ------------------------
@@ -1200,7 +1153,7 @@ sentenciaWhile::= WHILE:id expresion:exp LOOP listaSentencias:sent END LOOP PUNT
 
 		semanticErrorManager.semanticInfo("Sentencia WHILE en [" + id.getLine() + ":" + id.getColumn() + "]");
                               if ( !(exp.getTipo().getName().equals("BOOLEAN")) )
-                                    semanticErrorManager.semanticFatalError ("326. La expresion sentencia WHILE no es BOOLEANA.");
+                                    semanticErrorManager.semanticFatalError ("La expresion sentencia WHILE no es BOOLEANA.");
                               BloqueSentencias bloque = new BloqueSentencias();
                               ScopeIF scope = scopeManager.getCurrentScope();
 								
@@ -1218,7 +1171,6 @@ sentenciaWhile::= WHILE:id expresion:exp LOOP listaSentencias:sent END LOOP PUNT
                               
                               semanticErrorManager.semanticDebug("exp: "+exp.getIntermediateCode());
                               
-                              
                               cb.addQuadruple("INL", INICIO_BUCLE);
                               cb.addQuadruples(exp.getIntermediateCode());
                               cb.addQuadruple("CMP", exp.getResultado(), new Value(0));
@@ -1227,9 +1179,6 @@ sentenciaWhile::= WHILE:id expresion:exp LOOP listaSentencias:sent END LOOP PUNT
                               cb.addQuadruple("BP", INICIO_BUCLE);           // Salto si NO negativo
                               cb.addQuadruple("INL", FIN_BUCLE);
                               
-                              
-                              
-    		
                               List code = cb.create();
                               bloque.setIntermediateCode(code);
                              
@@ -1244,7 +1193,7 @@ sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent END IF PUNTOYCOMA
 {:
 					//semanticErrorManager.semanticInfo ("Sentencia IF simple en [" +id.getLine() + ":" + id.getColumn()+"]");
                             if ( !(exp.getTipo().getName().equals("BOOLEAN")) ) 
-                                  semanticErrorManager.semanticFatalError ("328. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es LOGICA.");
+                                  semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es LOGICA.");
                                   BloqueSentencias bloque = new BloqueSentencias();
 				  				  ScopeIF scope = scopeManager.getCurrentScope();
 				  				  
@@ -1268,10 +1217,8 @@ sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent END IF PUNTOYCOMA
 					:};
 sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent1 ELSE listaSentencias:sent2 END IF PUNTOYCOMA
 {:
-			//semanticErrorManager.semanticInfo ("Sentencia IF con ELSE en [" +id.getLine() + ":" + id.getColumn()+"]");
-                               
-                            if ( !(exp.getTipo().getName().equals("BOOLEAN")) ) 
-                                semanticErrorManager.semanticFatalError ("330. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es LOGICA.");
+			                 if ( !(exp.getTipo().getName().equals("BOOLEAN")) ) 
+                                semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es LOGICA.");
                                 BloqueSentencias bloque = new BloqueSentencias();
 								ScopeIF scope = scopeManager.getCurrentScope();
 								IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
@@ -1292,7 +1239,7 @@ sentenciaIf::= IF:id expresion:exp THEN listaSentencias:sent1 ELSE listaSentenci
                                 List code = cb.create();
                                 bloque.setIntermediateCode(code);
 
-							 semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
+							    semanticErrorManager.semanticDebug(bloque.getIntermediateCode());
                                 RESULT=bloque;
 				:};
 
@@ -1308,12 +1255,10 @@ sentenciaAsignacion::= ID:id ASIGNACION expresion:exp PUNTOYCOMA
                             
                             // Hay que tener en cuenta que puede ser el ID de una funcion
                             if (!(scopeManager.containsSymbol(id.getLexema()))) {
-                                semanticErrorManager.semanticFatalError ("274. La variable: " + id.getLexema() +" en [" + 
+                                semanticErrorManager.semanticFatalError ("La variable: " + id.getLexema() +" en [" + 
 							id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
                             } else {
 								SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
-                                //TypeIF tipo = simbolo.getType();
-
 									// Comprobamos que no es una constante
 									if (simbolo instanceof SymbolConstant)
                                     semanticErrorManager.semanticFatalError ("276. La constante: " + id.getLexema() +" en [" + 
@@ -1321,16 +1266,14 @@ sentenciaAsignacion::= ID:id ASIGNACION expresion:exp PUNTOYCOMA
                                     
                                   	TypeIF tipo = exp.getTipo();
                                   
-                                	//semanticErrorManager.semanticInfo ("Sentencia asignacion. Tipo de la EXPRESION: "+tipo.getName()+ " en [" + id.getLine() + ":" + id.getColumn() + "]");
-			            
-	                                // Comprobaciones en el caso de una funcion	
+                                    // Comprobaciones en el caso de una funcion	
 	                                if (tipo instanceof TypeFunction ) {
 
                                     TypeFunction tipoFuncion = (TypeFunction) tipo;
                                     // El tipo de retorno debe ser igual que la expresion
                                      
                                     if ( !(tipoFuncion.getTipoRetorno() == exp.getTipo()) ) 
-                                        semanticErrorManager.semanticFatalError ("278. El tipo retorno funcion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no coincide con la expresion.");
+                                        semanticErrorManager.semanticFatalError ("El tipo retorno funcion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no coincide con la expresion.");
                                      // Es una funcion y si hay asignacion de retorno
                                      tipoFuncion.setHayRetorno(true);
                                      
@@ -1342,38 +1285,9 @@ sentenciaAsignacion::= ID:id ASIGNACION expresion:exp PUNTOYCOMA
                                      cb.addQuadruples (code1);
                                 
                                      cb.addQuadruple("RET", var, exp.getResultado());
-                                     
-                                    
-                                } /*else {
-                                    // SOY UNA ASIGNACION CONJUNTOS
 
-                                    if (tipo instanceof TypeSet) {
- 
-                                        if ( !(tipo.getName() == exp.getTipo().getName()) ) 
-                                            semanticErrorManager.semanticFatalError ("280. La expresion no se puede asignar a un Tipo CONJUNTO: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "]");
-                                        
-                                         
-
-                                    }else {
-                                        // No se permiten asignaciones tipo record
-                                        if (tipo instanceof TypeRecord)
-                                            semanticErrorManager.semanticFatalError ("282. No se permiten asignaciones tipo record: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "]");
-                                    
-                                        // Si no son mismo tipo. ID debe ser expresion ENTERA
-                                        if ( !(tipo.getName() == exp.getTipo().getName()) ){ 
-                                            if ( (tipo.getName().equals("INTEGER")&& exp.getTipo().getName().equals("POINTER")) ){
-                                            
-                                            }else{
-                                                semanticErrorManager.semanticFatalError ("284. La Asignacion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no coincide en tipos.");
-                                            }                
-                                     }
-
-
-                                   
-                                  }    
-                                }   */
+                                } 
                                 
-                                 
                            			// Creamos codigo para la sentencia 
                                     Variable var = new Variable(id.getLexema(), scope);
                                     var.setAmbito(simbolo.getScope());
@@ -1395,36 +1309,16 @@ sentenciaAsignacion::= ID:id PUNTO ID:campo ASIGNACION expresion:exp PUNTOYCOMA 
 					semanticErrorManager.semanticInfo ("Sentencia ASIGNACION " + id.getLexema() + ":= " + exp.getTipo().getName()+" en [" +id.getLine() + ":" + id.getColumn()+"]");
 			
                             if ( !(scopeManager.containsSymbol(id.getLexema())) ) {
-                                semanticErrorManager.semanticFatalError ("286. La variable: " + id.getLexema() +" en [" + 
-								id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
+                                semanticErrorManager.semanticFatalError ("La variable: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
                             } else {
 	                        SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
                                 TypeIF tipo = scopeManager.searchType(simbolo.getType().getName());
 
-				if ( !(tipo instanceof TypeRecord) ) 
-					semanticErrorManager.semanticFatalError ("290. La variable: " + id.getLexema() +" en [" + 
-								id.getLine() + ":" + id.getColumn() + "] no es un tipo RECORD.");
-				TypeRecord tipoRec = (TypeRecord) scopeManager.searchType(simbolo.getType().getName());
-				if ( tipoRec.getTypeCampo(campo.getLexema()) == null ) 
-                              		semanticErrorManager.semanticFatalError ("292. El campo del REG: " + campo.getLexema() +" en [" + 
-							campo.getLine() + ":" + campo.getColumn() + "] no ha sido definido.");
-                                
-                                // Si no son mismo tipo. ID.campo debe ser expresion ENTERA
-                                if ( !(tipoRec.getTypeCampo(campo.getLexema()).getName().equals(exp.getTipo().getName())) ){ 
-                                    if ( (tipoRec.getTypeCampo(campo.getLexema()).getName().equals("INTEGER")&& exp.getTipo().getName().equals("POINTER")) ){
-    			            }else{
-                                         semanticErrorManager.semanticFatalError ("294. La Asignacion: " + id.getLexema() +" en [" + 
-                                               	id.getLine() + ":" + id.getColumn() + "] no coincide en tipos.");
-                                        }                
-                                    }
-					
-                                    ScopeIF scope = scopeManager.getCurrentScope();
-                                   
-                                    BloqueSentencias bloque = new BloqueSentencias();
-                                   			
+				
+                                    ScopeIF scope = scopeManager.getCurrentScope();                     
+                                    BloqueSentencias bloque = new BloqueSentencias();		
                                     //semanticErrorManager.semanticDebug(bloque.getIntermediateCode());	
-                                    RESULT=bloque;
-							 							
+                                    RESULT=bloque;						
                     		}
 				:};
 
@@ -1438,22 +1332,20 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
                             BloqueSentencias bloque = new BloqueSentencias();
                             // Existe la variable vector
                             if (!(scopeManager.containsSymbol(id.getLexema())) ) 
-                                semanticErrorManager.semanticFatalError ("310. El VECTOR: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no ha sido definido.");
+                                semanticErrorManager.semanticFatalError ("El VECTOR: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no ha sido definido.");
                             
                             SymbolVariable simbolo = (SymbolVariable) scopeManager.searchSymbol(id.getLexema());
                             
                             // Existe la var y es del tipo vector
                             if (! (simbolo.getType() instanceof TypeArray)) 
-                                semanticErrorManager.semanticFatalError ("312. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es un tipo CONJUNTO.");
-                            
-                            semanticErrorManager.semanticInfo ("VECTOR--> "+id.getLexema()+" de tipo : "+ simbolo.getType().getName());
-                            
+                                semanticErrorManager.semanticFatalError ("El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es un tipo CONJUNTO.");
+                           
                             // Asignacion entre limites
                             
                             TypeArray tipoArray = (TypeArray) simbolo.getType();
                             int n = Integer.parseInt(num.getLexema());
                             if (n < tipoArray.getValIni() || n > tipoArray.getValFin())
-                                semanticErrorManager.semanticFatalError ("314. El rango del vector: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no esta dentro de los limites del mismo.");
+                                semanticErrorManager.semanticFatalError ("El rango del vector: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no esta dentro de los limites del mismo.");
 
                           	semanticErrorManager.semanticInfo ("El valor '"+ num.getLexema() + "' esta dentro de los limites ["+tipoArray.getValIni()+","+tipoArray.getValFin()+"]");
                            	
@@ -1462,25 +1354,17 @@ sentenciaAsignacion::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER ASIGNACION e
 								TypeIF tipoVar=scopeManager.searchType(simbolo.getType().getName());
  
                         		if (!(simbolo.getType().getName().equalsIgnoreCase(tipoVar.getName()))) { 
-                        			semanticErrorManager.semanticFatalError ("308. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no son compatibles.");
+                        			semanticErrorManager.semanticFatalError ("El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no son compatibles.");
                            		}else{	
                            			
 					      			TemporalFactory tF = new TemporalFactory(scope);
 					      			IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
 					      			
 					      			int dimArray = tipoArray.getValFin()-tipoArray.getValIni()+1;
-					      		//	TemporalIF t1 = tF.create();
-					      		//	TemporalIF t2 = tF.create();
-					      		//	TemporalIF t3 = tF.create();
+					      		
 					      			OperandIF tempExp = exp.getResultado();
 					      			cb.addQuadruples (exp.getIntermediateCode());
 					      		
-					      		/*	cb.addQuadruples (exp.getIntermediateCode());
-					      			cb.addQuadruple ("MV", t1, tempExp);
-					      			cb.addQuadruple ("MV", t2, num.getLexema());
-					      			cb.addQuadruple ("MUL", t3, t2 ,dimArray);
-					      			cb.addQuadruple ("MV", t3, t1); */
-					      			
 					      			Variable var = new Variable(id.getLexema(), scope);
                                     var.setAmbito(tipoArray.getScope());
                                     var.setSize(dimArray);
@@ -1519,7 +1403,7 @@ sentenciaFuncion ::= ID:idFunc PARENTESISIZQ lista_parametros_llamada:listaPar P
                             // Si es un tipo Funcion
                             SymbolIF func = scopeManager.searchSymbol(idFunc.getLexema());
                             if (! (func.getType() instanceof TypeFunction) )
-				    semanticErrorManager.semanticFatalError("342. La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" NO es un FUNCTION");
+				    semanticErrorManager.semanticFatalError("La funcion "+idFunc.getLexema()+" en la linea: "+idFunc.getLine()+" NO es un FUNCTION");
 	            	        
             		    // num de parametros sea el mismo que argumentos y sea correcto por REF/Valor
 	            	    TypeFunction tipoFunc = (TypeFunction) func.getType();
@@ -1527,7 +1411,7 @@ sentenciaFuncion ::= ID:idFunc PARENTESISIZQ lista_parametros_llamada:listaPar P
 
                             // Coincidencia de Tipos y numero entre la Def de la funcion y la llamada
 		  	    		if (!tipoFunc.comparaParametros(listaPar)) 
-                                  semanticErrorManager.semanticFatalError ("344. El num. de parametros no coincide en tipos o numero para la funci�n " + idFunc.getLexema() + " [" + idFunc.getLine() + ":" + idFunc.getColumn() + "]");
+                                  semanticErrorManager.semanticFatalError ("El num. de parametros no coincide en tipos o numero para la funci�n " + idFunc.getLexema() + " [" + idFunc.getLine() + ":" + idFunc.getColumn() + "]");
             		    
                             Expresion exp = new Expresion(tipoFunc.getTipoRetorno(), idFunc.getLine(), idFunc.getColumn());
                             IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scopeManager.getCurrentScope());
@@ -1553,7 +1437,7 @@ sentenciaFuncion ::= ID:idFunc PARENTESISIZQ lista_parametros_llamada:listaPar P
                                 cb.addQuadruples(expPar.getIntermediateCode());
                                 if ( s.getReferencia() ) {
                                     if ( !expPar.getReferencia())
-                                        semanticErrorManager.semanticFatalError ("346. El par�metro es por referencia y no admite expresiones." + idFunc.getLexema() + " [" + idFunc.getLine() + ":" + idFunc.getColumn() + "]");
+                                        semanticErrorManager.semanticFatalError ("El par�metro es por referencia y no admite expresiones." + idFunc.getLexema() + " [" + idFunc.getLine() + ":" + idFunc.getColumn() + "]");
                                     cb.addQuadruple("ARGUMENTO_REF", expPar.getResultado(), new Value(d));
                                  }else{
                                     cb.addQuadruple("ARGUMENTO", expPar.getResultado(), new Value(d));
@@ -1596,13 +1480,13 @@ sentenciaProcedimiento::= ID:idProc PARENTESISIZQ lista_parametros_llamada:lista
 				
                             // Si Procedimiento ha sido declarado
 		      	    		if (!(scopeManager.containsSymbol(idProc.getLexema()))) 
-                                semanticErrorManager.semanticFatalError("332. El procedimiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" NO ha sido declarada");
+                                semanticErrorManager.semanticFatalError("El procedimiento "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" NO ha sido declarada");
 
                             // Si es un tipo Procedure    
                             SymbolIF proc = scopeManager.searchSymbol(idProc.getLexema());
                             TypeIF tipo = scopeManager.searchType(idProc.getLexema());
                             if (! (tipo instanceof TypeProcedure) )
-                                        semanticErrorManager.semanticFatalError("334. El ID "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" NO es un PROCEDIMIENTO");
+                                        semanticErrorManager.semanticFatalError("El ID "+idProc.getLexema()+" en la linea: "+idProc.getLine()+" NO es un PROCEDIMIENTO");
 	            
                             // num de parametros sea el mismo que argumentos y sea correcto por REF/VALOR
 	            	    	TypeProcedure tipoProc = (TypeProcedure) proc.getType();
@@ -1610,7 +1494,7 @@ sentenciaProcedimiento::= ID:idProc PARENTESISIZQ lista_parametros_llamada:lista
 
                             // Coincidencia de Tipos y numero entre la Def del procedimiento y la llamada
                             if (!tipoProc.comparaParametros(listaPar)) 
-                                semanticErrorManager.semanticFatalError ("336. El num. de parametros no coincide en para el procedimiento " + idProc.getLexema() + " [" + idProc.getLine() + ":" + idProc.getColumn() + "]");
+                                semanticErrorManager.semanticFatalError ("El num. de parametros no coincide en para el procedimiento " + idProc.getLexema() + " [" + idProc.getLine() + ":" + idProc.getColumn() + "]");
             		    
                             BloqueSentencias bloque = new BloqueSentencias();
                             IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
@@ -1628,7 +1512,7 @@ sentenciaProcedimiento::= ID:idProc PARENTESISIZQ lista_parametros_llamada:lista
                                 cb.addQuadruples(expPar.getIntermediateCode());
                                 if ( s.getReferencia() ) {
                                     if ( !expPar.getReferencia())
-                                        semanticErrorManager.semanticFatalError ("338. El parametro es por referencia y no admite expresiones." + idProc.getLexema() + " [" + idProc.getLine() + ":" + idProc.getColumn() + "]");
+                                        semanticErrorManager.semanticFatalError ("El parametro es por referencia y no admite expresiones." + idProc.getLexema() + " [" + idProc.getLine() + ":" + idProc.getColumn() + "]");
                                     cb.addQuadruple("ARGUMENTO_REF", expPar.getResultado(), new Value(d));
                                  }else{
                                     cb.addQuadruple("ARGUMENTO", expPar.getResultado(), new Value(d));
@@ -1768,7 +1652,7 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
         		:}| 
 			expresion:exp1 AND:id expresion:exp2 {:
                             if ( !(exp1.getTipo() == exp2.getTipo()) || !(exp1.getTipo().getName().equals("BOOLEAN")) || !(exp2.getTipo().getName().equals("BOOLEAN")) ) {
-                                semanticErrorManager.semanticFatalError ("228. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+                                semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
                             }else{
 				      	        Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
 								ScopeIF scope = scopeManager.getCurrentScope();
@@ -1814,7 +1698,7 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
 			expresion:exp1 MAYORQUE:id expresion:exp2 
 {:
 			    if ( !(exp1.getTipo() == exp2.getTipo())  ||  !(exp1.getTipo().getName().equals("INTEGER"))  || !(exp2.getTipo().getName().equals("INTEGER")) )  {
-                                  semanticErrorManager.semanticFatalError ("230. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+                                  semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
 			     }else{
 			      	          	  Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
 					  			  ScopeIF scope = scopeManager.getCurrentScope();
@@ -1853,7 +1737,7 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
 			expresion:exp1 MENORQUE:id expresion:exp2 
 {:
 			    if ( !(exp1.getTipo() == exp2.getTipo())  ||  !(exp1.getTipo().getName().equals("INTEGER"))  || !(exp2.getTipo().getName().equals("INTEGER")) )  {
-                                  semanticErrorManager.semanticFatalError ("232. La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
+                                  semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
 			     }else{
 		      	          		  Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
 				  				  ScopeIF scope = scopeManager.getCurrentScope();
@@ -1891,12 +1775,9 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
 					:} | 
 			expresion:exp1 IGUALQUE:id expresion:exp2 {:
                             if ( !(exp1.getTipo() == exp2.getTipo()) )
-                                  semanticErrorManager.semanticFatalError ("234. La expresion: " + id.getLexema() +" en [" + 
+                                  semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + 
 							id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
-                            if ( (exp1.getTipo() instanceof TypeRecord) || exp1.getTipo() instanceof TypeSet )
-                                  semanticErrorManager.semanticFatalError ("236. La expresion: " + id.getLexema() +" en [" + 
-							id.getLine() + ":" + id.getColumn() + "] no permitida para este tipo.");
-                            
+                           
                             Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
                             ScopeIF scope = scopeManager.getCurrentScope();
                             TemporalFactoryIF tf = new TemporalFactory(scope);				
@@ -1932,12 +1813,9 @@ expresion::= expresion:exp1 MAS:id expresion:exp2
 			expresion:exp1 DISTINTOQUE:id expresion:exp2
 			{:
                             if ( !(exp1.getTipo() == exp2.getTipo()) )
-                                  semanticErrorManager.semanticFatalError ("238. La expresion: " + id.getLexema() +" en [" + 
+                                  semanticErrorManager.semanticFatalError ("La expresion: " + id.getLexema() +" en [" + 
 							id.getLine() + ":" + id.getColumn() + "] no es del mismo tipo.");
-                            if ( (exp1.getTipo() instanceof TypeRecord) || exp1.getTipo() instanceof TypeSet )
-                                  semanticErrorManager.semanticFatalError ("240. La expresion: " + id.getLexema() +" en [" + 
-							id.getLine() + ":" + id.getColumn() + "] no permitida para este tipo.");
-                     
+                            
                             Expresion exp = new Expresion(scopeManager.searchType("BOOLEAN"), id.getLine(), id.getColumn());
                             ScopeIF scope = scopeManager.getCurrentScope();
                            
@@ -1981,7 +1859,7 @@ expresion::= ID:id
 			        SymbolTableIF tablaSimbolos = scope.getSymbolTable();
                   		TypeTableIF tablaTipos = scope.getTypeTable();
 			        if (!(scopeManager.containsSymbol(id.getLexema()))) {
-                                    semanticErrorManager.semanticFatalError ("242. La variable: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
+                                    semanticErrorManager.semanticFatalError ("La variable: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
                     		} else {
                                     SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
                                     Expresion exp = new Expresion(simbolo.getType(), id.getLine(), id.getColumn());
@@ -2011,42 +1889,12 @@ expresion::= ENTERO:num {:
 			                            :}|
 			ID:id PUNTO ID:campo {:
 			    if ( !(scopeManager.containsSymbol(id.getLexema())) ) {
-                                  semanticErrorManager.semanticFatalError ("244. El tipo registro: " + id.getLexema() +" en [" + 
-							id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
+                                  semanticErrorManager.semanticFatalError ("El tipo registro: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
                             }
                             ScopeIF scope = scopeManager.getCurrentScope();
                             SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
-                            TypeRecord tipoRecord = (TypeRecord) scopeManager.searchType(simbolo.getType().getName());
-
-                            // El campo existe en el Registro
-                            if (! tipoRecord.containsCampo(campo.getLexema() )) {
-                                    semanticErrorManager.semanticFatalError ("246. El campo registro: " + campo.getLexema() +" en [" + 
-							campo.getLine() + ":" + campo.getColumn() + "] no ha sido definida.");
-                            }                            
-                            Expresion exp = new Expresion(tipoRecord.getTypeCampo(campo.getLexema()), campo.getLine(), campo.getColumn());
-                            HashMap tablaCampos = tipoRecord.getTablaCampos();
-                            SymbolVariable simboloCampo = (SymbolVariable) tablaCampos.get(campo.getLexema()); 
-
-
-                            Variable var = new Variable(id.getLexema(), scope);
-                            var.setAmbito(simbolo.getScope());
-                            Variable var2 = new Variable(campo.getLexema(), scope);
-                            var2.setDesplCampo(simboloCampo.getDesplazamiento());
-                            
-                            IntermediateCodeBuilderIF cb = new IntermediateCodeBuilder(scope);
-                            TemporalFactoryIF tf = new TemporalFactory(scope);
-                            Temporal temporal = (Temporal) tf.create();
-                            temporal.setDesplazamiento(despl);
-                            despl++;
-                            
-                            exp.setReferencia(true);
-                            exp.setResultado(temporal);
-                            
-                            cb.addQuadruple ("ACCESO_REGISTRO", temporal, var , var2); 
-                            List code=cb.create ();
-                            exp.setIntermediateCode (code); 
-                            exp.setResultado(temporal);
-
+                                                    
+                            Expresion exp = new Expresion();
 
                             semanticErrorManager.semanticDebug(exp.getIntermediateCode());
 						    RESULT = exp;
@@ -2072,15 +1920,14 @@ vector::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER {:
 			        SymbolTableIF tablaSimbolos = scope.getSymbolTable();
                   		TypeTableIF tablaTipos = scope.getTypeTable();
 			        if (!(scopeManager.containsSymbol(id.getLexema()))) {
-                                    semanticErrorManager.semanticFatalError ("242. La variable: " + id.getLexema() +" en [" + 
-									id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
+                                    semanticErrorManager.semanticFatalError ("La variable: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no ha sido definida.");
                     } else {
                                     SymbolIF simbolo = scopeManager.searchSymbol(id.getLexema());
                                     Expresion exp = new Expresion(simbolo.getType(), id.getLine(), id.getColumn());
 
                                     // Existe la var y es del tipo vector
                             if (! (simbolo.getType() instanceof TypeArray)) 
-                                semanticErrorManager.semanticFatalError ("312. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es un tipo CONJUNTO.");
+                                semanticErrorManager.semanticFatalError ("El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no es un tipo CONJUNTO.");
                             
                             semanticErrorManager.semanticInfo ("VECTOR--> "+id.getLexema()+" de tipo : "+ simbolo.getType().getName());
                             
@@ -2088,8 +1935,7 @@ vector::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER {:
                             TypeArray tipoArray = (TypeArray) simbolo.getType();
                             int n = Integer.parseInt(num.getLexema());
                             if (n < tipoArray.getValIni() || n > tipoArray.getValFin())
-                                semanticErrorManager.semanticFatalError ("314. El rango del vector: " + id.getLexema() +" en [" + 
-						id.getLine() + ":" + id.getColumn() + "] no esta dentro de los limites del mismo.");
+                                semanticErrorManager.semanticFatalError ("El rango del vector: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no esta dentro de los limites del mismo.");
 
                           	semanticErrorManager.semanticInfo ("El valor '"+ num.getLexema() + "' esta dentro de los limites ["+tipoArray.getValIni()+","+tipoArray.getValFin()+"]");
                            	
@@ -2097,9 +1943,8 @@ vector::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER {:
 						if ( !(simbolo.getType().getName().equalsIgnoreCase(exp.getTipo().getName())) ) {	
 							TypeIF tipoVar=scopeManager.searchType(simbolo.getType().getName());
                         	if ( !(simbolo.getType().getName().equalsIgnoreCase(tipoVar.getName())))  
-                                        semanticErrorManager.semanticFatalError ("308. El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no son compatibles.");
+                                        semanticErrorManager.semanticFatalError ("El ID: " + id.getLexema() +" en [" + id.getLine() + ":" + id.getColumn() + "] no son compatibles.");
                        }					
-                            
 	      	            			Value resultado=new Value(Integer.parseInt(num.getLexema()));
                             		
 					      			TemporalFactoryIF tF = new TemporalFactory(scope);
@@ -2108,17 +1953,9 @@ vector::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER {:
 					      			int dimArray =tipoArray.getValFin()-tipoArray.getValIni()+1;
 					      			
 					      			TemporalIF temp = tF.create();
-					      	/*		TemporalIF tempI = tF.create();
 					      			OperandIF tempE = exp.getResultado();
 					      			TemporalIF tempIE = tF.create();
-					      	*/	
-					      			//cb.addQuadruples (exp.getIntermediateCode());
-					      			//cb.addQuadruple ("MVA", temp, id.getLexema());
-					      	/*		cb.addQuadruple ("MV", temp, 0);
-					      			cb.addQuadruple ("MUL", tempIE, temp ,rDim);
-					      			cb.addQuadruple ("ADD", tempIE, tempE);
-					      			cb.addQuadruple ("MVP", tempIE, tempIE); *///???
-					      			
+					      		
 					      			Variable var = new Variable(id.getLexema(), scope);
                                     var.setAmbito(tipoArray.getScope());
                                     var.setSize(dimArray);
@@ -2131,7 +1968,6 @@ vector::= ID:id PARENTESISIZQ ENTERO:num PARENTESISDER {:
 					      			exp.setResultado(temp);
 					      			
 					      			exp.setIntermediateCode(cb.create());
-					      			//semanticErrorManager.semanticDebug("VECTORES");
 							  //semanticErrorManager.semanticDebug(exp.getIntermediateCode());
                                 RESULT=exp;	
                               }								
@@ -2213,8 +2049,6 @@ lista_parametros::= lista_argumentos:listaArg DOSPUNTOS modo tipos:tp {:
                                 Parametro p = (Parametro) lista.get(i);
                                 p.setTipo(scopeManager.searchType(tp.toString()));
                             }
-                            
-                            
                             RESULT=listaArg;
                             :}
                             | lista_argumentos:listaArg1 DOSPUNTOS modo tipos:tp PUNTOYCOMA lista_parametros:listaArg2 {:
@@ -2230,5 +2064,3 @@ lista_parametros::= lista_argumentos:listaArg DOSPUNTOS modo tipos:tp {:
 			    			}
 							RESULT=lista1;	
                             :};
-
-
