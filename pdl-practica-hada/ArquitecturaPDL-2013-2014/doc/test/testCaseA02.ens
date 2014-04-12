@@ -5,10 +5,12 @@ MOVE .SP , .IY
 SUB  .SP , #5
 MOVE .A , .SP
 MOVE .IY , /0
-WRSTR /cadena1; Escribimos un salto de linea
-WRSTR /cadena0
-WRSTR /cadena2; Escribimos un salto de linea
-WRSTR /cadena0
+WRSTR /cadena1
+WRCHAR #10
+WRCHAR #13
+WRSTR /cadena2
+WRCHAR #10
+WRCHAR #13
 HALT 
 
 ; Inicio Cadenas de Texto
@@ -16,4 +18,3 @@ HALT
 cadena0: DATA "\n"
 cadena1: DATA "hola"
 cadena2: DATA "mundo"
-

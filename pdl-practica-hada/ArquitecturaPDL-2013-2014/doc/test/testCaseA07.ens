@@ -44,7 +44,7 @@ WRCHAR #13
 MOVE #-16[.IY] , .A
 MOVE .A , #0[.IY]
 
-; Traducir Quadruple - [CMP T_4, 0, null]
+; Traducir Quadruple - [CMP T_6, 0, null]
 CMP #-0[.IY], #0
 ; Salto si no cero a etiqueta L_0
 BNZ /L_0
@@ -67,7 +67,7 @@ etiqueta1 :
 MOVE #-17[.IY] , .A
 MOVE .A , #0[.IY]
 
-; Traducir Quadruple - [CMP T_5, 0, null]
+; Traducir Quadruple - [CMP T_8, 0, null]
 CMP #-0[.IY], #0
 ; Salto si no cero a etiqueta L_2
 BNZ /L_2

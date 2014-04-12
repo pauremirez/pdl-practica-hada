@@ -10,12 +10,14 @@ WRCHAR #10
 WRCHAR #13
 SUB #2, #1
 MOVE .A, #-7[.IY]
+MOVE .A, .R9
+
 ; Traducir Quadruple - [MV x, T_0, null]
 MOVE #-7[.IY], #-5[.IY]
 WRSTR /cadena2
 WRCHAR #10
 WRCHAR #13
-WRINT #-7[.IY]
+WRINT #-5[.IY]
 WRCHAR #10
 WRCHAR #13
 ; Traducir Quadruple - [MV t, 1, null]

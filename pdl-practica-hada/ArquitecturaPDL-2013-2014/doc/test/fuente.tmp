@@ -1,101 +1,113 @@
 ; INICIO PROGRAMA PRINCIPAL HAda 
-RES 11
+RES 21
 MOVE #65535 , .SP
 MOVE .SP , .IY
-SUB  .SP , #20
+SUB  .SP , #6
 MOVE .A , .SP
 MOVE .IY , /0
-WRSTR /cadena1
-WRCHAR #10
-WRCHAR #13
-; Traducir Quadruple - [ASIGN_VECTOR vE, 1, 20]
-MOVE #20 , #-6[.IY]
+;-- Definicion FUNCION/PROCEDIMIENTO 
+BR /FIN_L_0
+L_0 :
 
-; Traducir Quadruple - [ASIGN_VECTOR vE, 2, 30]
-MOVE #30 , #-7[.IY]
+; Traducir Quadruple - [MV y, x, null]
+MOVE #-6[.IY], #-7[.IY]
+SUB #-6[.IY], #1
+MOVE .A, #-8[.IY]
+MOVE .A, .R9
 
-WRSTR /cadena2
-WRCHAR #10
-WRCHAR #13
-; Traducir Quadruple - [VALOR_VECTOR vE, 1, null]
-MOVE #-6[.IY] , .A
-MOVE .A , #0[.IY]
+; Traducir Quadruple - [MV x, T_0, null]
+MOVE #-8[.IY], #-6[.IY]
+; Traducir Quadruple - [CMP 0, x, null]
+CMP #0, #-6[.IY]
+; Salto si negativo L_2
+BN /L_2
+; Traducir Quadruple - [MV T_1, 0, null]
+MOVE #0, #-9[.IY]
+BR /L_3
+; Etiqueta de salto L_2
+L_2 :
+; Traducir Quadruple - [MV T_1, 1, null]
+MOVE #1, #-9[.IY]
+; Etiqueta de salto L_3
+L_3 :
+; Traducir Quadruple - [CMP T_1, 1, null]
+CMP #-9[.IY], #1
+; Salto si no cero a etiqueta L_5
+BNZ /L_5
+; INICIO ARGUMENTOS FIN
+; Cargado argumento Quadruple - [ARGUMENTO x, 6, null]
+; Llamada Funcion Quadruple - [CALL decrementa, 0, 0]
+MOVE .SP , .IX
+MOVE #-6[.IY] , #-6[.IX]
+MOVE /0 , #-2[.IY]
+MOVE .IY , /0
+MOVE .IY , .IX
+MOVE .SP , .IY
+SUB .SP , #10
+MOVE .A , .SP
+MOVE #RET_L_4 , #-1[.IY]
+MOVE .IX , #-3[.IY]
+MOVE #REF_L_4 , #-4[.IY]
+BR /L_0
+REF_L_4:
+BR /REF_L_0
+RET_L_4: 
+MOVE .R9 , #-5[.IY]
 
-WRINT #-6[.IY]
-WRCHAR #10
-WRCHAR #13
-; Traducir Quadruple - [VALOR_VECTOR vE, 2, null]
-MOVE #-7[.IY] , .A
-MOVE .A , #0[.IY]
-
+; Etiqueta de salto L_5
+L_5 :
+NOP
 WRINT #-7[.IY]
 WRCHAR #10
 WRCHAR #13
-; Traducir Quadruple - [ASIGN_VECTOR vL, 1, 1]
-MOVE #1 , #-16[.IY]
+L_1 : 
+; Retorno Argumentos REFERENCIA 
+MOVE #-4[.IY] , .R5 
+MOVE .R5 , .PC 
+REF_L_0: 
+; Retorno Subprograma 
+MOVE #-1[.IY] , .R7
+MOVE #-2[.IY] , /0
+MOVE .IY , .SP
+MOVE .IX , .IY
+MOVE #-3[.IY] , .IX
+MOVE .R7 , .PC
+MOVE .A, #-5[.IY] 
+FIN_L_0 : 
 
-; Traducir Quadruple - [ASIGN_VECTOR vL, 2, 0]
-MOVE #0 , #-17[.IY]
+WRSTR /cadena1
+WRCHAR #10
+WRCHAR #13
+WRSTR /cadena2
+WRCHAR #10
+WRCHAR #13
+; Traducir Quadruple - [MV cinco, 5, null]
+MOVE #5, #-5[.IY]
+; INICIO ARGUMENTOS FIN
+; Cargado argumento Quadruple - [ARGUMENTO cinco, 6, null]
+; Llamada Funcion Quadruple - [CALL decrementa, 0, 0]
+MOVE .SP , .IX
+MOVE #-5[.IY] , #-6[.IX]
+MOVE /0 , #-2[.IY]
+MOVE .IY , /0
+MOVE .IY , .IX
+MOVE .SP , .IY
+SUB .SP , #10
+MOVE .A , .SP
+MOVE #RET_L_6 , #-1[.IY]
+MOVE .IX , #-3[.IY]
+MOVE #REF_L_6 , #-4[.IY]
+BR /L_0
+REF_L_6:
+BR /REF_L_0
+RET_L_6: 
+MOVE .R9 , #-5[.IY]
 
-WRSTR /cadena3
-WRCHAR #10
-WRCHAR #13
-; Traducir Quadruple - [VALOR_VECTOR vL, 1, null]
-MOVE #-16[.IY] , .A
-MOVE .A , #0[.IY]
-
-; Traducir Quadruple - [CMP T_4, 0, null]
-CMP #-0[.IY], #0
-; Salto si no cero a etiqueta L_0
-BNZ /L_0
-; Etiqueta de salto L_1
-L_1 :
-WRSTR /cadena4
-WRCHAR #10
-WRCHAR #13
-BR /etiqueta1
-; Salto si cero a etiqueta L_1
-BZ /L_1
-; Etiqueta de salto L_0
-L_0 :
-WRSTR /cadena5
-WRCHAR #10
-WRCHAR #13
-; Etiqueta de salto etiqueta1
-etiqueta1 :
-; Traducir Quadruple - [VALOR_VECTOR vL, 2, null]
-MOVE #-17[.IY] , .A
-MOVE .A , #0[.IY]
-
-; Traducir Quadruple - [CMP T_5, 0, null]
-CMP #-0[.IY], #0
-; Salto si no cero a etiqueta L_2
-BNZ /L_2
-; Etiqueta de salto L_3
-L_3 :
-WRSTR /cadena6
-WRCHAR #10
-WRCHAR #13
-BR /etiqueta2
-; Salto si cero a etiqueta L_3
-BZ /L_3
-; Etiqueta de salto L_2
-L_2 :
-WRSTR /cadena7
-WRCHAR #10
-WRCHAR #13
-; Etiqueta de salto etiqueta2
-etiqueta2 :
 HALT 
 
 ; Inicio Cadenas de Texto
 
 cadena0: DATA "\n"
-cadena1: DATA "VECTORES"
-cadena2: DATA "vE(20,30):"
-cadena3: DATA "vL(true,false):"
-cadena4: DATA "false"
-cadena5: DATA "true"
-cadena6: DATA "false"
-cadena7: DATA "true"
+cadena1: DATA "RECURSIVIDAD"
+cadena2: DATA "12345:"
 
