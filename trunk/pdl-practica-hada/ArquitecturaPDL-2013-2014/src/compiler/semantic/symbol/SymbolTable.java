@@ -27,7 +27,7 @@ public class SymbolTable
     private HashMap tabla = new HashMap();
     private int desplazamiento;
     private boolean referencia;
-    private int size;       // Tamanyo para conjuntos
+    private int size;      
     private int address;
     
     /**
