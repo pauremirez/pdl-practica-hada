@@ -64,31 +64,21 @@ public class TypeTable implements TypeTableIF{
 		return tTable.size();
 	}
 
-/*	@Override
-	public List<TypeIF> getTypes() {
-		ArrayList listTypes = new ArrayList();
-        Iterator iteration = gettTable().values().iterator();
-        while (iteration.hasNext()){
-        	listTypes.add(iteration.next());
-        }
-        return listTypes;
-	}*/
-
 	 public  Map<String, TypeIF> gettTable(){
 		 return tTable;
 	 }
 
-@Override
-public List<TypeIF> getTypes() {
-	// TODO Auto-generated method stub
-	return null;
-}
-
-@Override
-public List<TypeIF> getTypes(Class<SymbolIF> arg0) {
-	// TODO Auto-generated method stub
-	return null;
-}
+	@Override
+	public List<TypeIF> getTypes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public List<TypeIF> getTypes(Class<SymbolIF> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 
 	

@@ -17,7 +17,7 @@ public class SymbolVariable extends SymbolBase
 {  
     private int desplazamiento;
     private boolean referencia;
-    private int size;       // Tamanyo para conjuntos
+    private int size;       
     private int address;
     /**
      * Constructor for SymbolVariable.

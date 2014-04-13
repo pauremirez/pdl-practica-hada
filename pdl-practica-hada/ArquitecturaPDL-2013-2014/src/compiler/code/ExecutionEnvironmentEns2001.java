@@ -196,11 +196,7 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
         String operador1="";
         String operador2="";
         String resultado="";
-        
-        System.out.println("oper1: "+oper1.getClass() );
-        System.out.println("oper2: "+oper2.getClass() );
-        System.out.println("rdo: "+rdo.getClass() );
-        
+
         // Primer Operador
         if (oper1 instanceof Value) {
             Value cte = (Value) oper1;
