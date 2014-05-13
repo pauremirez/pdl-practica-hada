@@ -18,8 +18,6 @@ import es.uned.lsi.compiler.semantic.type.TypeIF;
  * Class for TypeProcedure.
  */
 
-// TODO: Student work
-//       Include properties to characterize procedure declarations
 
 public class TypeProcedure
     extends TypeBase
@@ -129,7 +127,6 @@ public class TypeProcedure
 
     public boolean equalsProcedure (Object other)
     {
-        // TODO: Student work
         if (this == other) return true;
         
         if (!(this instanceof TypeBase)) return false;
@@ -144,10 +141,7 @@ public class TypeProcedure
 
     public int hashCodeProcedure ()
     {
-        // TODO: Student work
-        // return super.hashCode ();
          return 255*getName().hashCode()+getScope().hashCode();
-
     }
 
     /**
@@ -158,7 +152,6 @@ public class TypeProcedure
     public String toStringProcedure ()
     {
         List lista = new ArrayList();
-        // TODO: Student work (optional)
         String str = "TypeProcedure " + this.getScope().getLevel() + " con el nombre: " + this.getName()+" y los parametros:";
         for (Iterator i = Utilidades.getListFromTreeMap(tablaParametros).iterator(); i.hasNext();) {
            str += "\n      " + i.next().toString();

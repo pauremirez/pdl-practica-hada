@@ -11,7 +11,7 @@ public class Parametro extends NonTerminal {
     private Integer columna;
     private TypeIF tipo;
     private OperandIF resultado;
-    private boolean referencia;             // parametro por referencia
+    private boolean referencia;             
     
     public Parametro() {
     }

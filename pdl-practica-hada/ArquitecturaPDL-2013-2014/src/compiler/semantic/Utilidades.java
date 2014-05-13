@@ -1,6 +1,5 @@
 package compiler.semantic;
 
-import compiler.lexical.Token;
 import compiler.semantic.type.TypeTable;
 import compiler.syntax.nonTerminal.ListaObjetos;
 import compiler.syntax.nonTerminal.Parametro;
@@ -9,11 +8,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-
 import es.uned.lsi.compiler.semantic.Scope;
 import es.uned.lsi.compiler.semantic.ScopeManagerIF;
 import es.uned.lsi.compiler.semantic.type.TypeIF;
-
 
 public class Utilidades {
     

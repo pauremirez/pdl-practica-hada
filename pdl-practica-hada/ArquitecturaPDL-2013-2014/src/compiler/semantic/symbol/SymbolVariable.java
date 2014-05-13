@@ -10,8 +10,6 @@ import es.uned.lsi.compiler.semantic.type.TypeIF;
  * Class for SymbolVariable.
  */
 
-// TODO: Student work
-//       Include properties to characterize variables
 
 public class SymbolVariable extends SymbolBase
 {  
@@ -46,7 +44,6 @@ public class SymbolVariable extends SymbolBase
      */
     public boolean equalsVaraible (Object other)
     {
-        // TODO: Student Work
         return super.equals(other);
     }
 
@@ -55,7 +52,6 @@ public class SymbolVariable extends SymbolBase
      */
     public int hashCodeVariable ()
     {
-        // TODO: Student Work
         return super.hashCode();
     }
 
@@ -80,7 +76,6 @@ public class SymbolVariable extends SymbolBase
      */
     public String toStringVariable()
     {
-        // TODO: Student Work (optional)
         return super.toString();
     } 
     

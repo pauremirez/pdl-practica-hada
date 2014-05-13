@@ -1,6 +1,5 @@
 package compiler.semantic.type;
 
-import es.uned.lsi.compiler.semantic.Scope;
 import es.uned.lsi.compiler.semantic.ScopeIF;
 import es.uned.lsi.compiler.semantic.type.TypeBase;
 import es.uned.lsi.compiler.semantic.type.TypeIF;
@@ -9,8 +8,6 @@ import es.uned.lsi.compiler.semantic.type.TypeIF;
  * Class for TypeArray.
  */
 
-// TODO: Student work
-//       Include properties to characterize array type
 
 public class TypeArray extends TypeBase
 {   

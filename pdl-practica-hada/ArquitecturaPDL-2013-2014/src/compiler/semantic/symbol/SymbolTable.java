@@ -1,18 +1,13 @@
 package compiler.semantic.symbol;
 
 import java.util.List;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import compiler.semantic.Utilidades;
-
 import es.uned.lsi.compiler.semantic.ScopeIF;
 import es.uned.lsi.compiler.semantic.symbol.SymbolIF;
 import es.uned.lsi.compiler.semantic.symbol.SymbolTableIF;
-import es.uned.lsi.compiler.semantic.type.TypeIF;
-
 
 
 /**
@@ -35,7 +30,7 @@ public class SymbolTable
      */
     public SymbolTable ()
     {
-        // TODO: Student Work
+
     }
     
     /**
@@ -65,7 +60,6 @@ public class SymbolTable
      */
     public SymbolIF getSymbol (String name)
     {
-        // TODO: Student Work
         Object simbolo = this.getTabla().get(name);
         if (simbolo != null && simbolo instanceof SymbolIF) {
             return (SymbolIF) simbolo;
@@ -80,7 +74,7 @@ public class SymbolTable
      */
     public void addSymbol (SymbolIF symbol)
     {
-        // TODO: Student Work
+
     }
     
     /**
@@ -90,7 +84,6 @@ public class SymbolTable
      */
     public void addSymbol (String name, SymbolIF symbol)
     {
-        // TODO: Student Work
         this.getTabla().put(name, symbol);
     }
     
@@ -109,7 +102,7 @@ public class SymbolTable
         return listaSimbolos;
  
     }
-    // Devuelve la funcion declarada en el scope
+
     public SymbolIF getSymbolFunction ()
     {
         Iterator it = this.getTabla().values().iterator();
@@ -130,7 +123,6 @@ public class SymbolTable
      */
     public boolean containsSymbol (SymbolIF symbol)
     {
-        // TODO: Student Work
         return this.getTabla().containsValue(symbol);
 
     }
@@ -142,7 +134,6 @@ public class SymbolTable
      */
     public boolean containsSymbol (String name)
     {
-        // TODO: Student Work
         return this.getTabla().containsKey(name);
 
     }
@@ -154,7 +145,6 @@ public class SymbolTable
      */
     public boolean equals (Object other)
     {
-        // TODO: Student Work
         return super.equals(other);
     }
 
@@ -163,7 +153,6 @@ public class SymbolTable
      */
     public int hashCode ()
     {
-        // TODO: Student Work
         return super.hashCode();
     } 
 
@@ -173,15 +162,17 @@ public class SymbolTable
      */
     public String toString ()
     {
-        // TODO: Student Work
         return super.toString();
     } 
+    
     public HashMap getTabla(){
         return tabla;
     }
+    
     public void setTabla(HashMap tabla){
         this.tabla=tabla;
     }
+    
     public List getLista() {
         return Utilidades.getListFromHashMap (this.getTabla());
     }
@@ -193,13 +184,11 @@ public class SymbolTable
 
 	@Override
 	public int getSize(Class<SymbolIF> arg0) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public List<SymbolIF> getSymbols(Class<SymbolIF> arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -221,7 +210,6 @@ public class SymbolTable
      */
     public String toStringVariable()
     {
-        // TODO: Student Work (optional)
         return super.toString();
     } 
     

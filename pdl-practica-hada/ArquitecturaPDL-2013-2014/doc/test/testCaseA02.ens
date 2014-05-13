@@ -13,7 +13,7 @@ WRCHAR #10
 WRCHAR #13
 HALT 
 
-; Inicio Cadenas de Texto
+; Inicio de las cadenas de texto
 
 cadena0: DATA "\n"
 cadena1: DATA "hola"
