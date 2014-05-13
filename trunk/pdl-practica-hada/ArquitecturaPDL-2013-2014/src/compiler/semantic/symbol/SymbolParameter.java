@@ -9,9 +9,6 @@ import es.uned.lsi.compiler.semantic.type.TypeIF;
  * Class for SymbolVariable.
  */
 
-// TODO: Student work
-//       Include properties to characterize parameters
-
 public class SymbolParameter extends SymbolBase implements SymbolAddressIF
 {  
         TemporalIF temporal;
@@ -30,7 +27,6 @@ public class SymbolParameter extends SymbolBase implements SymbolAddressIF
                 this.temporal = temporal;
         }
 
-        //      private Object value;
     /**
      * Constructor for SymbolParameter.
      * @param scope The declaration scope.
@@ -43,12 +39,6 @@ public class SymbolParameter extends SymbolBase implements SymbolAddressIF
     {
         super (scope, name, type);
     }
-//      public void setValue(Object value) {
-//              this.value = value;
-//      }
-//      public Object getValue() {
-//              return value;
-//      } 
 
         @Override
         public int getAddress() {

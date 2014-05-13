@@ -8,9 +8,6 @@ import es.uned.lsi.compiler.semantic.type.TypeIF;
  * Class for SymbolConstant.
  */
 
-// TODO: Student work
-//       Include properties to characterize constants
-
 public class SymbolConstant extends SymbolBase
 {
 	private int value;

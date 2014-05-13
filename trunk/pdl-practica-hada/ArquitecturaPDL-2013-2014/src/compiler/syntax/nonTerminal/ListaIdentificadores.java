@@ -6,12 +6,7 @@ import java.util.List;
 import compiler.CompilerContext;
 import compiler.lexical.Token;
 
-/**
- * 
- * Lista de identificadores de clase Token
- * @author amedey
- *
- */
+
 public class ListaIdentificadores extends NonTerminal {
 
         private List<Token> listaIdentificadores = new ArrayList<Token>(); //Lista de identificadores
@@ -39,19 +34,15 @@ public class ListaIdentificadores extends NonTerminal {
          * Añade un token a la lista de identificadores comprobando que no haya repeticiones
          * @param token
          */
-        public void addIdentificador(Token token)
-        {
-                //TODO: comprobar que no se inserte dos veces el mism símbolo   
-                if(contiene(token))
-                {
+        public void addIdentificador(Token token){
+                if(contiene(token)){
                         CompilerContext.getSemanticErrorManager().semanticFatalError("El símbolo " + token.getLexema() + " está repetido");
                 }
                 
                 listaIdentificadores.add(token);                
         }
         
-        public boolean contiene(Token token)
-        {
+        public boolean contiene(Token token){
                 return listaIdentificadores.contains(token);
         }
 }

@@ -11,8 +11,6 @@ import es.uned.lsi.compiler.intermediate.OperandIF;
  */
 public class BloqueSentencias extends NonTerminal {
 
-    // private Boolean tieneDevuelve;
-    // private TypeIF tipoDevuelve;
     private List codigoIntermedio;
     private OperandIF resultado;
     private OperandIF resultadoIndex;

@@ -9,11 +9,10 @@ public class Expresion extends NonTerminal {
     private OperandIF resultado;
     private int linea;
     private int columna;
-    private boolean referencia=false;       // Indica si una variable puede ser de referencia.
-    private int valIni;                     // Valor inicial cjto
-    private int valFin;                     // Valor final   cjto
+    private boolean referencia=false;       
+    private int valIni;                     
+    private int valFin;                     
 
-    // constructores
     public Expresion(TypeIF tipo, int linea, int columna) {
         this.tipo = tipo;
         this.linea = linea;
@@ -27,7 +26,6 @@ public class Expresion extends NonTerminal {
     public Expresion() {
     }
     
-    // set y gets
     public int getLinea() {
         return linea;
     }
@@ -84,7 +82,6 @@ public class Expresion extends NonTerminal {
         this.valIni = valIni;
     }
     
-    // Conversión de tipos
     public boolean castingTipos(Expresion exp1, Expresion exp2){
         boolean error = true;
     	 if((exp1.tipo.getName().equals("INTEGER") && exp2.tipo.getName().equals("INTEGER"))){

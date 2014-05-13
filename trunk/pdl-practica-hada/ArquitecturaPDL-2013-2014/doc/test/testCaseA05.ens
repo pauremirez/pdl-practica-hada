@@ -123,7 +123,7 @@ L_12 :
 NOP
 HALT 
 
-; Inicio Cadenas de Texto
+; Inicio de las cadenas de texto
 
 cadena0: DATA "\n"
 cadena1: DATA "IF OPERADORES"

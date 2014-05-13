@@ -1,8 +1,6 @@
 package compiler.semantic.type;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -70,13 +68,11 @@ public class TypeTable implements TypeTableIF{
 
 	@Override
 	public List<TypeIF> getTypes() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
 	public List<TypeIF> getTypes(Class<SymbolIF> arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

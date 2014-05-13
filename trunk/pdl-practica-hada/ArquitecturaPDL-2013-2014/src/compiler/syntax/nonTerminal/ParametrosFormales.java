@@ -14,40 +14,26 @@ public class ParametrosFormales extends NonTerminal {
         
         List<SymbolParameter> parametros;
         TypeIF type;
-
-        /**
-         * Ambito donde se registrarán los identificadores
-         */
         private ScopeIF scope;
         
         public ParametrosFormales(ListaIdentificadores lista, TypeIF tipo)
         {
                 parametros = new ArrayList<SymbolParameter>();
                 scope = CompilerContext.getScopeManager().getCurrentScope();
-                addParametros(lista, tipo);
-                
+                addParametros(lista, tipo);   
         }
         
-        /**
-         * @return the parametros
-         */
+
         public List<SymbolParameter> getParametros() {
                 return parametros;
         }
 
-        /**
-         * @param parametros the parametros to set
-         */
+
         public void setParametros(List<SymbolParameter> parametros) {
                 this.parametros = parametros;
         }
 
-        /**
-         * Agrega los parametros de la lista a la clase ParametrosFormales.
-         * Registra los identificadores en el ambito actual.
-         * @param lista
-         * @param tipo
-         */
+
         public void addParametros(ListaIdentificadores lista, TypeIF tipo)
         {       
                 for(Token t : lista.getListaIdentificadores())

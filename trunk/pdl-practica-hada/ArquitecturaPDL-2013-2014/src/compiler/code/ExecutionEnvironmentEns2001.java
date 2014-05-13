@@ -22,24 +22,14 @@ import es.uned.lsi.compiler.intermediate.QuadrupleIF;
 public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
 {    
 	
-	/*************************
-     * lista es un Array de arrays de argumentos de llamada. Se inicializa en el INICIO_ARGUMENTOS y 
-     * contiene las intruscciones ensanblador para la carga de Argumentos.
-     * Necesario si los par�metros son llamadas a funciones / procedimientos
-     */
+
     ArrayList[] lista = new ArrayList[30];
     ArrayList listaPorReferencia = new ArrayList();
     
-    /****************
-     * Indice de la lista en laa que est�n cargada los argumentos del array lista. 
-     * Toma el valor -1 se incrementa antes de ser usada, tomando valor 0.
-     */
     int contadorLlamadas = -1;
-    // HashMap parPorReferencia = new HashMap();
             
     List cadenas = new ArrayList();
     HashMap tablaScopes = new HashMap();
-//    public final String SALTO_LINEA = "\n";
     
     private final static int      MAX_ADDRESS = 65535; 
     private final static String[] REGISTERS   = {
@@ -155,7 +145,6 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
     
 	
     private String traducir_INICIO_PROGRAMA (QuadrupleIF quadruple) {
-        // Inicializar la lista de llamadas
         for (int k=0; k<30;k++){
             lista[k]=new ArrayList();
         }
@@ -176,7 +165,7 @@ public class ExecutionEnvironmentEns2001 implements ExecutionEnvironmentIF
     }
     private String traducir_FIN_PROGRAMA(QuadrupleIF quadruple){
         String trad="HALT \n";
-        trad = trad + "\n; Inicio Cadenas de Texto\n";
+        trad = trad + "\n; Inicio de las cadenas de texto\n";
         return trad;
     }
     
